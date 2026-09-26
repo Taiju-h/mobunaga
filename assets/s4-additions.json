@@ -1,0 +1,268 @@
+{
+  "generals": [
+    {
+      "id": "datemasamune",
+      "name": "伊達政宗",
+      "kana": "だてまさむね",
+      "rarity": 5,
+      "faction": "群雄",
+      "family": "date-clan",
+      "cost": 7,
+      "gender": "男性",
+      "current_tier": "未評価",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"datemasamune","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "datemasamune",
+        "name": "伊達の粋",
+        "category": "指揮",
+        "effect": "戦闘開始時に『粋』を獲得し、毎ターン消費して敵軍単体へ兵刃・計略ダメージを与える。兵刃・計略ダメージを重ねることで自身の武勇・知略を強化する。"
+      },
+      "tiers": [{"general_id":"datemasamune","season":"S4","tier":"未評価"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新武将資料"}
+    },
+    {
+      "id": "naganonarimasa",
+      "name": "長野業正",
+      "kana": "ながのなりまさ",
+      "rarity": 5,
+      "faction": "上杉",
+      "family": "uesugi-clan",
+      "cost": 7,
+      "gender": "男性",
+      "current_tier": "Tier2",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"naganonarimasa","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "naganonarimasa",
+        "name": "上州の黄斑",
+        "category": "指揮",
+        "effect": "通常攻撃を受けたかどうかで効果が分岐し、敵へ消沈・疲弊を狙う制御型の指揮戦法。"
+      },
+      "tiers": [{"general_id":"naganonarimasa","season":"S4","tier":"Tier2"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/wiki/general/naganonarimasa/","title":"長野業正 S4資料"}
+    },
+    {
+      "id": "satakeyoshishige",
+      "name": "佐竹義重",
+      "kana": "さたけよししげ",
+      "rarity": 5,
+      "faction": "群雄",
+      "family": "satake-clan",
+      "cost": 7,
+      "gender": "男性",
+      "current_tier": "未評価",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"satakeyoshishige","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "satakeyoshishige",
+        "name": "鬼義重",
+        "category": "能動",
+        "effect": "敵軍複数の統率を低下させて兵刃ダメージを与え、条件により威圧を狙う兵刃系戦法。"
+      },
+      "tiers": [{"general_id":"satakeyoshishige","season":"S4","tier":"未評価"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新武将資料"}
+    },
+    {
+      "id": "miyoshijikkyuu",
+      "name": "三好実休",
+      "kana": "みよしじっきゅう",
+      "rarity": 5,
+      "faction": "群雄",
+      "family": "miyoshi-clan",
+      "cost": 6,
+      "gender": "男性",
+      "current_tier": "未評価",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"miyoshijikkyuu","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "miyoshijikkyuu",
+        "name": "風流武者",
+        "category": "受動",
+        "effect": "能動・突撃戦法の発動回数に応じて、自軍の回復や計略与ダメージ上昇を行う支援戦法。"
+      },
+      "tiers": [{"general_id":"miyoshijikkyuu","season":"S4","tier":"未評価"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新武将資料"}
+    },
+    {
+      "id": "horinaomasa",
+      "name": "堀直政",
+      "kana": "ほりなおまさ",
+      "rarity": 5,
+      "faction": "織田",
+      "family": "oda-clan",
+      "cost": 5,
+      "gender": "男性",
+      "current_tier": "Tier2",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"horinaomasa","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "horinaomasa",
+        "name": "股肱之臣",
+        "category": "能動",
+        "effect": "自軍複数へ回生を付与し、残った回生に応じて与ダメージ上昇を狙う支援戦法。"
+      },
+      "tiers": [{"general_id":"horinaomasa","season":"S4","tier":"Tier2"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/wiki/general/horinaomasa/","title":"堀直政 S4資料"}
+    },
+    {
+      "id": "ookubonagayasu",
+      "name": "大久保長安",
+      "kana": "おおくぼながやす",
+      "rarity": 5,
+      "faction": "徳川",
+      "family": "tokugawa-clan",
+      "cost": 5,
+      "gender": "男性",
+      "current_tier": "Tier4",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"ookubonagayasu","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "ookubonagayasu",
+        "name": "伝馬疾駆",
+        "category": "能動",
+        "effect": "S4新武将の固有戦法。詳細効果は資料整備中。"
+      },
+      "tiers": [{"general_id":"ookubonagayasu","season":"S4","tier":"Tier4"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/wiki/general/ookubonagayasu/","title":"大久保長安 S4資料"}
+    },
+    {
+      "id": "fujibayashimasayasu",
+      "name": "藤林正保",
+      "kana": "ふじばやしまさやす",
+      "rarity": 5,
+      "faction": "群雄",
+      "family": "fujibayashi-clan",
+      "cost": 5,
+      "gender": "男性",
+      "current_tier": "Tier4",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"fujibayashimasayasu","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "fujibayashimasayasu",
+        "name": "神出鬼没",
+        "category": "能動",
+        "effect": "自身が通常攻撃対象となる確率を下げ、発動後の通常攻撃に追加兵刃ダメージを加える。"
+      },
+      "tiers": [{"general_id":"fujibayashimasayasu","season":"S4","tier":"Tier4"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/wiki/general/fujibayashimasayasu/","title":"藤林正保 S4資料"}
+    },
+    {
+      "id": "uragamimunekage",
+      "name": "浦上宗景",
+      "kana": "うらがみむねかげ",
+      "rarity": 5,
+      "faction": "群雄",
+      "family": "uragami-clan",
+      "cost": 4,
+      "gender": "男性",
+      "current_tier": "未評価",
+      "portrait": null,
+      "stats": [],
+      "troops": [],
+      "tags": [{"general_id":"uragamimunekage","tag":"S4新武将","kind":"season"}],
+      "traits": [],
+      "unique_tactic": {
+        "general_id": "uragamimunekage",
+        "name": "天神山残照",
+        "category": "受動",
+        "effect": "4ターン目まで自身の武勇・知略を強化し、通常攻撃後に追加計略ダメージ。5ターン目に知略が最も高い友軍へ混乱を付与するデメリットがある。"
+      },
+      "tiers": [{"general_id":"uragamimunekage","season":"S4","tier":"未評価"}],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新武将資料"}
+    }
+  ],
+  "tactics": [
+    {
+      "id": "s4-rikuriku-doushin",
+      "name": "戮力同心",
+      "rank": "S",
+      "category": "指揮",
+      "activation_rate": "100 (指揮)",
+      "effect": "戦闘中、毎ターン確率（統率依存）で自身と友軍単体の兵力を回復。自身の兵力が自軍内で最も低くない場合は友軍複数を回復し、回復率が上昇する。",
+      "first_season": "S4",
+      "applicable_troop": null,
+      "acquisition": "武将伝授 長野業正",
+      "general_ids": ["naganonarimasa"],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新戦法資料"}
+    },
+    {
+      "id": "s4-ryuukihei",
+      "name": "竜騎兵",
+      "rank": "S",
+      "category": "兵種",
+      "activation_rate": "100 (Lv1) / 100 (Lv10)",
+      "effect": "鉄砲兵種戦法。部隊行軍速度が5%→50%上昇。弾丸を保持している場合に消費し、追加ダメージを狙う。伊達政宗装備時は装填・消費機会が増える。",
+      "first_season": "S4",
+      "applicable_troop": "鉄砲専用",
+      "acquisition": "武将伝授 伊達政宗",
+      "general_ids": ["datemasamune"],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新戦法資料"}
+    },
+    {
+      "id": "s4-ifuurinrin",
+      "name": "威風凜々",
+      "rank": "S",
+      "category": "突撃",
+      "activation_rate": "35 (Lv1) / 35 (Lv10)",
+      "effect": "通常攻撃後、対象へ兵刃ダメージ（119%→238%）を与え、対象が次に与えるダメージを21%→42%低下。効果は対象ごとに最大4回まで重ねがけ可能。",
+      "first_season": "S4",
+      "applicable_troop": null,
+      "acquisition": "武将伝授 佐竹義重 / 三好実休",
+      "general_ids": ["satakeyoshishige","miyoshijikkyuu"],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新戦法資料"}
+    },
+    {
+      "id": "s4-iganinja",
+      "name": "伊賀忍者",
+      "rank": "S",
+      "category": "兵種",
+      "activation_rate": "100 (Lv1) / 100 (Lv10)",
+      "effect": "弓兵兵種戦法。自軍全体の武勇・速度が5→10増加。密報を利用して通常攻撃後の追加兵刃ダメージを狙い、密報消費後は疲弊を付与する。",
+      "first_season": "S4",
+      "applicable_troop": "弓兵専用",
+      "acquisition": "武将伝授 藤林正保",
+      "general_ids": ["fujibayashimasayasu"],
+      "source": {"source_url":"https://www.sanguo-zhi.com/entry/s4-gacha/","title":"S4新戦法資料"}
+    }
+  ],
+  "patch_tactics": [
+    {
+      "name": "荷駄崩し",
+      "first_season": "S4",
+      "activation_rate": "40 (Lv1) / 40 (Lv10)",
+      "effect": "敵軍複数（2名）に計略ダメージを与え、対象の被回復効果を低下させる。ユーザー提供のS4資料ではダメージ率67%→134%、被回復効果20%→40%低下。",
+      "acquisition": "武将伝授 堀直政 / 浦上宗景",
+      "general_ids": ["horinaomasa","uragamimunekage"]
+    },
+    {
+      "name": "重農主義 じゅうのうしゅぎ",
+      "first_season": "S4",
+      "activation_rate": "100 (Lv1) / 100 (Lv10)",
+      "effect": "評定衆として任命された時、自身の兵糧増産の利点効果が2.5%→5%上昇（政務依存）。",
+      "acquisition": "武将伝授 大久保長安",
+      "general_ids": ["ookubonagayasu"]
+    }
+  ]
+}
