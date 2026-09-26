@@ -168,10 +168,34 @@ function mobunaga_export_catalog(PDO $db, string $rootDir): array
 
     $payload = ['meta' => $meta, 'generals' => $generals, 'tactics' => $tactics];
     $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n";
-    $tmp = $targetPath . '.tmp.' . bin2hex(random_bytes(4));
-    if (file_put_contents($tmp, $json, LOCK_EX) === false) throw new RuntimeException('一時JSONを書き込めません: ' . $tmp);
-    @chmod($tmp, 0644);
-    if (!rename($tmp, $targetPath)) { @unlink($tmp); throw new RuntimeException('database.live.json を置換できません。assets/ の書込権限を確認してください。'); }
+
+    // Prefer an atomic temp-file + rename when the assets directory is writable.
+    // On production/test servers the web user normally must NOT be able to write
+    // arbitrary files into assets/. In that safer configuration only the single
+    // database.live.json file is writable, so fall back to replacing that file
+    // in-place under an exclusive lock.
+    $targetDir = dirname($targetPath);
+    if (is_writable($targetDir)) {
+        $tmp = $targetPath . '.tmp.' . bin2hex(random_bytes(4));
+        if (file_put_contents($tmp, $json, LOCK_EX) === false) {
+            throw new RuntimeException('一時JSONを書き込めません: ' . $tmp);
+        }
+        @chmod($tmp, 0644);
+        if (!rename($tmp, $targetPath)) {
+            @unlink($tmp);
+            throw new RuntimeException('database.live.json を置換できません。');
+        }
+    } else {
+        if (!is_file($targetPath)) {
+            throw new RuntimeException('assets/ はWebユーザーから書込不可です。先に database.live.json を作成してWebユーザーへ書込権限を与えてください: ' . $targetPath);
+        }
+        if (!is_writable($targetPath)) {
+            throw new RuntimeException('database.live.json にWebユーザーの書込権限がありません: ' . $targetPath);
+        }
+        if (file_put_contents($targetPath, $json, LOCK_EX) === false) {
+            throw new RuntimeException('database.live.json を更新できません: ' . $targetPath);
+        }
+    }
 
     return ['path' => $targetPath, 'generals' => count($generals), 'tactics' => count($tactics), 'bytes' => strlen($json)];
 }
