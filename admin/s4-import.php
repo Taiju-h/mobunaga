@@ -62,12 +62,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $sql = (string)file_get_contents(SQL_FILE);
+            // Remove UTF-8 BOM and every full-line -- comment before statement splitting.
+            // The previous parser only skipped comments while the buffer was empty, so a wrapped/comment line
+            // could leak into the SQL sent to MySQL and cause error 1064.
+            $sql = preg_replace('/^\xEF\xBB\xBF/', '', $sql) ?? $sql;
+            $sql = preg_replace('/^[\t ]*--.*(?:\R|$)/m', '', $sql) ?? $sql;
+
             $lines = preg_split('/\R/', $sql) ?: [];
             $buffer = '';
             $statements = [];
             foreach ($lines as $line) {
-                $trimmed = ltrim($line);
-                if ($buffer === '' && ($trimmed === '' || str_starts_with($trimmed, '--'))) {
+                if (trim($line) === '' && $buffer === '') {
                     continue;
                 }
                 $buffer .= $line . "\n";
@@ -84,10 +89,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $executed = 0;
-            foreach ($statements as $statement) {
+            foreach ($statements as $index => $statement) {
                 if ($statement === '') continue;
-                $db->exec($statement);
-                $executed++;
+                try {
+                    $db->exec($statement);
+                    $executed++;
+                } catch (Throwable $statementError) {
+                    $preview = preg_replace('/\s+/', ' ', trim($statement)) ?? trim($statement);
+                    if (mb_strlen($preview) > 180) $preview = mb_substr($preview, 0, 180) . '…';
+                    throw new RuntimeException(
+                        'SQL #' . ($index + 1) . ' で失敗: ' . $statementError->getMessage() . ' / ' . $preview,
+                        0,
+                        $statementError
+                    );
+                }
             }
 
             $queries = [
