@@ -5,6 +5,7 @@
   const MAX_WAIT = 200;
   let originals = null;
   let selected = Number(localStorage.getItem(STORAGE_KEY) || 0);
+  let viewSeason = selected || 1;
   let waitCount = 0;
   let additionsReady = false;
   let additionsLoading = false;
@@ -33,6 +34,7 @@
     originals.generals.forEach((g) => (g.tiers || []).forEach((row) => { const n=seasonNo(row.season); if(n) values.add(n); }));
     originals.formations.forEach((f) => { const n=seasonNo(f.season); if(n) values.add(n); });
     originals.tactics.forEach((t) => { const n=tacticFirstSeason(t); if(n) values.add(n); });
+    values.add(4);
     return [...values].sort((a,b)=>a-b);
   };
   const setCookie = (n) => {
@@ -46,7 +48,6 @@
     const generals = Array.isArray(payload.generals) ? payload.generals : [];
     const tactics = Array.isArray(payload.tactics) ? payload.tactics : [];
     const patches = Array.isArray(payload.patch_tactics) ? payload.patch_tactics : [];
-
     for (const patch of patches) {
       const target = db.tactics.find((row) => row.name === patch.name || row.name?.startsWith(patch.name + " "));
       if (target) Object.assign(target, patch);
@@ -81,6 +82,48 @@
       additionsLoading = false;
       waitForData();
     }
+  }
+
+  function ensureSeasonTabStyles() {
+    if (document.querySelector("#catalog-season-tab-style")) return;
+    const style = document.createElement("style");
+    style.id = "catalog-season-tab-style";
+    style.textContent = `
+      .catalog-season-tabs{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:12px 14px;border:1px solid #c5b997;background:linear-gradient(90deg,#f6f1e4,#e9eef0)}
+      .catalog-season-tabs>span{font-weight:700;font-size:12px;color:#665d45;margin-right:4px}
+      .catalog-season-tabs button{min-width:58px;height:38px;padding:0 16px;border:1px solid #b5a985;background:#f7f2e5;color:#675b3d;font:700 14px var(--serif,serif);box-shadow:inset 0 0 0 1px #fff8}
+      .catalog-season-tabs button:hover{background:#e3d5ad}
+      .catalog-season-tabs button[aria-pressed="true"]{background:linear-gradient(#8c6b2f,#6d501e);color:#fff6da;border-color:#74541f;box-shadow:0 2px 5px #5c481f33}
+      .catalog-season-tabs small{margin-left:auto;color:#81765d;font-size:10px}
+      @media(max-width:700px){.catalog-season-tabs{gap:7px}.catalog-season-tabs button{min-width:48px;padding:0 10px}.catalog-season-tabs small{width:100%;margin-left:0}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureCatalogSeasonTabs() {
+    ensureSeasonTabStyles();
+    let tabs = document.querySelector("#catalog-season-tabs");
+    if (!tabs) {
+      tabs = document.createElement("div");
+      tabs.id = "catalog-season-tabs";
+      tabs.className = "catalog-season-tabs";
+      tabs.setAttribute("role", "group");
+      tabs.setAttribute("aria-label", "一覧の表示シーズン");
+      const filters = document.querySelector("#filters");
+      if (filters) filters.parentNode.insertBefore(tabs, filters);
+    }
+    renderCatalogSeasonTabs();
+  }
+
+  function renderCatalogSeasonTabs() {
+    const tabs = document.querySelector("#catalog-season-tabs");
+    if (!tabs) return;
+    const maxSeason = selected || 1;
+    const buttons = allSeasons()
+      .filter((n) => n <= maxSeason)
+      .map((n) => `<button type="button" data-catalog-season="${n}" aria-pressed="${n === viewSeason}">S${n}</button>`)
+      .join("");
+    tabs.innerHTML = `<span>表示シーズン</span>${buttons}<small>武将・戦法・編成をこのシーズン基準で表示</small>`;
   }
 
   function ensureHeaderPicker() {
@@ -122,13 +165,12 @@
   function tidyLegacySeasonControls() {
     const oldSeasonFilter = document.querySelector("#season");
     if (oldSeasonFilter) {
-      const available = new Set(db?.formations?.map((f) => String(f.season)) || []);
-      oldSeasonFilter.value = available.has(String(selected)) ? String(selected) : "";
+      oldSeasonFilter.value = "";
       const label = oldSeasonFilter.closest("label");
       if (label) label.hidden = true;
     }
     const latest = document.querySelector("#latest-season");
-    if (latest) latest.innerHTML = `S${selected}の編成を見る <span aria-hidden="true">›</span>`;
+    if (latest) latest.innerHTML = `S${viewSeason}の編成を見る <span aria-hidden="true">›</span>`;
     const goodJobs = document.querySelector("#good-job-section");
     if (goodJobs) goodJobs.hidden = true;
   }
@@ -136,40 +178,47 @@
   function formationsForSeason(n) {
     const exact = originals.formations.filter((f) => seasonNo(f.season) === n);
     if (exact.length) return exact;
-    const previous = originals.formations
-      .map((f) => seasonNo(f.season))
-      .filter((value) => value && value <= n);
+    const previous = originals.formations.map((f) => seasonNo(f.season)).filter((value) => value && value <= n);
     const latestAvailable = previous.length ? Math.max(...previous) : null;
-    return latestAvailable == null
-      ? []
-      : originals.formations.filter((f) => seasonNo(f.season) === latestAvailable);
+    return latestAvailable == null ? [] : originals.formations.filter((f) => seasonNo(f.season) === latestAvailable);
   }
 
-  function applyFilter() {
+  function applyViewSeason() {
     if (!originals || !selected || typeof db === "undefined" || !db) return;
-    db.generals = originals.generals.filter((g) => generalFirstSeason(g) <= selected).map((g)=>generalForSeason(g,selected));
-    db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= selected);
-    db.formations = formationsForSeason(selected);
+    const n = Math.min(viewSeason || selected, selected);
+    viewSeason = n;
+    db.generals = originals.generals.filter((g) => generalFirstSeason(g) <= n).map((g) => generalForSeason(g,n));
+    db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= n);
+    db.formations = formationsForSeason(n);
     if (typeof generalMap !== "undefined") generalMap = new Map(db.generals.map((g) => [g.id, g]));
     if (typeof tacticMap !== "undefined") tacticMap = new Map(db.tactics.map((t) => [t.id, t]));
     const tg = document.querySelector("#total-generals"), tt = document.querySelector("#total-tactics"), tf = document.querySelector("#total-formations");
     if (tg) tg.textContent = String(db.generals.length);
     if (tt) tt.textContent = String(db.tactics.length);
     if (tf) tf.textContent = String(db.formations.length);
+    tidyLegacySeasonControls();
+    renderCatalogSeasonTabs();
+    if (typeof changeKind === "function" && typeof kind !== "undefined") changeKind(kind, true);
+    else if (typeof render === "function") render();
+  }
+
+  function applyFilter() {
+    if (!originals || !selected || typeof db === "undefined" || !db) return;
+    if (!viewSeason || viewSeason > selected) viewSeason = selected;
     const picker = document.querySelector("#global-season-picker");
     if (picker) picker.value = String(selected);
     document.documentElement.dataset.userSeason = String(selected);
-    tidyLegacySeasonControls();
-    if (typeof changeKind === "function" && typeof kind !== "undefined") changeKind(kind, true);
-    else if (typeof render === "function") render();
+    ensureCatalogSeasonTabs();
+    applyViewSeason();
     document.documentElement.classList.remove("season-pending");
-    document.dispatchEvent(new CustomEvent("mobunaga:seasonchange", { detail:{ season:selected } }));
+    document.dispatchEvent(new CustomEvent("mobunaga:seasonchange", { detail:{ season:selected, viewSeason } }));
   }
 
   function setSeason(n, persist) {
     const choices = allSeasons();
     if (!Number.isInteger(n) || !choices.includes(n)) return;
     selected = n;
+    viewSeason = n;
     if (persist) localStorage.setItem(STORAGE_KEY, String(n));
     setCookie(n);
     document.querySelector("#season-gate")?.remove();
@@ -177,6 +226,17 @@
   }
 
   document.addEventListener("click", (e) => {
+    const catalogButton = e.target.closest("[data-catalog-season]");
+    if (catalogButton && originals) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const n = Number(catalogButton.dataset.catalogSeason);
+      if (Number.isInteger(n) && n >= 1 && n <= selected) {
+        viewSeason = n;
+        applyViewSeason();
+      }
+      return;
+    }
     const seasonButton = e.target.closest("[data-season]");
     if (seasonButton && originals) {
       e.preventDefault(); e.stopImmediatePropagation();
@@ -206,6 +266,7 @@
     fillPickers();
     if (selected) {
       setCookie(selected);
+      viewSeason = selected;
       applyFilter();
     } else {
       ensureFirstVisitDialog();
