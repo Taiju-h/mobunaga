@@ -62,13 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $sql = (string)file_get_contents(SQL_FILE);
-            // Remove UTF-8 BOM and every full-line -- comment before statement splitting.
-            // The previous parser only skipped comments while the buffer was empty, so a wrapped/comment line
-            // could leak into the SQL sent to MySQL and cause error 1064.
             $sql = preg_replace('/^\xEF\xBB\xBF/', '', $sql) ?? $sql;
-            $sql = preg_replace('/^[\t ]*--.*(?:\R|$)/m', '', $sql) ?? $sql;
+            // IMPORTANT: do not use \R here. Without UTF mode PCRE treats byte 0x85 as NEL,
+            // but 0x85 can be the third byte of valid Japanese UTF-8 (e.g. 「ゅ」 = E3 82 85),
+            // corrupting a character into an embedded newline before MySQL sees it.
+            $sql = preg_replace('/^[\t ]*--.*(?:\r\n|\n|\r|$)/m', '', $sql) ?? $sql;
 
-            $lines = preg_split('/\R/', $sql) ?: [];
+            $lines = preg_split('/\r\n|\n|\r/', $sql) ?: [];
             $buffer = '';
             $statements = [];
             foreach ($lines as $line) {
