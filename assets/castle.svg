@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 130" role="img" aria-labelledby="title">
+  <title id="title">山城</title>
+  <g fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round">
+    <path d="M22 112h136M34 112l9-26h94l9 26M49 86l7-22h68l7 22M62 64l7-21h42l7 21M76 43l14-25 14 25"/>
+    <path d="M42 86h96M56 64h68M69 43h42M68 112V91h17v21M95 112V91h17v21"/>
+    <path d="M49 73h15M76 51h12M96 51h12M116 73h15"/>
+  </g>
+</svg>

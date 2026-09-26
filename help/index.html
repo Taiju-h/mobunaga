@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173f49">
+  <meta name="description" content="モブナガの使い方。シーズン選択、武将録・戦法録・編成指南、分析班資料館への武将・敵編成情報の登録方法を案内します。">
+  <title>使い方｜モブナガの軍議戦略サイト</title>
+  <link rel="icon" href="/assets/crest.svg" type="image/svg+xml">
+  <style>
+    :root{color-scheme:light;--ink:#263330;--paper:#f4f0e3;--card:#fffdf7;--line:#c8bea2;--accent:#175b72;--gold:#a57c26}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.75}a{color:var(--accent)}
+    header{background:#173f49;color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}header a{color:#fff;text-decoration:none;font-weight:800}.brand{font-size:18px}.back{font-size:14px}
+    main{max-width:980px;margin:auto;padding:26px 16px 56px}.hero,.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:22px;margin-bottom:16px;box-shadow:0 7px 24px #0000000b}.hero h1{margin:.15em 0}.hero p{margin:.4em 0}.eyebrow{font-size:12px;letter-spacing:.14em;color:#766947;font-weight:800}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card h2{margin-top:0;font-size:21px}.card h3{font-size:16px;margin-bottom:.2em}.steps{padding-left:1.25em}.steps li{margin:.6em 0}.note{padding:12px 14px;background:#eef5f6;border-left:4px solid var(--accent);border-radius:7px}.warn{padding:12px 14px;background:#fff4dc;border-left:4px solid var(--gold);border-radius:7px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.actions a{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:10px 14px;border-radius:8px;font-weight:800}.actions a.sub{background:#665f4d}code{background:#eee9dc;padding:.15em .35em;border-radius:4px}@media(max-width:700px){.grid{grid-template-columns:1fr}.hero,.card{padding:17px}}
+  </style>
+</head>
+<body>
+<header><a class="brand" href="/">モブナガの軍議戦略サイト</a><a class="back" href="/">軍議の間へ戻る</a></header>
+<main>
+  <section class="hero"><p class="eyebrow">HOW TO USE</p><h1>モブナガの使い方</h1><p>最初に自分のシーズンを選び、そのシーズンで登場済みの武将・戦法・編成だけを見ます。未来シーズンの情報やコメントを混ぜないのがモブナガの基本ルールです。</p></section>
+  <div class="grid">
+    <section class="card"><h2>1. シーズンを選ぶ</h2><p>初回アクセス時に「あなたのシーズンは？」が表示されたら、現在遊んでいるS1 / S2 / S3 / S4を選びます。後からヘッダーのシーズン選択で変更できます。</p><p class="note">武将・戦法・編成・コメントは選択シーズンを基準に表示されます。</p></section>
+    <section class="card"><h2>2. 武将・戦法・編成を探す</h2><p><b>武将録</b>は能力・特性・Tier、<b>戦法録</b>は効果・発動率・状態異常、<b>編成指南</b>は3武将の組み合わせと推奨戦法を確認する場所です。</p><p>検索欄では武将名・戦法名から絞り込めます。詳細画面には共有URLとコメント欄があります。</p></section>
+    <section class="card"><h2>3. コメントする</h2><p>武将・戦法・編成の詳細画面から投稿できます。投稿は一度「承認待ち」になり、管理者承認後に公開されます。</p><p class="note">コメントにも投稿時のシーズンが記録され、自分より未来のシーズンのコメントは表示しません。</p></section>
+    <section class="card"><h2>4. 実戦報告を送る</h2><p>編成詳細の「みんなの実戦報告」から、戦報画像付きで「この編成で勝った」「この編成に勝った」を投稿できます。</p><p>勝敗だけでなく、刺さった戦法・苦しかった相手・兵損などを書いておくと資料価値が上がります。</p></section>
+  </div>
+  <section class="card" id="archive"><p class="eyebrow">ANALYSIS ARCHIVE</p><h2>分析班資料館：武将・敵編成情報の登録</h2><p>資料館は通常の武将録とは別で、<b>実戦で見つけた敵編成・敵プレイヤー・武将の組み合わせを蓄積する場所</b>です。</p>
+    <ol class="steps">
+      <li>「分析班資料館」に入り、合言葉で入館します。</li>
+      <li>「＋ 敵情報を投稿」を開きます。</li>
+      <li><b>敵名・プレイヤー名</b>が分かる場合は入力します。</li>
+      <li><b>編成・武将</b>へ、見つけた武将名を「武将A・武将B・武将C」のように入力します。1人だけ判明している場合は1人だけでも構いません。</li>
+      <li><b>本文</b>には戦法、挙動、強かった点、対策候補、何ターン目に何が起きたか等を書きます。</li>
+      <li>戦報や編成スクリーンショットがあれば添付します。JPG / PNG / WebP、10MB以下です。</li>
+      <li>元Discord・Web記事等の参照先がある場合はURLも残します。</li>
+    </ol>
+    <p class="warn"><b>重要：</b>ここへの投稿は「情報受け箱」への登録です。公開武将録の武将マスターそのものを一般ユーザーが直接追加・書き換える機能ではありません。新しい武将を正式な武将録へ追加する場合は、出典確認後に管理側でマスターへ登録します。</p>
+    <p>資料館内では敵名・武将名で検索できます。「要注意」を付けた敵編成は上位に固定できるため、次に当たりそうな相手や明確なメタ対象へ使ってください。</p>
+    <div class="actions"><a href="/analysis-room/index.php">分析班資料館を開く</a><a class="sub" href="/">武将録・編成指南へ戻る</a></div>
+  </section>
+  <section class="card"><h2>迷ったら</h2><p>「この武将はどこで登録する？」「この戦報はどこへ入れる？」のように、目的だけ分かれば大丈夫です。通常の攻略情報は武将・戦法・編成のコメント、敵固有の情報は分析班資料館、戦報画像は編成詳細の実戦報告へ入れるのが基本です。</p></section>
+</main>
+</body>
+</html>

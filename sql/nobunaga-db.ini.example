@@ -1,0 +1,14 @@
+; Copy to /var/www/.nobunaga-db.ini and chmod 600.
+; NEVER commit the real password or ip_salt.
+
+[mysql]
+host = localhost
+port = 3306
+database = mobunaga
+user = mobunaga_app
+password = CHANGE_ME
+; unix_socket = /run/mysqld/mysqld.sock
+
+; Used only for one-way hashing of visitor IP addresses.
+; Set a random secret of at least 32 characters.
+ip_salt = CHANGE_TO_A_LONG_RANDOM_SECRET_AT_LEAST_32_CHARS

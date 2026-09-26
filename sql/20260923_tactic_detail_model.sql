@@ -1,0 +1,43 @@
+-- 戦法詳細モデル拡張
+ALTER TABLE tactics
+  ADD COLUMN damage_rate_min DECIMAL(12,4) NULL AFTER damage_rate,
+  ADD COLUMN damage_rate_max DECIMAL(12,4) NULL AFTER damage_rate_min,
+  ADD COLUMN heal_rate_min DECIMAL(12,4) NULL AFTER heal_rate,
+  ADD COLUMN heal_rate_max DECIMAL(12,4) NULL AFTER heal_rate_min,
+  ADD COLUMN flag_lifesteal TINYINT(1) NULL AFTER flag_special,
+  ADD COLUMN flag_heart_attack TINYINT(1) NULL AFTER flag_lifesteal,
+  ADD COLUMN heart_attack_rate DECIMAL(12,4) NULL AFTER lifesteal_rate,
+  ADD COLUMN flag_disarm TINYINT(1) NULL AFTER flag_heart_attack,
+  ADD COLUMN flag_silence TINYINT(1) NULL AFTER flag_disarm,
+  ADD COLUMN flag_confusion TINYINT(1) NULL AFTER flag_silence,
+  ADD COLUMN flag_taunt TINYINT(1) NULL AFTER flag_confusion,
+  ADD COLUMN flag_burn TINYINT(1) NULL AFTER flag_taunt,
+  ADD COLUMN flag_poison TINYINT(1) NULL AFTER flag_burn,
+  ADD COLUMN flag_rout TINYINT(1) NULL AFTER flag_poison,
+  ADD COLUMN flag_fear TINYINT(1) NULL AFTER flag_rout,
+  ADD COLUMN status_probability DECIMAL(8,5) NULL AFTER flag_fear,
+  ADD COLUMN parse_confidence DECIMAL(5,2) NULL AFTER status_probability,
+  ADD COLUMN parsed_at DATETIME NULL AFTER parse_confidence;
+
+CREATE TABLE IF NOT EXISTS tactic_effect_components (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  tactic_id VARCHAR(120) NOT NULL,
+  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  component_type VARCHAR(32) NOT NULL,
+  effect_name VARCHAR(120) NULL,
+  target_text VARCHAR(255) NULL,
+  probability DECIMAL(8,5) NULL,
+  rate_min DECIMAL(12,4) NULL,
+  rate_max DECIMAL(12,4) NULL,
+  duration_min DECIMAL(8,3) NULL,
+  duration_max DECIMAL(8,3) NULL,
+  stat_basis VARCHAR(64) NULL,
+  source_text TEXT NULL,
+  is_manual TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_tactic_effect_components_tactic (tactic_id,sort_order),
+  KEY idx_tactic_effect_components_type (component_type,effect_name),
+  CONSTRAINT fk_tactic_effect_components_tactic FOREIGN KEY (tactic_id) REFERENCES tactics(id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

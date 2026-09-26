@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja" data-data-version="20260923-facecrop1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#123f39" />
+    <meta name="description" content="モブナガの独立ダメージシミュレーター。武将と代表的なメタ編成を選び、武勇・知略・統率を自動入力して試算できます。" />
+    <title>ダメージシミュレーター｜モブナガの軍議戦略サイト</title>
+    <link rel="icon" href="../assets/crest.svg?v=20260923-facecrop1" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/app.css?v=20260923-facecrop1" />
+    <link rel="stylesheet" href="../assets/game-theme.css?v=20260923-facecrop1" />
+    <link rel="stylesheet" href="../assets/simulator.css?v=20260923-facecrop1" />
+    <style>.brand-face.mobunaga-face{width:70px;height:70px;overflow:hidden;border-radius:16px;display:block;position:relative;flex:0 0 auto}.brand-face.mobunaga-face img{position:absolute;width:100%;height:100%;object-fit:cover;object-position:50% 13%;transform:scale(2.15);transform-origin:50% 14%}</style>
+    <script src="../assets/damage-math.js?v=20260923-facecrop1" defer></script>
+    <script src="../assets/simulator.js?v=20260923-facecrop1" defer></script>
+  </head>
+  <body class="simulator-page">
+    <a class="skip-link" href="#simulator">試算へ</a>
+    <div id="app-loading" class="app-loading" role="status" aria-live="polite"><div class="loading-panel"><span class="loading-seal" aria-hidden="true">試</span><strong>試算資料を読み込んでいます</strong><span>武将・編成データを準備中です。</span><i aria-hidden="true"></i></div></div>
+    <header class="topbar"><a class="brand" href="../#formations"><span class="brand-face mobunaga-face" aria-hidden="true"><img src="../assets/mobunaga.png?v=20260923-facecrop1" alt=""></span><span>モブナガの軍議戦略サイト<small>信長の野望 真戦</small></span></a><span class="top-edition">独立シミュレーター</span></header>
+    <nav class="simulator-nav" aria-label="資料の種類"><a href="../#formations">編成指南</a><a href="../#generals">武将録</a><a href="../#tactics">戦法録</a><a href="../research/damage/">考察</a><a href="./" aria-current="page">試算所</a></nav>
+    <main id="simulator" class="simulator-shell">
+      <header class="simulator-hero"><div><p class="eyebrow">モブナガ ／ 軍議の試算所</p><h1>武将とメタ相手を選んで<br />ダメージを試す</h1><p>武将のLv50能力と、代表的な相手編成の統率・知略を自動入力。お気に入り武将は次回もすぐ呼び出せます。</p></div><img src="../assets/castle.svg?v=20260923-facecrop1" alt="" /></header>
+      <section class="favorite-panel" aria-labelledby="favorite-title"><div><h2 id="favorite-title">お気に入り武将</h2><p>★を付けた武将が、この端末でいつでも押せるようになります。</p></div><div id="favorite-generals" class="favorite-generals"><span>まだ登録されていません</span></div></section>
+      <form id="simulator-form" class="simulator-form"><section class="sim-card attacker-card"><div class="sim-step">01</div><h2>自分の武将</h2><div class="sim-grid"><label class="wide">武将<select id="attacker-general" required><option value="">武将を選択</option></select></label><button id="favorite-toggle" class="favorite-toggle" type="button" disabled>☆ お気に入り</button><label>攻撃の種類<select id="attack-axis"><option value="武勇">兵刃：武力（武勇）</option><option value="知略">計略：知力（知略）</option></select></label><label>使用する能力値<input id="attack-stat" name="valor" type="number" min="0" step="0.1" required /></label><label>兵数<input name="troops" type="number" min="0" step="1" value="10000" required /></label><label>能力の増減<input name="valorBoost" type="number" step="0.1" value="0" required /></label></div></section><section class="sim-card defender-card"><div class="sim-step">02</div><h2>代表的なメタ相手</h2><div class="sim-grid"><label class="wide">相手の編成<select id="meta-formation"><option value="">編成を選択／手動入力</option></select></label><label>比較する守備能力<select id="defense-axis"><option value="統率">統率</option><option value="知略">知力（知略）</option></select></label><label>相手の能力値<input id="defense-stat" name="defense" type="number" min="0" step="0.1" value="500" required /></label><label>相手能力の低下量<input name="defenseDrop" type="number" min="0" step="0.1" value="100" required /></label><label>相手の凸<select id="meta-limit-break"><option value="0">0凸</option><option value="1">1凸</option><option value="2">2凸</option><option value="3">3凸</option><option value="4">4凸</option><option value="5">5凸</option></select></label><div id="meta-danger" class="meta-danger"><span>要注意度偏差値</span><b>—</b><small>相手を選択してください</small></div></div></section><section class="sim-card tactic-card"><div class="sim-step">03</div><h2>戦法とターン</h2><div class="sim-grid"><label class="wide">戦法から入力補助<select id="damage-tactic"><option value="">手動で入力</option></select></label><label>ダメージ率（%）<input name="rate" type="number" min="0" step="0.01" value="100" required /></label><label>発動率（%）<input name="probability" type="number" min="0" max="100" step="0.01" value="40" required /></label><label>試算ターン数<input name="turns" type="number" min="1" max="50" step="1" value="8" required /></label><label>準備ターン数<input name="preparation" type="number" min="0" max="5" step="1" value="0" required /></label><label>1発動の攻撃回数<input name="hits" type="number" min="1" max="10" step="1" value="1" required /></label></div></section><div class="sim-actions"><button class="flash-button" type="submit">この条件で試算する</button><button class="text-button" type="reset">条件を戻す</button></div></form>
+      <p id="simulator-error" class="damage-error" role="alert" hidden></p><section id="simulator-output" class="simulator-output" aria-live="polite" aria-atomic="true"><p>武将と相手を選ぶと、ここに試算結果が表示されます。</p></section><aside class="simulator-note"><strong>試算の扱い</strong><p>兵刃は武勇対統率、計略は知略対知略として同じ一次式へ当てはめる比較用の試算です。公式計算式として確認されたものではありません。兵数減少、会心、軽減、制御、複数対象などは含みません。</p><a href="../research/damage/">式と前提の考察を読む →</a></aside>
+    </main>
+  </body>
+</html>

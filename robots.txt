@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /analysis-room/
+Disallow: /api/
+
+Sitemap: https://nobunaga.mobs.tokyo/sitemap.php

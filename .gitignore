@@ -1,0 +1,11 @@
+.env
+.env.*
+*.log
+*.bak
+*.bak-*
+*.swp
+.DS_Store
+
+# runtime / secret files must never enter Git
+*.secret
+*.local.ini
