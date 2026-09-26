@@ -4,16 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#18231f">
-  <meta name="description" content="信長の野望 真戦 S4スタダ攻略。S4実践記録と現行情報をもとに、固有武将に依存しない土地攻略、自爆、偵察、戦法ポイント、資源管理、天守育成の流れを整理。">
+  <meta name="description" content="信長の野望 真戦 S4スタダ攻略。S4実践記録と現行情報をもとに、固有武将に依存しない土地攻略、兵1自爆、速度・混乱、戦法ポイント、資源管理、天守育成の流れを整理。">
   <title>S4スタダ攻略｜モブナガの軍議戦略サイト</title>
   <link rel="icon" href="../assets/crest.svg" type="image/svg+xml">
   <style>
-    :root{--ink:#17201c;--paper:#f5f0e4;--paper2:#ebe3d1;--gold:#9a7523;--red:#b94131;--line:#c9bea5;--green:#29453b;--muted:#665f52}
+    :root{--ink:#17201c;--paper:#f5f0e4;--paper2:#ebe3d1;--gold:#b98a22;--gold2:#f0c75e;--red:#c84431;--red2:#fff0ea;--line:#c9bea5;--green:#29453b;--green2:#eaf5ef;--muted:#665f52}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#1b2420;color:var(--ink);font-family:"Noto Sans JP",system-ui,sans-serif;line-height:1.78}a{color:inherit}
-    .top{position:sticky;top:0;z-index:5;background:rgba(20,31,27,.95);backdrop-filter:blur(10px);color:#fff;border-bottom:1px solid #ffffff22}.topin{max-width:1120px;margin:auto;padding:12px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between}.brand{display:flex;gap:10px;align-items:center;text-decoration:none;font-weight:800}.brand img{width:42px;height:42px;object-fit:cover;border-radius:10px}.back{font-size:14px;color:#ead8a7;text-decoration:none}
-    .wrap{max-width:1120px;margin:auto;padding:34px 18px 80px}.hero{background:linear-gradient(135deg,#f9f3e4,#e9dfc5);border:1px solid var(--line);border-radius:22px;padding:34px;box-shadow:0 18px 50px #0003}.eyebrow{color:var(--red);font-weight:900;letter-spacing:.16em;font-size:12px}.hero h1{font-family:serif;font-size:clamp(34px,7vw,68px);margin:.1em 0}.hero p{max-width:820px}.hero .key{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px}.key b{display:block;font-size:20px}.key span{display:block;font-size:12px;color:#635b4b}.key div{background:#fff9;border:1px solid #d7cbaa;border-radius:14px;padding:14px}
-    .notice{margin:18px 0 0;padding:14px 16px;background:#fff3ee;border-left:5px solid var(--red);font-weight:700}.ok{background:#eef7f2;border-left-color:var(--green)}.section{margin-top:26px;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:26px}.section h2{font-family:serif;font-size:28px;margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:10px}.section h3{margin:22px 0 8px}.lead{font-size:17px;color:#342f28}.timeline{display:grid;gap:10px}.row{display:grid;grid-template-columns:160px 1fr;gap:16px;border-bottom:1px dashed #c9bea5;padding:12px 0}.row:last-child{border:0}.time{font-weight:900;color:var(--red)}.row b{display:block}.tag{display:inline-block;background:var(--green);color:#fff;border-radius:999px;padding:2px 9px;font-size:12px;margin-right:6px}.warn{color:var(--red);font-weight:900}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:1px solid #d8ccb1;border-radius:14px;padding:18px}.card h3{margin-top:0}.card ul,.card ol{padding-left:20px;margin-bottom:0}.pillrow{display:flex;flex-wrap:wrap;gap:8px}.pill{background:#fff;border:1px solid #d8ccb1;border-radius:999px;padding:7px 11px;font-weight:800}.compare{width:100%;border-collapse:collapse;background:#fff;border:1px solid #d8ccb1}.compare th,.compare td{border-bottom:1px solid #e0d6c0;padding:10px;text-align:left;vertical-align:top}.compare th{background:#eee5d3}.good{color:#1f6948;font-weight:900}.bad{color:#a2382d;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.checklist .card{height:100%}.videos{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.video{aspect-ratio:16/9;width:100%;border:0;border-radius:12px;background:#000}.source-note{font-size:13px;color:var(--muted);margin-top:16px}.footer{text-align:center;color:#d7cfbd;padding:28px 10px}.footer a{color:#f0d18a}
-    @media(max-width:760px){.hero{padding:24px 18px}.hero .key{grid-template-columns:1fr 1fr}.grid,.checklist{grid-template-columns:1fr}.row{grid-template-columns:1fr;gap:2px}.videos{grid-template-columns:1fr}.section{padding:20px 16px}.topin{padding:10px 14px}.compare{font-size:13px}}
+    .top{position:sticky;top:0;z-index:5;background:rgba(20,31,27,.96);backdrop-filter:blur(10px);color:#fff;border-bottom:1px solid #ffffff22}.topin{max-width:1120px;margin:auto;padding:12px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between}.brand{display:flex;gap:10px;align-items:center;text-decoration:none;font-weight:800}.brand img{width:42px;height:42px;object-fit:cover;border-radius:10px}.back{font-size:14px;color:#ead8a7;text-decoration:none}
+    .wrap{max-width:1120px;margin:auto;padding:34px 18px 80px}.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#fff7df,#eadab5);border:1px solid #d5bd78;border-radius:24px;padding:36px;box-shadow:0 20px 60px #0004}.hero:after{content:"S4";position:absolute;right:-8px;bottom:-55px;font:900 180px/1 serif;color:#8f6b1611;pointer-events:none}.eyebrow{color:var(--red);font-weight:900;letter-spacing:.16em;font-size:12px}.hero h1{font-family:serif;font-size:clamp(38px,7vw,72px);margin:.08em 0;text-shadow:0 2px 0 #fff8}.hero p{max-width:820px;position:relative;z-index:1}.hero .key{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px;position:relative;z-index:1}.key b{display:block;font-size:21px}.key span{display:block;font-size:12px;color:#635b4b}.key div{background:#fffbe8;border:1px solid #d7c27d;border-radius:14px;padding:14px;box-shadow:0 4px 14px #7f612015}
+    .quicknav{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;position:relative;z-index:1}.quicknav a{display:inline-flex;align-items:center;gap:7px;text-decoration:none;font-weight:900;border-radius:999px;padding:11px 16px;border:1px solid transparent;box-shadow:0 6px 16px #0002;transition:.15s transform,.15s box-shadow}.quicknav a:hover{transform:translateY(-2px);box-shadow:0 9px 20px #0003}.quicknav .primary{background:linear-gradient(135deg,#c94b34,#a92f22);color:#fff}.quicknav .gold{background:linear-gradient(135deg,#f3ce67,#c99125);color:#2b2110}.quicknav .dark{background:#29453b;color:#fff}
+    .notice{margin:18px 0 0;padding:14px 16px;background:var(--red2);border:1px solid #e8b9ae;border-left:6px solid var(--red);border-radius:10px;font-weight:750}.ok{background:var(--green2);border-color:#b9d8c8;border-left-color:var(--green)}.section{margin-top:26px;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 10px 28px #0002}.section.hot{border:2px solid #d4a83e;background:linear-gradient(180deg,#fff8e5,#f5f0e4);box-shadow:0 16px 36px #0003}.section h2{font-family:serif;font-size:30px;margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:10px}.section.hot h2:before{content:"重要";display:inline-block;margin-right:10px;padding:3px 8px;border-radius:999px;background:#c84431;color:#fff;font:900 11px/1.6 system-ui;vertical-align:middle}.section h3{margin:22px 0 8px}.lead{font-size:17px;color:#342f28}.timeline{display:grid;gap:10px}.row{display:grid;grid-template-columns:160px 1fr;gap:16px;border-bottom:1px dashed #c9bea5;padding:12px 0}.row:last-child{border:0}.time{font-weight:900;color:var(--red)}.row b{display:block}.tag{display:inline-block;background:var(--green);color:#fff;border-radius:999px;padding:2px 9px;font-size:12px;margin-right:6px}.warn{color:var(--red);font-weight:900}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:1px solid #d8ccb1;border-radius:14px;padding:18px}.card h3{margin-top:0}.card ul,.card ol{padding-left:20px;margin-bottom:0}.pillrow{display:flex;flex-wrap:wrap;gap:8px}.pill{background:#fff;border:1px solid #d8ccb1;border-radius:999px;padding:7px 11px;font-weight:800}.compare{width:100%;border-collapse:collapse;background:#fff;border:1px solid #d8ccb1}.compare th,.compare td{border-bottom:1px solid #e0d6c0;padding:10px;text-align:left;vertical-align:top}.compare th{background:#eee5d3}.compare tr:nth-child(2){background:#fff9df}.good{color:#1f6948;font-weight:900}.bad{color:#a2382d;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.checklist .card{height:100%}.videos{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.video{aspect-ratio:16/9;width:100%;border:0;border-radius:12px;background:#000}.source-note{font-size:13px;color:var(--muted);margin-top:16px}.footer{text-align:center;color:#d7cfbd;padding:28px 10px}.footer a{color:#f0d18a}
+    .loop{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0}.loop span{position:relative;background:#fff;border:1px solid #d8ccb1;border-radius:13px;padding:12px 10px;text-align:center;font-weight:900}.loop span:not(:last-child):after{content:"›";position:absolute;right:-9px;top:50%;transform:translateY(-50%);z-index:2;color:#b58321;font-size:24px}.compact-time{margin-top:24px;background:#201f1b;color:#efe9db;border:1px solid #5b5548;border-radius:14px;padding:0 16px}.compact-time summary{cursor:pointer;padding:13px 0;font-weight:900;color:#f0cc72}.compact-time .mini{font-size:13px;color:#d6d0c4;padding:0 0 14px}.compact-time .mini b{color:#fff}.compact-time p{margin:6px 0}
+    @media(max-width:760px){.hero{padding:24px 18px}.hero .key{grid-template-columns:1fr 1fr}.grid,.checklist{grid-template-columns:1fr}.row{grid-template-columns:1fr;gap:2px}.videos{grid-template-columns:1fr}.section{padding:20px 16px}.topin{padding:10px 14px}.compare{font-size:13px}.loop{grid-template-columns:1fr}.loop span:not(:last-child):after{content:"↓";right:auto;left:50%;top:auto;bottom:-20px;transform:translateX(-50%)}}
   </style>
 </head>
 <body>
@@ -22,71 +24,58 @@
   <section class="hero">
     <div class="eyebrow">SEASON 4 START DASH SPECIAL</div>
     <h1>S4 スタダ攻略</h1>
-    <p>S4の実践記録と現行のS4情報を重ね、古いシーズン情報から今でも使える原則だけを抽出したスタダ特集。特定の固有武将や限定編成を前提にせず、手持ちに合わせて再現できる形に整理しています。</p>
+    <p>S4の実践記録と現行情報から、今でも使えるものだけを抽出。固有武将に依存せず、土地攻略・兵1自爆・戦法ポイント・資源管理を「今からでも使える順」で整理しています。</p>
+    <div class="quicknav"><a class="primary" href="#bomb">🔥 兵1自爆を先に見る</a><a class="gold" href="#land">⚔ 土地攻略ライン</a><a class="dark" href="#resource">◆ 資源事故を防ぐ</a></div>
     <div class="key"><div><b>初期Lv5</b><span>S4は武将Lv5開始</span></div><div><b>初期コスト15</b><span>天守7で16、天守8で17</span></div><div><b>Lv20</b><span>覚醒・第三戦法の節目</span></div><div><b>48時間</b><span>戦法ポイントと兵損管理が勝負</span></div></div>
-    <div class="notice">このページでは、古いS2/S3資料のうち「現在のS4でも再現性がある部分」だけ採用。対戦相手情報、昔のガチャ仕様、固有武将前提の編成は原則採用していません。</div>
+    <div class="notice">古いS2/S3資料は、そのまま転載せず「S4でも再現性がある攻略原則」だけ残しています。特定一門情報・昔のガチャ仕様・固有武将前提の編成は外しています。</div>
   </section>
 
   <section class="section">
     <h2>まず結論：S4で残すべき原則</h2>
     <div class="grid">
-      <article class="card"><h3>残す</h3><ul><li>土地は必ず偵察し、有利兵種を当てる</li><li>自爆部隊で先に兵力を削る</li><li>48時間は戦法ポイントを大胆に付け替える</li><li>Lv20覚醒までは兵損を最優先で抑える</li><li>最終編成への切替は「早すぎず遅すぎず」</li><li>石・章報酬・評定・進上は受取タイミングまで管理する</li></ul></article>
+      <article class="card"><h3>残す</h3><ul><li>兵1自爆で先に相手を見る・削る</li><li>自爆役は速度＋混乱を最優先</li><li>48時間は戦法ポイントを大胆に付け替える</li><li>Lv20覚醒までは兵損を最優先で抑える</li><li>最終編成への切替は急ぎ過ぎない</li><li>石・章報酬・評定・進上は受取タイミングまで管理する</li></ul></article>
       <article class="card"><h3>捨てる</h3><ul><li>特定サーバー・一門の人数や課金分布</li><li>S3当時の対戦相手情報</li><li>旧シーズン固有のガチャ回数・天井表現</li><li>特定の固有武将を持っている前提のスタダ編成</li><li>昔のNPC編成表をそのままS4へ流用すること</li></ul></article>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section hot" id="bomb">
+    <h2>兵1自爆は「高速＋混乱」で偵察も兼ねる</h2>
+    <p class="lead">兵1を武将に振り分けて土地へ占領出撃。NPCより先に動いて混乱を入れ、敵が同士討ちすれば、敵自身の攻撃力をそのまま敵兵へのダメージに変えられる。外れても損失は兵1なので、何度でも回しやすい。</p>
+    <div class="loop"><span>兵1を振る</span><span>占領で出撃</span><span>速度で先手</span><span>混乱を狙う</span><span>削れたら本隊</span></div>
+    <div class="grid">
+      <article class="card"><h3>必須条件</h3><ul><li><b>NPCより速いこと</b>。先手を取れないと兵1側が先に落ちる。</li><li><b>混乱を入れられること</b>。狙いは自分で殴るより、敵に敵を殴らせること。</li><li>兵力は1。失敗しても損失が極小。</li><li>当たりを引いたら間を空けず本隊で回収。</li></ul></article>
+      <article class="card"><h3>何度も回せるのが強い</h3><ol><li>兵1で占領出撃</li><li>混乱が入れば敵同士のダメージを見る</li><li>外れたら兵1を入れ直す</li><li>武将を取り替えて再出撃してもよい</li><li>一番削れたタイミングで本隊を入れる</li></ol></article>
+    </div>
+    <div class="notice ok"><b>一石二鳥：</b>普通の偵察待ちより早く、敵編成・挙動の確認と兵力削りを同時に狙える。スタダ中はこの待ち時間短縮がかなり大きい。</div>
+    <div class="notice">混乱で大きく削れたら放置しない。敵兵が回復する前に本隊を当てる。</div>
+  </section>
+
+  <section class="section hot" id="land">
     <h2>S4の土地攻略ライン</h2>
-    <p class="lead">低レベルで無理に上位土地へ突っ込むより、兵損を抑えて土地4で育て、覚醒後に土地5を回す方が結果的に速い。土地の難度は編成・戦法Lv・ランクアップ・兵種相性・自爆の削り量で大きく前後します。</p>
+    <p class="lead">「早く上位土地を取る」より、兵損を抑えて次を回せる状態を作る方が速い。土地難度は戦法Lv・ランクアップ・兵種相性・兵1自爆の削り量でかなり前後します。</p>
     <table class="compare">
       <thead><tr><th>土地</th><th>目安</th><th>実践上の考え方</th></tr></thead>
       <tbody>
-        <tr><td><b>土地4</b></td><td>Lv9〜12前後</td><td>テンプレ外はLv10以上を安全側に。偵察・兵種有利・自爆を徹底。</td></tr>
+        <tr><td><b>土地4</b></td><td>Lv9〜12前後</td><td>兵1自爆で先に相手を見て、速度＋混乱で削れる相手を選ぶ。</td></tr>
         <tr><td><b>土地5</b></td><td>Lv15〜20前後</td><td>無理に低Lvで取らない。厳しければ土地4でLv20覚醒まで上げる。</td></tr>
         <tr><td><b>土地6</b></td><td>Lv24〜30前後＋覚醒</td><td>守備が複数部隊。実践記録ではLv26＋兵舎5で突破例あり。</td></tr>
-        <tr><td><b>土地7</b></td><td>Lv30前後〜</td><td>兵舎・兵力・戦法完成度も込みで判断。実践記録ではLv31前後で挑戦。</td></tr>
+        <tr><td><b>土地7</b></td><td>Lv30前後〜</td><td>兵舎・兵力・戦法完成度まで込みで判断。</td></tr>
       </tbody>
     </table>
-    <div class="notice ok">「早く土地5を取る」こと自体が目的ではありません。兵損→徴兵→資源不足の連鎖を起こさないことが、48時間全体では最速です。</div>
-  </section>
-
-  <section class="section">
-    <h2>兵1自爆は「高速＋混乱」で偵察も兼ねる</h2>
-    <p class="lead">兵1を武将に振り分けて土地へ占領出撃。NPCより先に動いて混乱を入れ、敵が同士討ちすれば、敵自身の攻撃力をそのまま敵兵へのダメージに変えられる。兵損はほぼ1なので、外れても何度でもやり直せるのが強みです。</p>
-    <div class="grid">
-      <article class="card"><h3>必須条件</h3><ul><li><b>NPCより速いこと</b>。先手を取れないと兵1側が先に落ちる。</li><li><b>混乱を入れられること</b>。狙いは通常火力ではなく、敵に敵を殴らせること。</li><li>兵力は1。失敗しても損失が極小なので再挑戦しやすい。</li><li>戦闘結果を見て、削れた相手を本隊で回収する。</li></ul></article>
-      <article class="card"><h3>回し方</h3><ol><li>兵1を自爆役へ振り分ける</li><li>狙う土地へそのまま「占領」で出撃</li><li>混乱が入って敵同士が削り合えば当たり</li><li>外れたら兵1を入れ直して再出撃</li><li>十分削れたら本隊をすぐ当てる</li></ol></article>
-    </div>
-    <div class="notice ok"><b>一石二鳥：</b>兵1自爆は、通常の偵察より先に実戦結果を見られるため、偵察待ちを省きつつ敵の編成・挙動確認と兵力削りを同時に狙える。</div>
-    <p>固有武将名は固定しません。見るべきなのは「速度が足りるか」「混乱を先に入れられるか」の2点です。混乱が入らない場合でも兵1なので損失は軽く、武将や兵の振り分けを戻して再出撃できます。</p>
-    <div class="notice">混乱で大きく削れた場合は時間を空けず本隊を投入する。せっかく削った兵力が回復する前に回収するのが前提。</div>
+    <div class="notice ok">兵損→徴兵→資源不足の連鎖を起こさないことが、スタダ全体では一番速い。</div>
   </section>
 
   <section class="section">
     <h2>48時間の戦法ポイント運用</h2>
     <div class="grid">
-      <article class="card"><h3>開幕〜土地5</h3><p>戦法ポイントは広く薄く配るより、本隊と自爆部隊へ集中。発動率・即時火力・被ダメ軽減など、土地攻略で直接兵損を減らす戦法を優先する。</p></article>
+      <article class="card"><h3>開幕〜土地5</h3><p>戦法ポイントは広く薄く配るより、本隊と兵1自爆役へ集中。自爆役は速度と混乱の成立を最優先する。</p></article>
       <article class="card"><h3>Lv20到達</h3><p>覚醒と第三戦法で一段強くなる。ここで土地5の安定周回へ移り、土地6へ向けて兵力・施設・戦法Lvを整える。</p></article>
-      <article class="card"><h3>乗せ換え前</h3><p>最終編成へ移る予定があっても、土地攻略中に無理に切り替えない。レベル低下や戦法未完成で土地効率が落ちるなら、スタダ本隊をしばらく維持。</p></article>
+      <article class="card"><h3>乗せ換え前</h3><p>最終編成へ移る予定があっても、土地攻略中に無理に切り替えない。レベル低下や戦法未完成で土地効率が落ちるなら、スタダ本隊を維持。</p></article>
       <article class="card"><h3>48時間終了前</h3><p>戦法ポイント返還メリットが大きい期間中に、本隊・二軍・攻城用の最終配分へ整理する。</p></article>
     </div>
   </section>
 
-  <section class="section">
-    <h2>実践タイムライン</h2>
-    <p>以下は提供されたS4実践表の一例。時刻そのものをコピーするのではなく、「次の段階へ進む条件」として見るのが重要です。</p>
-    <div class="timeline">
-      <div class="row"><div class="time">開始〜昼</div><div><b>土地3→土地4</b>兵1自爆で敵の編成と削り具合を先に見ながらレベリング。速度＋混乱で先手を取り、当たりを引いた土地へ本隊を当てる。</div></div>
-      <div class="row"><div class="time">初日 午後</div><div><b>土地5へ</b>目安はLv15〜20。戦法Lv・兵種相性・自爆削りを見て挑戦。安定しないなら土地4でLv20まで育成。</div></div>
-      <div class="row"><div class="time">初日 夕方</div><div><b>Lv20覚醒</b>第三戦法を解放して土地5周回を安定化。ここから資源取得効率を上げる。</div></div>
-      <div class="row"><div class="time">初日 夜</div><div><b>天守6〜7を視野</b>石土地・徴発・章報酬・評定・進上の受取タイミングを逆算。</div></div>
-      <div class="row"><div class="time">2日目</div><div><b>土地6</b>覚醒済み＋兵舎を整えて挑戦。1戦目の兵損が大きい相手は避ける。</div></div>
-      <div class="row"><div class="time">2日目 夜</div><div><b>天守8・演舞場</b>石不足を起こさないよう、報酬を後取りする。乗せ換え予定武将の育成もここから。</div></div>
-      <div class="row"><div class="time">3日目</div><div><b>土地7</b>Lv30前後、兵舎・戦法・兵力を見て挑戦。48時間の返還メリットを最後まで使い切る。</div></div>
-    </div>
-  </section>
-
-  <section class="section">
+  <section class="section hot" id="resource">
     <h2>資源事故を防ぐ</h2>
     <div class="grid">
       <article class="card"><h3>石は「受け取る順番」が重要</h3><p>章報酬・評定・進上・施設ミッションの石を、出た瞬間に受け取らない。天守6→7→8で足りなくなる地点を先に計算する。</p></article>
@@ -98,8 +87,8 @@
 
   <section class="section">
     <h2>土地を選ぶ基準</h2>
-    <div class="pillrow"><span class="pill">兵1で先見</span><span class="pill">速度勝ち</span><span class="pill">混乱が入る</span><span class="pill">近場</span><span class="pill">自爆で削りやすい</span><span class="pill">次の土地へ繋げやすい</span></div>
-    <p>土地レベルだけで判断せず、「そのNPCが自分の自爆役より遅いか」「混乱を先に入れられるか」「本隊で回収しやすいか」を見る。通常偵察だけに頼らず、兵1自爆で実戦確認を回すのが速い。</p>
+    <div class="pillrow"><span class="pill">兵1で先見</span><span class="pill">速度勝ち</span><span class="pill">混乱が入る</span><span class="pill">近場</span><span class="pill">自爆で削りやすい</span><span class="pill">本隊で回収しやすい</span></div>
+    <p>土地レベルだけでなく、「自爆役より相手が遅いか」「混乱を先に入れられるか」「本隊の到着が間に合うか」で選ぶ。兵1自爆で実戦確認を回す方が、待ち時間込みでは速い。</p>
   </section>
 
   <section class="section">
@@ -111,15 +100,25 @@
     </div>
   </section>
 
+  <details class="compact-time">
+    <summary>最短時間の実践例（参考程度）</summary>
+    <div class="mini">
+      <p><b>初日：</b>土地4 → 土地5 → Lv20覚醒 → 天守6〜7</p>
+      <p><b>2日目：</b>土地6 → 天守8・演舞場</p>
+      <p><b>3日目：</b>土地7</p>
+      <p>※過去の実践記録の最短例。現在の進行状況に合わせて見るだけで、時刻合わせは不要です。</p>
+    </div>
+  </details>
+
   <section class="section">
     <h2>今回、古い資料から採用しなかったもの</h2>
-    <p>提供されたS3の対戦相手共有情報は、サーバー・一門・在籍状況・課金状況が当時依存なのでS4スタダ本文には入れていません。また、旧シーズンの「特定ガチャ20回・天井10回」などの記述も、現行S4の名将ガチャ仕様と一致しないため不採用です。</p>
+    <p>提供されたS3の対戦相手共有情報は、サーバー・一門・在籍状況・課金状況が当時依存なのでS4スタダ本文には入れていません。また、旧シーズンの「特定ガチャ20回・天井10回」などの記述も不採用です。</p>
     <p>一方で、<b>兵1自爆・速度・混乱・兵損管理・48時間の戦法ポイント再配分・最終編成への移行を急ぎ過ぎない</b>という考え方は現在も使えるため、武将名を外して残しました。</p>
   </section>
 
   <section class="section">
     <h2>参考動画</h2>
-    <p>動画は補助資料として掲載。本文はS4実践記録と現行S4情報を優先し、旧シーズン固有の編成や数値はそのまま転用していません。</p>
+    <p>動画は補助資料。本文はS4実践記録と現行情報を優先し、旧シーズン固有の編成や数値はそのまま転用していません。</p>
     <div class="videos">
       <iframe class="video" src="https://www.youtube.com/embed/uxbyfdQuilI" title="S4スタダ参考動画1" allowfullscreen></iframe>
       <iframe class="video" src="https://www.youtube.com/embed/ODJcDXDXXm4" title="S4スタダ参考動画2" allowfullscreen></iframe>
