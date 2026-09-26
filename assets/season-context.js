@@ -6,6 +6,8 @@
   let originals = null;
   let selected = Number(localStorage.getItem(STORAGE_KEY) || 0);
   let waitCount = 0;
+  let additionsReady = false;
+  let additionsLoading = false;
 
   const seasonNo = (value) => {
     if (typeof value === "number" && Number.isFinite(value)) return Math.max(1, Math.trunc(value));
@@ -38,6 +40,48 @@
   };
   const current = () => selected || Number(localStorage.getItem(STORAGE_KEY) || 0) || 1;
   window.MobunagaSeason = { current, generalFirstSeason, tacticFirstSeason };
+
+  function mergeS4Additions(payload) {
+    if (!payload || typeof db === "undefined" || !db) return;
+    const generals = Array.isArray(payload.generals) ? payload.generals : [];
+    const tactics = Array.isArray(payload.tactics) ? payload.tactics : [];
+    const patches = Array.isArray(payload.patch_tactics) ? payload.patch_tactics : [];
+
+    for (const patch of patches) {
+      const target = db.tactics.find((row) => row.name === patch.name || row.name?.startsWith(patch.name + " "));
+      if (target) Object.assign(target, patch);
+    }
+    for (const general of generals) {
+      const index = db.generals.findIndex((row) => row.id === general.id || row.name === general.name);
+      if (index >= 0) db.generals[index] = { ...db.generals[index], ...general };
+      else db.generals.push(general);
+    }
+    for (const tactic of tactics) {
+      const index = db.tactics.findIndex((row) => row.id === tactic.id || row.name === tactic.name);
+      if (index >= 0) db.tactics[index] = { ...db.tactics[index], ...tactic };
+      else db.tactics.push(tactic);
+    }
+    if (db.meta) {
+      db.meta.generals = db.generals.length;
+      db.meta.tactics = db.tactics.length;
+    }
+  }
+
+  async function loadS4Additions() {
+    if (additionsReady || additionsLoading) return;
+    additionsLoading = true;
+    try {
+      const version = document.documentElement.dataset.dataVersion || "1";
+      const response = await fetch(`assets/s4-additions.json?v=${encodeURIComponent(version)}`, { cache: "force-cache" });
+      if (response.ok) mergeS4Additions(await response.json());
+    } catch (error) {
+      console.warn("S4 additions could not be loaded", error);
+    } finally {
+      additionsReady = true;
+      additionsLoading = false;
+      waitForData();
+    }
+  }
 
   function ensureHeaderPicker() {
     if (document.querySelector("#global-season-picker")) return;
@@ -78,7 +122,8 @@
   function tidyLegacySeasonControls() {
     const oldSeasonFilter = document.querySelector("#season");
     if (oldSeasonFilter) {
-      oldSeasonFilter.value = String(selected);
+      const available = new Set(db?.formations?.map((f) => String(f.season)) || []);
+      oldSeasonFilter.value = available.has(String(selected)) ? String(selected) : "";
       const label = oldSeasonFilter.closest("label");
       if (label) label.hidden = true;
     }
@@ -88,11 +133,23 @@
     if (goodJobs) goodJobs.hidden = true;
   }
 
+  function formationsForSeason(n) {
+    const exact = originals.formations.filter((f) => seasonNo(f.season) === n);
+    if (exact.length) return exact;
+    const previous = originals.formations
+      .map((f) => seasonNo(f.season))
+      .filter((value) => value && value <= n);
+    const latestAvailable = previous.length ? Math.max(...previous) : null;
+    return latestAvailable == null
+      ? []
+      : originals.formations.filter((f) => seasonNo(f.season) === latestAvailable);
+  }
+
   function applyFilter() {
     if (!originals || !selected || typeof db === "undefined" || !db) return;
     db.generals = originals.generals.filter((g) => generalFirstSeason(g) <= selected).map((g)=>generalForSeason(g,selected));
     db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= selected);
-    db.formations = originals.formations.filter((f) => seasonNo(f.season) === selected);
+    db.formations = formationsForSeason(selected);
     if (typeof generalMap !== "undefined") generalMap = new Map(db.generals.map((g) => [g.id, g]));
     if (typeof tacticMap !== "undefined") tacticMap = new Map(db.tactics.map((t) => [t.id, t]));
     const tg = document.querySelector("#total-generals"), tt = document.querySelector("#total-tactics"), tf = document.querySelector("#total-formations");
@@ -102,9 +159,9 @@
     const picker = document.querySelector("#global-season-picker");
     if (picker) picker.value = String(selected);
     document.documentElement.dataset.userSeason = String(selected);
+    tidyLegacySeasonControls();
     if (typeof changeKind === "function" && typeof kind !== "undefined") changeKind(kind, true);
     else if (typeof render === "function") render();
-    tidyLegacySeasonControls();
     document.documentElement.classList.remove("season-pending");
     document.dispatchEvent(new CustomEvent("mobunaga:seasonchange", { detail:{ season:selected } }));
   }
@@ -136,6 +193,10 @@
   function waitForData() {
     if (typeof db === "undefined" || !db || !Array.isArray(db.generals) || !Array.isArray(db.tactics) || !Array.isArray(db.formations)) {
       if (++waitCount < MAX_WAIT) setTimeout(waitForData, 50);
+      return;
+    }
+    if (!additionsReady) {
+      loadS4Additions();
       return;
     }
     originals = { generals:[...db.generals], tactics:[...db.tactics], formations:[...db.formations] };
