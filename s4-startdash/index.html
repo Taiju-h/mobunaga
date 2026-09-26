@@ -11,12 +11,12 @@
     :root{--ink:#17201c;--paper:#f5f0e4;--gold:#b98a22;--red:#c84431;--red2:#fff0ea;--line:#c9bea5;--green:#29453b;--green2:#eaf5ef;--blue:#244f78;--blue2:#edf5fc;--muted:#665f52}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#1b2420;color:var(--ink);font-family:"Noto Sans JP",system-ui,sans-serif;line-height:1.78}a{color:inherit}
     .top{position:sticky;top:0;z-index:5;background:rgba(20,31,27,.96);backdrop-filter:blur(10px);color:#fff;border-bottom:1px solid #ffffff22}.topin{max-width:1120px;margin:auto;padding:12px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between}.brand{display:flex;gap:10px;align-items:center;text-decoration:none;font-weight:800}.brand img{width:42px;height:42px;object-fit:cover;border-radius:10px}.back{font-size:14px;color:#ead8a7;text-decoration:none}
-    .wrap{max-width:1120px;margin:auto;padding:34px 18px 80px}.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#fff7df,#eadab5);border:1px solid #d5bd78;border-radius:24px;padding:36px;box-shadow:0 20px 60px #0004}.hero:after{content:"S4";position:absolute;right:-8px;bottom:-55px;font:900 180px/1 serif;color:#8f6b1611;pointer-events:none}.eyebrow{color:var(--red);font-weight:900;letter-spacing:.16em;font-size:12px}.hero h1{font-family:serif;font-size:clamp(38px,7vw,72px);margin:.08em 0;text-shadow:0 2px 0 #fff8}.hero p{max-width:850px;position:relative;z-index:1}
-    .key{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px;position:relative;z-index:1}.key details{background:#fffbe8;border:1px solid #d7c27d;border-radius:16px;box-shadow:0 5px 16px #7f612018;overflow:hidden}.key summary{cursor:pointer;list-style:none;padding:20px 18px;font-weight:900;font-size:21px;min-height:112px}.key summary::-webkit-details-marker{display:none}.key summary small{display:block;font-size:12px;font-weight:600;color:#635b4b;margin-top:7px}.key details[open]{box-shadow:0 10px 28px #0002;transform:translateY(-2px)}.key .detailbody{padding:0 18px 18px;border-top:1px solid #e1d29f;font-size:14px}.key .detailbody p{margin:12px 0 0}.key details:nth-child(1) summary{border-top:6px solid #2f6b9b}.key details:nth-child(2) summary{border-top:6px solid #c84431}.key details:nth-child(3) summary{border-top:6px solid #b98a22}.key details:nth-child(4) summary{border-top:6px solid #29453b}
+    .wrap{max-width:1120px;margin:auto;padding:34px 18px 80px}.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#fff7df,#eadab5);border:1px solid #d5bd78;border-radius:24px;padding:36px;box-shadow:0 20px 60px #0004}.hero:after{content:"S4";position:absolute;right:-8px;bottom:-55px;font:900 180px/1 serif;color:#8f6b1611;pointer-events:none}.eyebrow{color:var(--red);font-weight:900;letter-spacing:.16em;font-size:12px}.hero h1{font-family:serif;font-size:clamp(38px,7vw,72px);margin:.08em 0;text-shadow:0 2px 0 #fff8}.hero>p{max-width:850px;position:relative;z-index:1}
+    .tips-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px;position:relative;z-index:1}.tip-card{background:#fffdf6;border:1px solid #d8c28a;border-radius:20px;padding:22px 22px 20px;box-shadow:0 8px 20px #7f612018;position:relative;overflow:hidden}.tip-card:before{content:"";position:absolute;left:0;top:0;right:0;height:7px}.tip-card.blue-tip:before{background:#2f6b9b}.tip-card.red-tip:before{background:#c84431}.tip-card.gold-tip:before{background:#b98a22}.tip-card.green-tip:before{background:#29453b}.tip-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;margin-bottom:8px}.tip-head h3{margin:0;font-size:28px;line-height:1.25}.tip-badge{display:inline-flex;align-items:center;white-space:nowrap;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900;background:#f3ead0;color:#5b4a22}.tip-card p{margin:8px 0 0}.tip-card ul{margin:10px 0 0;padding-left:1.25em}.tip-card li{margin:5px 0}.tip-card b{font-weight:900}
     .section{margin-top:26px;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 10px 28px #0002}.section.hot{border:2px solid #d4a83e;background:linear-gradient(180deg,#fff8e5,#f5f0e4)}.section h2{font-family:serif;font-size:30px;margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:10px}.section.hot h2:before{content:"重要";display:inline-block;margin-right:10px;padding:3px 8px;border-radius:999px;background:#c84431;color:#fff;font:900 11px/1.6 system-ui;vertical-align:middle}.lead{font-size:17px;color:#342f28}.notice{margin:18px 0 0;padding:14px 16px;background:var(--red2);border:1px solid #e8b9ae;border-left:6px solid var(--red);border-radius:10px;font-weight:750}.ok{background:var(--green2);border-color:#b9d8c8;border-left-color:var(--green)}.blue{background:var(--blue2);border-color:#b9cfe1;border-left-color:var(--blue)}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:1px solid #d8ccb1;border-radius:14px;padding:18px}.card h3{margin-top:0}.card ul,.card ol{padding-left:20px;margin-bottom:0}.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0}.flow span{position:relative;background:#fff;border:1px solid #d8ccb1;border-radius:13px;padding:13px 10px;text-align:center;font-weight:900}.flow span:not(:last-child):after{content:"›";position:absolute;right:-9px;top:50%;transform:translateY(-50%);z-index:2;color:#b58321;font-size:24px}.bluebox{background:#edf5fc!important;border-color:#b6cee2!important}.redbox{background:#fff0ea!important;border-color:#e6b4a9!important}.goldbox{background:#fff8dd!important;border-color:#dec46d!important}
     .compare{width:100%;border-collapse:collapse;background:#fff;border:1px solid #d8ccb1}.compare th,.compare td{border-bottom:1px solid #e0d6c0;padding:11px;text-align:left;vertical-align:top}.compare th{background:#eee5d3}.avoid{background:#fff0ec}.pillrow{display:flex;flex-wrap:wrap;gap:8px}.pill{background:#fff;border:1px solid #d8ccb1;border-radius:999px;padding:7px 11px;font-weight:800}.recommend{margin:18px 0;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,#234a3d,#162d27);color:#fff;border:1px solid #527969;box-shadow:0 12px 28px #0003}.recommend strong{display:block;color:#ffd96e;font-size:20px;margin-bottom:4px}.recommend p{margin:0}.compact-time{margin-top:24px;background:#201f1b;color:#efe9db;border:1px solid #5b5548;border-radius:14px;padding:0 16px}.compact-time summary{cursor:pointer;padding:13px 0;font-weight:900;color:#f0cc72}.compact-time .mini{font-size:13px;color:#d6d0c4;padding:0 0 14px}.compact-time p{margin:6px 0}.videos{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.video{aspect-ratio:16/9;width:100%;border:0;border-radius:12px;background:#000}.source-note{font-size:13px;color:var(--muted);margin-top:16px}.footer{text-align:center;color:#d7cfbd;padding:28px 10px}.footer a{color:#f0d18a}
-    @media(max-width:760px){.hero{padding:24px 18px}.key,.grid,.videos{grid-template-columns:1fr}.section{padding:20px 16px}.topin{padding:10px 14px}.compare{font-size:13px}.flow{grid-template-columns:1fr}.flow span:not(:last-child):after{content:"↓";right:auto;left:50%;top:auto;bottom:-20px;transform:translateX(-50%)}}
+    @media(max-width:760px){.hero{padding:24px 18px}.tips-grid,.grid,.videos{grid-template-columns:1fr}.tip-head h3{font-size:24px}.section{padding:20px 16px}.topin{padding:10px 14px}.compare{font-size:13px}.flow{grid-template-columns:1fr}.flow span:not(:last-child):after{content:"↓";right:auto;left:50%;top:auto;bottom:-20px;transform:translateX(-50%)}}
   </style>
 </head>
 <body>
@@ -25,12 +25,28 @@
   <section class="hero">
     <div class="eyebrow">SEASON 4 START DASH SPECIAL</div>
     <h1>S4 スタダ攻略</h1>
-    <p>開幕で迷いやすい4項目を先に整理。下のカードを押すと、その場で要点を確認できます。</p>
-    <div class="key">
-      <details><summary>兵1先頭隊<small>低損失・高速確認</small></summary><div class="detailbody"><p>武将に兵を1だけ振って占領へ。<b>速度で先手を取り、混乱や敵側の能力を利用する効果で削る</b>。失敗しても兵損がほぼ1なので、入れ替え・再出撃を繰り返せる。通常偵察を待たず、敵編成や挙動も確認しやすい。</p></div></details>
-      <details><summary>自爆アタック<small>削り重視</small></summary><div class="detailbody"><p>兵1隊とは別の削り専用部隊。ある程度兵を持たせ、<b>速度・混乱・即時に結果が出る戦法</b>を積んで本部隊より先に突撃する。削りは大きくしやすいが、兵損が出る。</p></div></details>
-      <details><summary>本部隊<small>最後に回収</small></summary><div class="detailbody"><p><b>合計コスト15</b>で、手数の多いアタッカー＋回復＋補助を基本に組む。火力だけに寄せず、<b>警戒・知者楽水などの防御戦法を必ず入れる</b>。前処理で削った土地を確実に回収する部隊。</p></div></details>
-      <details><summary>48時間<small>初心者のスタダ目安リミット</small></summary><div class="detailbody"><p>このページでは、<b>初心者がスタダを形にする目安のリミット</b>として48時間を扱う。時刻表通りを追うのではなく、土地・天守・戦法ポイントの整理をこの時間内にどこまで進めるかを見る。</p></div></details>
+    <p>開幕で迷いやすい4項目を、最初にまとめて確認できるようにしています。</p>
+    <div class="tips-grid">
+      <article class="tip-card blue-tip">
+        <div class="tip-head"><h3>兵1先頭隊</h3><span class="tip-badge">低損失・高速確認</span></div>
+        <p>武将に兵を1だけ振って占領へ。<b>NPCより先に動く速度が必須</b>です。</p>
+        <ul><li><b>混乱</b>で敵同士を殴らせるのが狙い</li><li>荒木系のような<b>敵側の知力・能力を利用する効果</b>も好相性</li><li>失敗しても兵損がほぼ1なので、入れ替え・再出撃を繰り返せる</li><li>通常偵察を待たず、敵編成や挙動確認も兼ねられる</li></ul>
+      </article>
+      <article class="tip-card red-tip">
+        <div class="tip-head"><h3>自爆アタック</h3><span class="tip-badge">削り重視</span></div>
+        <p>兵1隊とは別の<b>削り専用部隊</b>。ある程度兵を持たせ、本部隊より先に突撃します。</p>
+        <ul><li>速度・混乱・即時に結果が出る戦法を重視</li><li>兵1より削りを大きくしやすい</li><li>その代わり<b>兵損が出る</b></li><li>削れたら本部隊をすぐ投入</li></ul>
+      </article>
+      <article class="tip-card gold-tip">
+        <div class="tip-head"><h3>本部隊</h3><span class="tip-badge">最後に回収</span></div>
+        <p><b>合計コスト15以内</b>で、前処理した土地を確実に回収する部隊を組みます。</p>
+        <ul><li><b>手数の多いアタッカー</b></li><li><b>回復役</b></li><li><b>補助役</b></li><li>火力だけに寄せず、<b>警戒・知者楽水などの防御戦法を必ず入れる</b></li></ul>
+      </article>
+      <article class="tip-card green-tip">
+        <div class="tip-head"><h3>48時間</h3><span class="tip-badge">初心者のスタダ目安</span></div>
+        <p>時刻表ではなく、<b>初心者がスタダを形にする目安のリミット</b>として扱います。</p>
+        <ul><li>土地Lvだけを急がない</li><li>Lv20覚醒・本部隊の安定・天守・戦法ポイント整理を優先</li><li><b>倉庫上限まで通常資源を貯めてから</b>章報酬・任務報酬・攻城報酬などを受け取り、天守Lvを上げる</li></ul>
+      </article>
     </div>
   </section>
 
