@@ -5,7 +5,8 @@
   const MAX_WAIT = 200;
   let originals = null;
   let selected = Number(localStorage.getItem(STORAGE_KEY) || 0);
-  let viewSeason = selected || 1;
+  let viewSeasons = new Set();
+  let allView = true;
   let waitCount = 0;
   let additionsReady = false;
   let additionsLoading = false;
@@ -37,6 +38,7 @@
     values.add(4);
     return [...values].sort((a,b)=>a-b);
   };
+  const availableSeasons = () => allSeasons().filter((n) => n <= (selected || 1));
   const setCookie = (n) => {
     document.cookie = `${COOKIE_KEY}=${encodeURIComponent(n)}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
   };
@@ -89,13 +91,16 @@
     const style = document.createElement("style");
     style.id = "catalog-season-tab-style";
     style.textContent = `
-      .catalog-season-tabs{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:12px 14px;border:1px solid #c5b997;background:linear-gradient(90deg,#f6f1e4,#e9eef0)}
+      .catalog-season-tabs{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 14px;padding:12px 14px;border:1px solid #c5b997;background:linear-gradient(90deg,#f6f1e4,#e9eef0)}
       .catalog-season-tabs>span{font-weight:700;font-size:12px;color:#665d45;margin-right:4px}
-      .catalog-season-tabs button{min-width:58px;height:38px;padding:0 16px;border:1px solid #b5a985;background:#f7f2e5;color:#675b3d;font:700 14px var(--serif,serif);box-shadow:inset 0 0 0 1px #fff8}
+      .catalog-season-tabs button{height:38px;padding:0 14px;border:1px solid #b5a985;background:#f7f2e5;color:#675b3d;font:700 14px var(--serif,serif);box-shadow:inset 0 0 0 1px #fff8;display:inline-flex;align-items:center;gap:7px}
       .catalog-season-tabs button:hover{background:#e3d5ad}
-      .catalog-season-tabs button[aria-pressed="true"]{background:linear-gradient(#8c6b2f,#6d501e);color:#fff6da;border-color:#74541f;box-shadow:0 2px 5px #5c481f33}
+      .catalog-season-tabs .season-all[aria-pressed="true"]{background:linear-gradient(#8c6b2f,#6d501e);color:#fff6da;border-color:#74541f;box-shadow:0 2px 5px #5c481f33}
+      .catalog-season-tabs .season-check[aria-pressed="true"]{background:#fff9e9;border-color:#8e6b2d;color:#4b3a1d;box-shadow:inset 0 0 0 2px #c4a05655}
+      .catalog-season-tabs .tick{width:17px;height:17px;border:1px solid #aa9b76;background:#fffdf6;display:inline-grid;place-items:center;font:900 12px/1 sans-serif;color:transparent}
+      .catalog-season-tabs .season-check[aria-pressed="true"] .tick{background:#6f5728;border-color:#6f5728;color:#fff7db}
       .catalog-season-tabs small{margin-left:auto;color:#81765d;font-size:10px}
-      @media(max-width:700px){.catalog-season-tabs{gap:7px}.catalog-season-tabs button{min-width:48px;padding:0 10px}.catalog-season-tabs small{width:100%;margin-left:0}}
+      @media(max-width:700px){.catalog-season-tabs{gap:7px}.catalog-season-tabs button{padding:0 10px}.catalog-season-tabs small{width:100%;margin-left:0}}
     `;
     document.head.appendChild(style);
   }
@@ -108,7 +113,7 @@
       tabs.id = "catalog-season-tabs";
       tabs.className = "catalog-season-tabs";
       tabs.setAttribute("role", "group");
-      tabs.setAttribute("aria-label", "一覧の表示シーズン");
+      tabs.setAttribute("aria-label", "一覧のシーズン絞り込み");
       const filters = document.querySelector("#filters");
       if (filters) filters.parentNode.insertBefore(tabs, filters);
     }
@@ -118,12 +123,13 @@
   function renderCatalogSeasonTabs() {
     const tabs = document.querySelector("#catalog-season-tabs");
     if (!tabs) return;
-    const maxSeason = selected || 1;
-    const buttons = allSeasons()
-      .filter((n) => n <= maxSeason)
-      .map((n) => `<button type="button" data-catalog-season="${n}" aria-pressed="${n === viewSeason}">S${n}</button>`)
-      .join("");
-    tabs.innerHTML = `<span>表示シーズン</span>${buttons}<small>武将・戦法・編成をこのシーズン基準で表示</small>`;
+    const seasons = availableSeasons();
+    if (allView) viewSeasons = new Set(seasons);
+    const buttons = seasons.map((n) => {
+      const checked = viewSeasons.has(n);
+      return `<button type="button" class="season-check" data-catalog-season="${n}" aria-pressed="${checked}"><span class="tick" aria-hidden="true">✓</span>S${n}</button>`;
+    }).join("");
+    tabs.innerHTML = `<span>シーズン</span><button type="button" class="season-all" data-catalog-all aria-pressed="${allView}">すべて</button>${buttons}<small>最初は全選択。S数字を最初に押すと、そのシーズンだけに絞り込みます。</small>`;
   }
 
   function ensureHeaderPicker() {
@@ -170,26 +176,40 @@
       if (label) label.hidden = true;
     }
     const latest = document.querySelector("#latest-season");
-    if (latest) latest.innerHTML = `S${viewSeason}の編成を見る <span aria-hidden="true">›</span>`;
+    if (latest) latest.hidden = true;
     const goodJobs = document.querySelector("#good-job-section");
     if (goodJobs) goodJobs.hidden = true;
   }
 
-  function formationsForSeason(n) {
-    const exact = originals.formations.filter((f) => seasonNo(f.season) === n);
-    if (exact.length) return exact;
-    const previous = originals.formations.map((f) => seasonNo(f.season)).filter((value) => value && value <= n);
-    const latestAvailable = previous.length ? Math.max(...previous) : null;
-    return latestAvailable == null ? [] : originals.formations.filter((f) => seasonNo(f.season) === latestAvailable);
+  function selectedSeasonList() {
+    return [...viewSeasons].sort((a,b)=>a-b);
   }
 
-  function applyViewSeason() {
+  function displayTierSeason(g) {
+    const seasons = selectedSeasonList();
+    const n = seasons.length ? Math.max(...seasons) : (selected || 1);
+    return generalForSeason(g, n);
+  }
+
+  function applyViewSeasons() {
     if (!originals || !selected || typeof db === "undefined" || !db) return;
-    const n = Math.min(viewSeason || selected, selected);
-    viewSeason = n;
-    db.generals = originals.generals.filter((g) => generalFirstSeason(g) <= n).map((g) => generalForSeason(g,n));
-    db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= n);
-    db.formations = formationsForSeason(n);
+    const allowed = new Set(availableSeasons());
+    viewSeasons = new Set([...viewSeasons].filter((n) => allowed.has(n)));
+    if (!viewSeasons.size) {
+      allView = true;
+      viewSeasons = new Set(availableSeasons());
+    }
+
+    if (allView) {
+      db.generals = originals.generals.filter((g) => generalFirstSeason(g) <= selected).map((g) => generalForSeason(g, selected));
+      db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= selected);
+      db.formations = originals.formations.filter((f) => (seasonNo(f.season) || 999) <= selected);
+    } else {
+      db.generals = originals.generals.filter((g) => viewSeasons.has(generalFirstSeason(g))).map(displayTierSeason);
+      db.tactics = originals.tactics.filter((t) => viewSeasons.has(tacticFirstSeason(t)));
+      db.formations = originals.formations.filter((f) => viewSeasons.has(seasonNo(f.season)));
+    }
+
     if (typeof generalMap !== "undefined") generalMap = new Map(db.generals.map((g) => [g.id, g]));
     if (typeof tacticMap !== "undefined") tacticMap = new Map(db.tactics.map((t) => [t.id, t]));
     const tg = document.querySelector("#total-generals"), tt = document.querySelector("#total-tactics"), tf = document.querySelector("#total-formations");
@@ -204,21 +224,21 @@
 
   function applyFilter() {
     if (!originals || !selected || typeof db === "undefined" || !db) return;
-    if (!viewSeason || viewSeason > selected) viewSeason = selected;
     const picker = document.querySelector("#global-season-picker");
     if (picker) picker.value = String(selected);
     document.documentElement.dataset.userSeason = String(selected);
+    allView = true;
+    viewSeasons = new Set(availableSeasons());
     ensureCatalogSeasonTabs();
-    applyViewSeason();
+    applyViewSeasons();
     document.documentElement.classList.remove("season-pending");
-    document.dispatchEvent(new CustomEvent("mobunaga:seasonchange", { detail:{ season:selected, viewSeason } }));
+    document.dispatchEvent(new CustomEvent("mobunaga:seasonchange", { detail:{ season:selected, viewSeasons:selectedSeasonList(), allView } }));
   }
 
   function setSeason(n, persist) {
     const choices = allSeasons();
     if (!Number.isInteger(n) || !choices.includes(n)) return;
     selected = n;
-    viewSeason = n;
     if (persist) localStorage.setItem(STORAGE_KEY, String(n));
     setCookie(n);
     document.querySelector("#season-gate")?.remove();
@@ -226,27 +246,46 @@
   }
 
   document.addEventListener("click", (e) => {
+    const allButton = e.target.closest("[data-catalog-all]");
+    if (allButton && originals) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      allView = true;
+      viewSeasons = new Set(availableSeasons());
+      applyViewSeasons();
+      return;
+    }
+
     const catalogButton = e.target.closest("[data-catalog-season]");
     if (catalogButton && originals) {
       e.preventDefault();
       e.stopImmediatePropagation();
       const n = Number(catalogButton.dataset.catalogSeason);
-      if (Number.isInteger(n) && n >= 1 && n <= selected) {
-        viewSeason = n;
-        applyViewSeason();
+      if (!Number.isInteger(n) || !availableSeasons().includes(n)) return;
+
+      if (allView) {
+        allView = false;
+        viewSeasons = new Set([n]);
+      } else if (viewSeasons.has(n)) {
+        viewSeasons.delete(n);
+        if (!viewSeasons.size) {
+          allView = true;
+          viewSeasons = new Set(availableSeasons());
+        }
+      } else {
+        viewSeasons.add(n);
+        const seasons = availableSeasons();
+        if (viewSeasons.size === seasons.length && seasons.every((s) => viewSeasons.has(s))) allView = true;
       }
+      applyViewSeasons();
       return;
     }
+
     const seasonButton = e.target.closest("[data-season]");
     if (seasonButton && originals) {
       e.preventDefault(); e.stopImmediatePropagation();
       setSeason(Number(seasonButton.dataset.season), true);
       return;
-    }
-    if (e.target.closest("#latest-season") && originals) {
-      e.preventDefault(); e.stopImmediatePropagation();
-      if (typeof changeKind === "function") changeKind("formations");
-      tidyLegacySeasonControls();
     }
   }, true);
 
@@ -266,7 +305,6 @@
     fillPickers();
     if (selected) {
       setCookie(selected);
-      viewSeason = selected;
       applyFilter();
     } else {
       ensureFirstVisitDialog();
