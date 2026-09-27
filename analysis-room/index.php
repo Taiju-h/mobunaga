@@ -6,9 +6,7 @@ header("Content-Security-Policy: default-src 'self'; img-src 'self'; style-src '
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
 
-session_name('mobunaga_analysis_room');
-session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','httponly'=>true,'samesite'=>'Strict']);
-session_start();
+require_once __DIR__ . '/../includes/analysis-session.php';
 
 const ADMIN_CONFIG='/var/www/.nobunaga-admin.ini';
 const DB_CONFIG='/var/www/.nobunaga-db.ini';
@@ -42,8 +40,8 @@ if(empty($_SESSION['csrf']))$_SESSION['csrf']=bin2hex(random_bytes(24));
 $error='';$notice='';$action=is_string($_POST['action']??null)?$_POST['action']:'';$csrf=is_string($_POST['csrf']??null)?$_POST['csrf']:'';
 if($_SERVER['REQUEST_METHOD']==='POST'){
  if(!hash_equals((string)$_SESSION['csrf'],$csrf)){http_response_code(403);$error='画面を読み直して、もう一度お試しください。';}
- elseif($action==='logout'){$_SESSION=[];session_regenerate_id(true);$_SESSION['csrf']=bin2hex(random_bytes(24));}
- elseif($action==='login'){$lockedUntil=(int)($_SESSION['locked_until']??0);if($lockedUntil>time())$error='試行回数が多いため、少し待ってからお試しください。';else{$passphrase=is_string($_POST['passphrase']??null)?trim($_POST['passphrase']):'';if(($expectedHash=analysisPassphraseHash())!==''&&hash_equals($expectedHash,hash('sha256',$passphrase))){session_regenerate_id(true);$_SESSION['authorized']=true;$_SESSION['attempts']=0;$_SESSION['csrf']=bin2hex(random_bytes(24));}else{$attempts=(int)($_SESSION['attempts']??0)+1;$_SESSION['attempts']=$attempts;if($attempts>=5){$_SESSION['attempts']=0;$_SESSION['locked_until']=time()+60;}$error='合言葉が違います。';}}}
+ elseif($action==='logout'){$_SESSION=[];session_regenerate_id(true);mobunagaAuthCookie(0);$_SESSION['csrf']=bin2hex(random_bytes(24));}
+ elseif($action==='login'){$lockedUntil=(int)($_SESSION['locked_until']??0);if($lockedUntil>time())$error='試行回数が多いため、少し待ってからお試しください。';else{$passphrase=is_string($_POST['passphrase']??null)?trim($_POST['passphrase']):'';if(($expectedHash=analysisPassphraseHash())!==''&&hash_equals($expectedHash,hash('sha256',$passphrase))){mobunagaAuthorize();$_SESSION['attempts']=0;$_SESSION['csrf']=bin2hex(random_bytes(24));}else{$attempts=(int)($_SESSION['attempts']??0)+1;$_SESSION['attempts']=$attempts;if($attempts>=5){$_SESSION['attempts']=0;$_SESSION['locked_until']=time()+60;}$error='合言葉が違います。';}}}
  elseif(!empty($_SESSION['authorized'])&&$action==='submit_enemy_intel'){$db=archiveDb();if(!$db)$error='DBへ接続できません。';else{$error=saveEnemyIntel($db);if($error==='')$notice='敵情報を蓄積しました。';}}
  elseif(!empty($_SESSION['authorized'])&&$action==='mark_enemy_intel_reviewed'){$db=archiveDb();$id=(int)($_POST['intel_id']??0);if(!$db||$id<1)$error='処理済み更新に失敗しました。';else try{$st=$db->prepare("UPDATE form_submissions SET status='reviewed' WHERE id=? AND form_key=? AND status='new'");$st->execute([$id,INTEL_FORM_KEY]);$notice=$st->rowCount()?'処理済みにしました。':'対象はすでに処理済みです。';}catch(Throwable $e){$error='処理済み更新に失敗しました。';}}
  elseif(!empty($_SESSION['authorized'])&&$action==='toggle_watch'){$db=archiveDb();$fid=cutText((string)($_POST['formation_id']??''),190);if(!$db||$fid==='')$error='要注意フラグを更新できません。';else try{$current=(int)($_POST['watch_flag']??0);if($current===1){$st=$db->prepare("INSERT INTO enemy_watch_flags(entity_type,entity_key,watch_flag) VALUES('formation',?,1) ON DUPLICATE KEY UPDATE watch_flag=1");$st->execute([$fid]);$notice='要注意にしました。';}else{$st=$db->prepare("DELETE FROM enemy_watch_flags WHERE entity_type='formation' AND entity_key=?");$st->execute([$fid]);$notice='要注意を解除しました。';}}catch(Throwable $e){$error='要注意フラグDBを準備してください。';}}

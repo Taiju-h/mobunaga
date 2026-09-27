@@ -6,9 +6,7 @@ header("Content-Security-Policy: default-src 'self'; style-src 'unsafe-inline'; 
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
 
-session_name('mobunaga_analysis_room');
-session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off','httponly'=>true,'samesite'=>'Strict']);
-session_start();
+require_once __DIR__ . '/../includes/analysis-session.php';
 if (empty($_SESSION['authorized'])) { header('Location: /analysis-room/index.php'); exit; }
 
 const DB_CONFIG = '/var/www/.nobunaga-db.ini';
