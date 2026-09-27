@@ -699,7 +699,7 @@ document
   );
 function chooseSeason(season) {
   changeKind("formations");
-  $("#season").value = season;
+  if (window.MobunagaSeason?.select) window.MobunagaSeason.select(Number(season));
   render();
   $("#catalog").scrollIntoView({ block: "start", behavior: "smooth" });
 }
@@ -708,7 +708,7 @@ document
   .forEach((n) =>
     n.addEventListener("click", () => chooseSeason(n.dataset.season)),
   );
-$("#latest-season").addEventListener("click", () => chooseSeason("3"));
+$("#latest-season").addEventListener("click", () => chooseSeason("4"));
 $("#browse-generals").addEventListener("click", () => changeKind("generals"));
 $("#previous-page").addEventListener("click", () => {
   page--;

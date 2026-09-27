@@ -50,4 +50,4 @@ This repository is the standalone source of truth for Mobunaga (`https://nobunag
 - Distinguish observed values, assumed calculation examples, damage rates, and actual damage. Do not invent missing measurements.
 - Use site-owned wording such as 実測; avoid 提供動画 and other wording that treats the site owner's work as an external contribution.
 
-- Season catalog selection is cumulative: include entries whose first/recorded season is <= the selected season (S4 includes S1–S3 formations). Multiple selected seasons use the maximum selected season, capped by the viewer season. Preserve original season labels; do not clone or relabel old formations as new-season entries.
+- The main/sidebar season selection includes earlier content (entry season <= viewer season). Search/catalog season filters remain exact-match. Do not conflate these two controls; switching the main season resets search filters. Preserve original season labels.

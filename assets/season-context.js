@@ -44,7 +44,7 @@
     document.cookie = `${COOKIE_KEY}=${encodeURIComponent(n)}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
   };
   const current = () => selected || Number(localStorage.getItem(STORAGE_KEY) || 0) || 1;
-  window.MobunagaSeason = { current, generalFirstSeason, tacticFirstSeason };
+  window.MobunagaSeason = { current, generalFirstSeason, tacticFirstSeason, select: (n) => setSeason(Number(n), true) };
 
   const hasUsefulValue = (value) => {
     if (value == null) return false;
@@ -171,7 +171,7 @@
       const checked = viewSeasons.has(n);
       return `<button type="button" class="season-check" data-catalog-season="${n}" aria-pressed="${checked}"><span class="tick" aria-hidden="true">✓</span>S${n}</button>`;
     }).join("");
-    tabs.innerHTML = `<span>シーズン</span><button type="button" class="season-all" data-catalog-all aria-pressed="${allView}">すべて</button>${buttons}<small>最初は全選択。S数字を最初に押すと、そのシーズン以前を表示します。複数選択時は最も後のシーズンまで含みます。</small>`;
+    tabs.innerHTML = `<span>シーズン</span><button type="button" class="season-all" data-catalog-all aria-pressed="${allView}">すべて</button>${buttons}<small>最初は全選択。S数字を最初に押すと、そのシーズンだけに絞り込みます。</small>`;
   }
 
   function ensureHeaderPicker() {
@@ -247,11 +247,9 @@
       db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= selected);
       db.formations = originals.formations.filter((f) => (seasonNo(f.season) || 999) <= selected);
     } else {
-      // Catalog content carries forward: first season <= selected ceiling.
-      const ceiling = Math.min(selected, Math.max(...viewSeasons));
-      db.generals = originals.generals.filter((g) => generalFirstSeason(g) <= ceiling).map((g) => generalForSeason(g, ceiling));
-      db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= ceiling);
-      db.formations = originals.formations.filter((f) => (seasonNo(f.season) || 999) <= ceiling);
+      db.generals = originals.generals.filter((g) => viewSeasons.has(generalFirstSeason(g))).map(displayTierSeason);
+      db.tactics = originals.tactics.filter((t) => viewSeasons.has(tacticFirstSeason(t)));
+      db.formations = originals.formations.filter((f) => viewSeasons.has(seasonNo(f.season)));
     }
 
     if (typeof generalMap !== "undefined") generalMap = new Map(db.generals.map((g) => [g.id, g]));
@@ -328,7 +326,8 @@
     const seasonButton = e.target.closest("[data-season]");
     if (seasonButton && originals) {
       e.preventDefault(); e.stopImmediatePropagation();
-      setSeason(Number(seasonButton.dataset.season), true);
+      if (typeof chooseSeason === "function") chooseSeason(seasonButton.dataset.season);
+      else setSeason(Number(seasonButton.dataset.season), true);
       return;
     }
   }, true);
