@@ -76,6 +76,17 @@
     `;
     document.head.appendChild(style);
   }
+  function removeLegacyShareBlock() {
+    const root = document.querySelector("#detail-content");
+    if (!root) return;
+    const matches = [...root.querySelectorAll("section,aside,div")].filter((node) => {
+      const text = (node.textContent || "").replace(/\s+/g, " ");
+      return text.includes("このページを共有") &&
+        (text.includes("URLをコピー") || text.includes("共有ページを開く") || text.includes("S4表示用"));
+    });
+    const deepest = matches.filter((node) => !matches.some((other) => other !== node && node.contains(other)));
+    deepest.forEach((node) => node.remove());
+  }
   function addCatalogShareButton() {
     const tabs = document.querySelector("#catalog-season-tabs");
     if (!tabs || tabs.querySelector("[data-share-catalog]")) return;
@@ -130,6 +141,7 @@
   let initialApplied = false;
   function refresh() {
     ensureStyles();
+    removeLegacyShareBlock();
     addCatalogShareButton();
     addDetailShareButton();
     if (!initialApplied && applyInitialSelection()) initialApplied = true;
