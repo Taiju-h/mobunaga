@@ -132,8 +132,23 @@ function formationCard(f) {
   const required = new Map((analysis?.required_limit_breaks || []).map((row) => [row.general_id, row.required_limit_break]));
   return `<button class="card formation-card" data-open="formations" data-id="${esc(f.id)}" aria-label="S${esc(f.season)} ${esc(f.name)}の編成詳細"><div class="card-top">${badge("S" + f.season)}${badge("要注意度 " + danger, "danger-badge")}<span class="card-id">編成 ${esc(f.id.toUpperCase())}</span></div><div class="formation-portraits">${f.members.map((m) => `<div class="soldier"><div class="soldier-image">${portrait(generalMap.get(m.general_id), "")}<span class="soldier-role">${esc(m.role)}</span></div><span class="soldier-name">${esc(m.general_name)}</span>${required.get(m.general_id) == null ? "" : `<span class="red-limit-break" title="成立に必要な凸数">${"◆".repeat(required.get(m.general_id))}</span>`}</div>`).join("")}</div><h3 class="formation-title">${esc(leader)}隊</h3><div class="formation-meta"><span>${esc(f.faction)}</span><span>／</span><span>${esc(troopLabel(f.troops))}</span></div><div class="formation-loadout">${f.members.map((m, i) => `<div><span>${i === 0 ? "主将" : "副将" + i}</span><b>${esc(m.tactics.map((t) => t.tactic_name).join("・"))}</b></div>`).join("")}</div><div class="card-bottom"><span>${esc(f.requirement || (Number(f.season) > 1 ? "戦法・兵学・能力振り" : "戦法・能力振り"))}</span><span>凸と対策を見る ›</span></div></button>`;
 }
+
+function totalStats(g) {
+  const values = GAME_STAT_ORDER.map((name) => stat(g, name));
+  if (values.some((value) => value == null || value === "" || !Number.isFinite(Number(value)))) return null;
+  return Math.round(values.reduce((sum, value) => sum + Number(value), 0) * 10) / 10;
+}
+function totalStatsHTML(g) {
+  return `<span class="stat-total" title="Lv50の武勇・知略・統率・速度・政務・魅力の合計"><span>総合値</span><strong>${number(totalStats(g))}</strong></span>`;
+}
+function costHTML(g) {
+  const cost = Number(g.cost);
+  const emphasis = cost === 7 ? "cost-high" : cost === 6 ? "cost-next" : cost === 3 || cost === 4 ? "cost-low" : "cost-normal";
+  return `<span class="cost-badge ${emphasis}"><span>COST</span><strong>${esc(g.cost ?? "—")}</strong></span>`;
+}
+
 function generalCard(g) {
-  return `<button class="card general-card" data-open="generals" data-id="${esc(g.id)}" aria-label="${esc(g.name)}の詳細"><div class="card-head">${portrait(g)}<div><span class="stars">${"★".repeat(Math.min(g.rarity || 0, 5))}</span><h3>${esc(g.name)}</h3><span class="meta">${esc(g.faction)} ／ COST ${esc(g.cost ?? "—")}</span></div>${badge(g.current_tier || "未評価", "tier-badge")}</div><div class="stats">${["武勇", "知略", "統率", "速度"].map((name) => `<span>${name}<b>${number(stat(g, name))}</b></span>`).join("")}</div><p class="skill-line">固有戦法　${esc(g.unique_tactic?.name || "未収録")}</p></button>`;
+  return `<button class="card general-card" data-open="generals" data-id="${esc(g.id)}" aria-label="${esc(g.name)}の詳細"><div class="card-head">${portrait(g)}<div><span class="stars">${"★".repeat(Math.min(g.rarity || 0, 5))}</span><h3>${esc(g.name)}</h3><span class="meta">${esc(g.faction)} ／ ${costHTML(g)}</span></div>${badge(g.current_tier || "未評価", "tier-badge")}</div><div class="stats-heading">${totalStatsHTML(g)}</div><div class="stats">${["武勇", "知略", "統率", "速度"].map((name) => `<span>${name}<b>${number(stat(g, name))}</b></span>`).join("")}</div><p class="skill-line">固有戦法　${esc(g.unique_tactic?.name || "未収録")}</p></button>`;
 }
 function tacticCard(t) {
   const entry = comparison.get(t.id);
@@ -201,7 +216,9 @@ function render() {
         ? (a.kana || a.name).localeCompare(b.kana || b.name, "ja")
         : order === "tier"
           ? tierScore(a.current_tier) - tierScore(b.current_tier)
-          : (stat(b, order) ?? -Infinity) - (stat(a, order) ?? -Infinity),
+          : order === "total"
+            ? (totalStats(b) ?? -Infinity) - (totalStats(a) ?? -Infinity)
+            : (stat(b, order) ?? -Infinity) - (stat(a, order) ?? -Infinity),
     );
   } else {
     compareTactics();
@@ -386,7 +403,7 @@ function generalDetail(g) {
         .map((t) => t.troop + (t.bonus == null ? "" : " +" + t.bonus))
         .join("・")
     : "未収録";
-  let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span><span>COST ${esc(g.cost ?? "—")}</span></div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
+  let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span>${costHTML(g)}</div><div class="stats-heading detail-stats-heading">${totalStatsHTML(g)}</div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
   html += section(
     "能力値",
     `<table class="ability-table"><thead><tr><th>属性</th><th>Lv1</th><th>成長</th><th>Lv50</th></tr></thead><tbody>${rows.map((s) => `<tr><th>${esc(statAttribute(s))}</th><td>${number(s.level1)}</td><td>${s.growth == null ? "—" : Number(s.growth).toFixed(2)}</td><td>${number(s.level50)}</td></tr>`).join("")}</tbody></table>`,

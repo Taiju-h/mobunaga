@@ -800,3 +800,30 @@ footer b {
     margin-right: 5px;
   }
 }
+
+/* Catalog totals and numeric hierarchy */
+:root { --number-font: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+.stats b, .radar-number, .stat-total strong {
+  font-family: var(--number-font);
+  font-weight: 700;
+  font-style: normal;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -.025em;
+}
+.stats b { color: #246a9c; line-height: 1.25; }
+.radar-number { fill: #246a9c; }
+.stats-heading { display: flex; justify-content: flex-end; margin-top: 14px; }
+.stat-total { display: inline-flex; align-items: baseline; gap: 8px; color: #4d6272; }
+.stat-total > span { font-size: 12px; font-weight: 700; }
+.stat-total strong { font-size: 25px; line-height: 1.2; color: #245a80; }
+.stats-heading + .stats { margin-top: 7px; }
+.detail-stats-heading { margin: 12px 27px 0; }
+.cost-badge { display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 7px; border: 1px solid #d0b89d; border-radius: 5px; background: #f5ede2; color: #70492c; white-space: nowrap; }
+.cost-badge > span { font-size: 10px; font-weight: 700; letter-spacing: .07em; }
+.cost-badge > strong { font: 700 20px/1.1 var(--number-font); font-variant-numeric: tabular-nums; }
+.cost-badge.cost-high { color: #fff5e7; background: #754420; border: 2px solid #583117; }
+.cost-badge.cost-high > strong { font-size: 28px; }
+.cost-badge.cost-next { color: #633815; background: #e8c7a1; border-color: #a16b39; }
+.cost-badge.cost-next > strong { font-size: 25px; }
+.cost-badge.cost-low { color: #704322; background: #f0dfc7; border-color: #b98b58; }
+.cost-badge.cost-low > strong { font-size: 22px; }
