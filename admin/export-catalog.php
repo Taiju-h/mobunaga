@@ -7,10 +7,7 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
 
 require_once __DIR__ . '/../includes/analysis-session.php';
-if (empty($_SESSION['authorized'])) {
-    header('Location: /analysis-room/index.php');
-    exit;
-}
+mobunagaRequireLogin();
 
 const DB_CONFIG = '/var/www/.nobunaga-db.ini';
 require_once __DIR__ . '/_catalog-export.php';

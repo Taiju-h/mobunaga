@@ -56,3 +56,20 @@ if (!empty($_SESSION['authorized'])) {
         mobunagaAuthCookie((int)$_SESSION['authorized_until']);
     }
 }
+
+function mobunagaReturnUrl($value): string
+{
+    if (!is_string($value) || preg_match('/[\x00-\x20\x7f]/', $value) || strpos($value, chr(92)) !== false) return '';
+    $parts = parse_url($value);
+    if (!is_array($parts) || isset($parts['scheme']) || isset($parts['host']) || isset($parts['fragment'])) return '';
+    $paths = ['/admin/deploy.php', '/admin/diagnostics.php', '/admin/export-catalog.php', '/admin/s4-import.php', '/analysis-room/index.php'];
+    return in_array($parts['path'] ?? '', $paths, true) ? $value : '';
+}
+
+function mobunagaRequireLogin(): void
+{
+    if (!empty($_SESSION['authorized'])) return;
+    $next = mobunagaReturnUrl($_SERVER['REQUEST_URI'] ?? '');
+    header('Location: /analysis-room/index.php'.($next !== '' ? '?next='.rawurlencode($next) : ''), true, 303);
+    exit;
+}

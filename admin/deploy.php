@@ -7,10 +7,7 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
 
 require_once __DIR__ . '/../includes/analysis-session.php';
-if (empty($_SESSION['authorized'])) {
-    header('Location: /analysis-room/index.php');
-    exit;
-}
+mobunagaRequireLogin();
 
 function e(string $value): string {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
