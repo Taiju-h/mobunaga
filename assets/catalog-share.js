@@ -79,6 +79,7 @@
   function removeLegacyShareBlock() {
     const root = document.querySelector("#detail-content");
     if (!root) return;
+    root.querySelector("#entity-share")?.remove();
     const matches = [...root.querySelectorAll("section,aside,div")].filter((node) => {
       const text = (node.textContent || "").replace(/\s+/g, " ");
       return text.includes("このページを共有") &&

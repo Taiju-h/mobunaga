@@ -44,30 +44,24 @@
 
   async function load(type,id){
     const box=document.querySelector("#content-comments"); if(!box)return;
-    box.querySelector(".comments-list").innerHTML='<p class="comments-muted">読み込み中…</p>';
+    const list=box.querySelector(".comments-list"), heading=box.querySelector("h3");
     try{
       const s=season();
       const r=await fetch(`/api/comments.php?entity_type=${encodeURIComponent(type)}&entity_id=${encodeURIComponent(id)}&season=${encodeURIComponent(s)}`,{credentials:"same-origin"});
       const d=await r.json();
       if(!r.ok||!d.ok)throw new Error(d.error||"読込失敗");
-      box.querySelector(".comments-list").innerHTML=d.comments.length?d.comments.map(c=>`<article class="comment-row"><header><strong>${esc(c.poster_name)}</strong><time>S${esc(c.season_no)} ／ ${esc(c.created_at)}</time></header><p>${esc(c.comment_text).replace(/\n/g,"<br>")}</p></article>`).join(""):'<p class="comments-muted">このシーズンまでの承認済みコメントはありません。</p>';
-    }catch(e){box.querySelector(".comments-list").innerHTML=`<p class="comments-muted">${esc(e.message)}</p>`;}
+      list.hidden=heading.hidden=!d.comments.length;
+      list.innerHTML=d.comments.length?d.comments.map(c=>`<article class="comment-row"><header><strong>${esc(c.poster_name)}</strong><time>S${esc(c.season_no)} ／ ${esc(c.created_at)}</time></header><p>${esc(c.comment_text).replace(/\n/g,"<br>")}</p></article>`).join(""):'';
+    }catch(e){list.hidden=false;list.innerHTML=`<p class="comments-muted">${esc(e.message)}</p>`;}
   }
-  function shareUrl(type,id){const s=season();return `${location.origin}/share.php?type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}&season=${encodeURIComponent(s)}`;}
   function mount(type,id){
     const host=document.querySelector("#detail-content"); if(!host||!type||!id)return;
     current={type,id};
     document.querySelector("#entity-share")?.remove();
     document.querySelector("#content-comments")?.remove();
     installDetailFixes();
-    const share=document.createElement("section"); share.id="entity-share"; share.className="detail-section entity-share";
-    const url=shareUrl(type,id);
-    share.innerHTML=`<div class="entity-share-row"><strong>このページを共有</strong><a href="${esc(url)}" target="_blank" rel="noopener">共有ページを開く</a><button type="button" data-copy-url>URLをコピー</button><button type="button" data-native-share>共有</button></div><small>S${season()}表示用 ／ ${esc(url)}</small>`;
-    host.prepend(share);
-    share.querySelector("[data-copy-url]").addEventListener("click",async(e)=>{await navigator.clipboard.writeText(url);e.currentTarget.textContent="コピーしました";});
-    share.querySelector("[data-native-share]").addEventListener("click",async(e)=>{if(navigator.share){try{await navigator.share({title:document.querySelector('#detail-title')?.textContent||document.title,url});}catch(_){}}else{await navigator.clipboard.writeText(url);e.currentTarget.textContent="URLをコピーしました";}});
     const sec=document.createElement("section"); sec.id="content-comments"; sec.className="detail-section content-comments";
-    sec.innerHTML=`<h3>コメント <small>S${season()}まで表示</small></h3><div class="comments-list"></div><details><summary>コメントする</summary><form class="comment-form"><input type="hidden" name="entity_type" value="${esc(type)}"><input type="hidden" name="entity_id" value="${esc(id)}"><input type="hidden" name="season" value="${season()}"><input class="hp" name="website" tabindex="-1" autocomplete="off"><label>名前<input name="poster_name" maxlength="80" placeholder="匿名でも可"></label><label>コメント<textarea name="comment_text" maxlength="1500" required></textarea></label><button type="submit">S${season()}のコメントとして承認待ちで投稿</button><p class="comment-result" aria-live="polite"></p></form></details>`;
+    sec.innerHTML=`<h3 hidden>コメント <small>S${season()}まで表示</small></h3><div class="comments-list" hidden></div><details><summary>コメントする</summary><form class="comment-form"><input type="hidden" name="entity_type" value="${esc(type)}"><input type="hidden" name="entity_id" value="${esc(id)}"><input type="hidden" name="season" value="${season()}"><input class="hp" name="website" tabindex="-1" autocomplete="off"><label>名前<input name="poster_name" maxlength="80" placeholder="匿名でも可"></label><label>コメント<textarea name="comment_text" maxlength="1500" required></textarea></label><button type="submit">S${season()}のコメントとして承認待ちで投稿</button><p class="comment-result" aria-live="polite"></p></form></details>`;
     host.appendChild(sec); load(type,id);
     installDetailFixes();
     sec.querySelector("form").addEventListener("submit",async(e)=>{e.preventDefault();const f=e.currentTarget,res=f.querySelector(".comment-result");f.querySelector('[name="season"]').value=String(season());res.textContent="送信中…";try{const r=await fetch("/api/comments.php",{method:"POST",body:new FormData(f),credentials:"same-origin"});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"送信失敗");res.textContent=d.message;f.querySelector("textarea").value="";}catch(err){res.textContent=err.message;}});

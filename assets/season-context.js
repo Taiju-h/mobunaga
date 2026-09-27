@@ -93,6 +93,12 @@
       };
       if (index >= 0) db.generals[index] = mergeWithoutBlanks(fallback, db.generals[index]);
       else db.generals.push(fallback);
+      // Editorial commentary is versioned separately from generated MySQL effects.
+      const mergedGeneral = index >= 0 ? db.generals[index] : db.generals[db.generals.length - 1];
+      if (general.commentary) {
+        mergedGeneral.commentary = general.commentary;
+        mergedGeneral.commentary_season = general.commentary_season;
+      }
     }
     for (const tactic of tactics) {
       const index = db.tactics.findIndex((row) => row.id === tactic.id || row.name === tactic.name);

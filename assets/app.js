@@ -409,6 +409,8 @@ function generalDetail(g) {
         .join("・")
     : "未収録";
   let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span>${costHTML(g)}</div><div class="stats-heading detail-stats-heading">${totalStatsHTML(g)}</div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
+  if (g.commentary && Number(g.commentary_season || 1) <= (window.MobunagaSeason?.current?.() || 1))
+    html += section("武将解説", String(g.commentary).split(/\n\n+/).map((text) => `<p>${esc(text)}</p>`).join(""));
   html += section(
     "能力値",
     `<table class="ability-table"><thead><tr><th>属性</th><th>Lv1</th><th>成長</th><th>Lv50</th></tr></thead><tbody>${rows.map((s) => `<tr><th>${esc(statAttribute(s))}</th><td>${number(s.level1)}</td><td>${s.growth == null ? "—" : Number(s.growth).toFixed(2)}</td><td>${number(s.level50)}</td></tr>`).join("")}</tbody></table>`,
@@ -452,7 +454,12 @@ function generalDetail(g) {
         .map((t) => `<span class="pill">${esc(t.season)} ${esc(t.tier)}</span>`)
         .join(""),
     );
-  const grants = db.tactics.filter((t) => t.general_ids.includes(g.id));
+  const grants = db.tactics.filter((t) =>
+    t.general_ids?.includes(g.id) &&
+    !String(t.id).startsWith("s4-unique-") &&
+    t.name !== g.unique_tactic?.name &&
+    !String(t.acquisition || "").includes("固有")
+  );
   if (grants.length)
     html += section(
       "伝授戦法",
@@ -483,8 +490,8 @@ function abilityRadar(g) {
   const point = (i, ratio) => {
     const angle = ((-90 + i * 60) * Math.PI) / 180;
     return [
-      160 + 44 * ratio * Math.cos(angle),
-      118 + 44 * ratio * Math.sin(angle),
+      160 + 68 * ratio * Math.cos(angle),
+      118 + 68 * ratio * Math.sin(angle),
     ]
       .map((n) => n.toFixed(2))
       .join(",");
@@ -493,12 +500,12 @@ function abilityRadar(g) {
     GAME_STAT_ORDER.map((_, i) => point(i, ratio)).join(" ");
   const labels = GAME_STAT_ORDER.map((name, i) => {
     const [x, y] = point(i, 1.42).split(",");
-    return `<text x="${x}" y="${Number(y) + 4}" text-anchor="middle">${esc(name)}</text>`;
+    return `<text class="radar-label" x="${x}" y="${Number(y) - 5}" text-anchor="middle">${esc(name)}</text><text class="radar-number" x="${x}" y="${Number(y) + 15}" text-anchor="middle">${number(values[i])}</text>`;
   }).join("");
   const polygon = complete
     ? GAME_STAT_ORDER.map((_, i) => point(i, Math.min(1, Number(values[i]) / limit))).join(" ")
     : hexagon(0);
-  return `<div class="ability-radar${complete ? "" : " is-empty"}" aria-label="Lv50能力レーダー"><svg viewBox="0 0 320 236" role="img"><polygon class="radar-grid" points="${hexagon(1)}"></polygon><polygon class="radar-grid radar-grid-inner" points="${hexagon(.5)}"></polygon>${GAME_STAT_ORDER.map((_,i)=>`<line class="radar-axis" x1="160" y1="118" x2="${point(i,1).split(",")[0]}" y2="${point(i,1).split(",")[1]}"></line>`).join("")}<polygon class="radar-value" points="${polygon}"></polygon>${labels}</svg>${complete ? `<p>Lv50基礎値 ／ 最大目安 ${limit}</p>` : "<p>能力値は未収録です</p>"}</div>`;
+  return `<div class="ability-radar${complete ? "" : " is-empty"}" aria-label="Lv50能力レーダー"><svg viewBox="0 0 320 236" role="img"><polygon class="radar-background" points="${hexagon(1)}"></polygon><polygon class="radar-grid" points="${hexagon(1)}"></polygon><polygon class="radar-grid radar-grid-inner" points="${hexagon(.5)}"></polygon>${GAME_STAT_ORDER.map((_,i)=>`<line class="radar-axis" x1="160" y1="118" x2="${point(i,1).split(",")[0]}" y2="${point(i,1).split(",")[1]}"></line>`).join("")}<polygon class="radar-values" points="${polygon}"></polygon>${labels}</svg>${complete ? `<p>Lv50基礎値 ／ 最大目安 ${limit}</p>` : "<p>能力値は未収録です</p>"}</div>`;
 }
 function tacticDetail(t) {
   const entry = comparison.get(t.id);
