@@ -394,7 +394,7 @@ function generalTipsVisual(g) {
         tipsMeter("Lv1",[{label:"兵刃（％）",value:46,tone:"base"},{label:"計略（％）",value:46,tone:"strategy"}],184) +
         tipsMeter("Lv10",[{label:"兵刃（％）",value:92,tone:"base"},{label:"計略（％）",value:92,tone:"strategy"}],184) +
         '<p>大将時：4段階到達後の次の粋消費で、さらに兵刃134％・計略134％。</p>' +
-        tipsMeter("大将の追加分",[{label:"追加兵刃（％）",value:134,tone:"base"},{label:"追加計略（％）",value:134,tone:"strategy"}],268));
+        tipsMeter("大将の追加分",[{label:"追加兵刃（％）",value:134,tone:"base"},{label:"追加計略（％）",value:134,tone:"strategy"}],268) + '<p><strong>大将の追加分は、ほぼ乱世の華に匹敵！</strong></p><p>粋がある間は、毎ターン乱世の華が無条件で発動するようなもの！という手数のイメージです。</p><p><small>追加分は兵刃134％＋計略134％、乱世の華は158％＋158％（Lv10）。同じ実ダメージという意味ではありません。大将の追加分には4段階到達などの条件があり、毎ターン無条件に追加されるわけではありません。</small></p>');
   }
   return "";
 }
