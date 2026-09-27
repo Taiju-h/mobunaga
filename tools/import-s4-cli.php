@@ -10,6 +10,8 @@ function fail(string $message, int $code): never {
     exit($code);
 }
 
+$importOnly = in_array('--import-only', $argv ?? [], true);
+
 if (!is_readable(DB_CONFIG)) fail('DB config unreadable: ' . DB_CONFIG, 2);
 if (!is_readable(SQL_FILE)) fail('S4 SQL unreadable: ' . SQL_FILE, 3);
 
@@ -73,9 +75,11 @@ try {
         throw new RuntimeException("S4 verification failed: generals={$s4Generals}, unique_links={$s4Unique}, unique_tactics={$s4Tactics}");
     }
 
-    $result = mobunaga_export_catalog($db, dirname(__DIR__));
     echo "S4 import OK: statements={$executed}, generals={$s4Generals}, unique_links={$s4Unique}, unique_tactics={$s4Tactics}" . PHP_EOL;
-    echo 'catalog exported: ' . $result['path'] . ' / generals=' . $result['generals'] . ' tactics=' . $result['tactics'] . PHP_EOL;
+    if (!$importOnly) {
+        $result = mobunaga_export_catalog($db, dirname(__DIR__));
+        echo 'catalog exported: ' . $result['path'] . ' / generals=' . $result['generals'] . ' tactics=' . $result['tactics'] . PHP_EOL;
+    }
 } catch (Throwable $e) {
     fail('S4 import/export failed: ' . $e->getMessage(), 10);
 }
