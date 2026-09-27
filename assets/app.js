@@ -355,6 +355,50 @@ function mobunagaTips(body) {
   if (!body) return "";
   return `<aside class="detail-section mobunaga-tips" aria-label="モブナガ TIPS"><header class="mobunaga-tips-heading"><span class="mobunaga-tips-avatar"><img src="${esc(versioned("assets/mobunaga.png"))}" alt="" loading="lazy"></span><div><h3>モブナガ TIPS</h3><small>独自の考察・試算</small></div></header><div class="mobunaga-tips-body">${body}</div></aside>`;
 }
+
+function tipsMeter(label, parts, max, note = "") {
+  const total = parts.reduce((sum, part) => sum + part.value, 0);
+  return `<div class="tips-meter-row"><div class="tips-meter-label"><strong>${esc(label)}</strong><span>${esc(note)}</span></div><div class="tips-meter-track" role="img" aria-label="${esc(label + '：' + parts.map(p => p.label + ' ' + p.value).join('、'))}">${parts.map(p => `<span class="tips-meter-fill tips-meter-${p.tone}" style="width:${Math.max(0, Math.min(100, p.value / max * 100))}%"></span>`).join("")}</div><div class="tips-meter-values">${parts.map(p => `<span><i class="tips-key tips-meter-${p.tone}"></i>${esc(p.label)} <b>${Number(p.value).toFixed(2).replace(/\\.?0+$/, "")}</b></span>`).join("")}<strong>計 ${Number(total.toFixed(2))}</strong></div></div>`;
+}
+function generalTipsVisual(g) {
+  const figure = (title, caption, body) => `<figure class="tips-figure"><figcaption><strong>${esc(title)}</strong><p>${esc(caption)}</p></figcaption>${body}</figure>`;
+  if (g.id === "uragamimunekage") {
+    const base = Number(stat(g, "武勇"));
+    const intellect = Number(stat(g, "知略"));
+    if (!Number.isFinite(base) || !Number.isFinite(intellect)) return "";
+    const chart = (commander) => {
+      const decay = commander ? .8 : .75;
+      const turns = commander ? 5 : 4;
+      return Array.from({length:6}, (_, i) => {
+        const bonus = i < turns ? 60 * decay ** i : 0;
+        return tipsMeter(`${i + 1}T`, [{label:"基礎武勇",value:base,tone:"base"},{label:"上乗せ",value:bonus,tone:"boost"}], base + 60,
+          `知略 ${(intellect + bonus).toFixed(2)}${i === 4 ? " ／ 友軍へ混乱" : ""}`);
+      }).join("");
+    };
+    return figure("武勇・知略の上乗せ残量", "Lv50・初回の上乗せを+60と仮定した計算例。青は基礎武勇、緑は上乗せ。知略にも同じ量を加算します。実際の初回上昇量は知略などの条件で変わります。",
+      `<div class="tips-chart-grid"><section><h4>通常時：毎ターン25％減</h4>${chart(false)}</section><section><h4>大将時：毎ターン20％減</h4>${chart(true)}</section></div>`) +
+      figure("実測した上乗せと、その後の目安", "1T・2Tは実測。3T・4Tは初回値から計算した目安です。武勇・知略共通。",
+        [55.46,41.59,55.46*.75**2,55.46*.75**3].map((value,i)=>tipsMeter(`${i+1}T`,[{label:"上乗せ",value,tone:"boost"}],55.46,i<2?"実測":"計算")).join("")) +
+      figure("通常攻撃後の追加計略", "Lv10のダメージ率。属性上昇の終了後も、この追加効果は継続します。実ダメージは兵力・知略・敵の防御などで変わります。",
+        tipsMeter("通常攻撃後",[{label:"計略ダメージ率（％）",value:106,tone:"strategy"}],106));
+  }
+  if (g.id === "datemasamune") {
+    const base = Number(stat(g,"武勇")), intellect = Number(stat(g,"知略"));
+    if (!Number.isFinite(base) || !Number.isFinite(intellect)) return "";
+    return figure("「粋」の残量：初期5 → 毎ターン1消費", "補充がない場合の例。各ターンの行動後の残量です。毎回の消費で兵刃・計略の両方を放ちます。",
+      Array.from({length:6},(_,i)=>`<div class="tips-stock-row"><strong>${i+1}T</strong><span class="tips-stock" role="img" aria-label="残り${Math.max(0,4-i)}粋">${Array.from({length:5},(_,j)=>`<i class="${j<4-i?'is-full':''}"></i>`).join("")}</span><b>${Math.max(0,4-i)} / 5</b><small>${i<5?"1消費 → 兵刃＋計略":"補充がなければ停止"}</small></div>`).join("") +
+      '<p class="tips-flow">兵刃2回 ＋ 計略2回 → 能力上昇1段階<br>4段階到達後、同条件を満たすと「粋」を1補充</p>') +
+      figure("武勇・知略：条件達成ごとに上昇", "Lv50の基礎値に5％ずつ加算した計算例。横軸はターン数ではなく、強化の段階です。他の強化効果は含みません。",
+        Array.from({length:5},(_,i)=>tipsMeter(`${i}段階（+${i*5}％）`,[{label:"基礎武勇",value:base,tone:"base"},{label:"上乗せ",value:base*.05*i,tone:"boost"}],base*1.2,`知略 ${(intellect*(1+.05*i)).toFixed(2)}`)).join("")) +
+      figure("「粋」1消費のダメージ率", "兵刃と計略は別々に計算されます。棒はダメージ率の内訳で、実ダメージの合計ではありません。",
+        tipsMeter("Lv1",[{label:"兵刃（％）",value:46,tone:"base"},{label:"計略（％）",value:46,tone:"strategy"}],184) +
+        tipsMeter("Lv10",[{label:"兵刃（％）",value:92,tone:"base"},{label:"計略（％）",value:92,tone:"strategy"}],184) +
+        '<p>大将時：4段階到達後の次の粋消費で、さらに兵刃134％・計略134％。</p>' +
+        tipsMeter("大将の追加分",[{label:"追加兵刃（％）",value:134,tone:"base"},{label:"追加計略（％）",value:134,tone:"strategy"}],268));
+  }
+  return "";
+}
+
 function tipsParagraphs(text) {
   return String(text || "").split(/\n\n+/).filter(Boolean).map((paragraph) => {
     const heading = paragraph.match(/^【([^】]+)】([\s\S]*)$/);
@@ -485,7 +529,7 @@ function generalDetail(g) {
         .join(""),
     );
   const commentary = g.commentary && Number(g.commentary_season || 1) <= (window.MobunagaSeason?.current?.() || 1) ? g.commentary : "";
-  return html + relatedFormations(g.id, "generals") + sourceHTML(g.source) + mobunagaTips(tipsParagraphs(commentary));
+  return html + relatedFormations(g.id, "generals") + sourceHTML(g.source) + mobunagaTips(commentary ? generalTipsVisual(g) + tipsParagraphs(commentary) : "");
 }
 function abilityRadar(g) {
   const limit = Math.max(

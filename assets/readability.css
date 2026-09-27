@@ -845,3 +845,27 @@ footer b {
 .mobunaga-tips-body p{margin:0 0 12px;line-height:1.85}
 .mobunaga-tips-body p:last-child{margin-bottom:0}
 @media(max-width:600px){.mobunaga-tips{padding:16px;margin-top:22px}.mobunaga-tips-body{font-size:14px}}
+
+/* Reusable numerical diagrams for editorial TIPS. */
+.tips-figure{margin:0 0 22px;padding:18px;background:#fffdf8;border:1px solid #c9d7ce;border-radius:12px}
+.tips-figure figcaption>strong{display:block;font-size:17px;color:#294e40}
+.tips-figure figcaption p{font-size:12px;color:#65766e;margin:6px 0 16px;line-height:1.7}
+.tips-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.tips-meter-row{margin:12px 0 16px}
+.tips-meter-label{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px;margin-bottom:6px}
+.tips-meter-label>span{font-size:11px;color:#64716c;text-align:right}
+.tips-meter-track{display:flex;height:18px;overflow:hidden;border-radius:5px;background:#e8ede9}
+.tips-meter-fill{display:block;height:100%;flex-shrink:0}
+.tips-meter-base{background:#4b80a3}
+.tips-meter-boost{background:#65a773}
+.tips-meter-strategy{background:#a47abc}
+.tips-meter-values{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:11px;margin-top:5px;font-variant-numeric:tabular-nums}
+.tips-meter-values>strong{margin-left:auto}
+.tips-key{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
+.tips-stock-row{display:grid;grid-template-columns:30px minmax(80px,1fr) 40px;gap:8px;align-items:center;margin:12px 0;font-size:13px}
+.tips-stock{display:flex;gap:5px}
+.tips-stock i{display:block;flex:1;height:24px;border-radius:5px;background:#e5eae5;border:1px solid #cbd5ce}
+.tips-stock i.is-full{background:#65a773;border-color:#50875d}
+.tips-stock-row small{grid-column:2 / -1;color:#65766e}
+.tips-flow{padding:12px;border-radius:8px;background:#edf4ee;font-size:13px}
+@media(max-width:650px){.tips-chart-grid{grid-template-columns:1fr;gap:8px}.tips-figure{padding:12px}.tips-meter-label{flex-wrap:wrap}}
