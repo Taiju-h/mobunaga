@@ -130,8 +130,9 @@
       if (!currentDetail) return;
       const type = { generals: "general", tactics: "tactic", formations: "formation" }[currentDetail.type];
       if (!type) return;
-      const u = new URL("share.php", location.href);
-      u.searchParams.set("type", type);
+      const u = new URL("/", location.href);
+      u.searchParams.set("open", currentDetail.type);
+      u.hash = currentDetail.type;
       u.searchParams.set("id", currentDetail.id);
       u.searchParams.set("season", String(selectedViewerSeason()));
       await shareUrl(button, u.href, document.querySelector("#detail-title")?.textContent || document.title);
