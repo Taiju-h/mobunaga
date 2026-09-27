@@ -1,0 +1,17 @@
+{
+  "season": 4,
+  "checkedAt": "2026-09-27",
+  "source": "https://www.sanguo-zhi.com/entry/s4-joban/",
+  "permission": "https://www.sanguo-zhi.com/entry/category/土地難易度表/",
+  "portraits": {
+    "inabashigemichi": "https://www.sanguo-zhi.com/wp-content/uploads/2026/07/image-106.png",
+    "anayamanobukimi": "https://www.sanguo-zhi.com/wp-content/uploads/2026/07/image-23.png",
+    "odanobukiyo": "https://www.sanguo-zhi.com/wp-content/uploads/2026/07/image-16.png",
+    "shishidotakaie": "実戦戦報から切り抜き",
+    "onoharufusa": "実戦戦報から切り抜き（顔のみ。他の土地Lvの評価・編成を流用しない）"
+  },
+  "reports": {
+    "privacy": "一門名・ユーザー名・チャット・フッターの帯を除去。元画像は公開しない。",
+    "facts": "勝利3件、引分1件。戦死・負傷・残兵は表示値。"
+  }
+}

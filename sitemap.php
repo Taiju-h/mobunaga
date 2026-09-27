@@ -14,6 +14,9 @@ $urls = [
     $base . '/help/',
     $base . '/simulator/',
     $base . '/research/',
+    $base . '/s4-startdash/',
+    $base . '/s4-startdash/land4/',
+    $base . '/s4-startdash/land5/',
 ];
 
 foreach (($db['generals'] ?? []) as $row) {
