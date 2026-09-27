@@ -11,7 +11,7 @@ function mobunagaAuthCookie(int $expires): void
         'path' => '/',
         'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
         'httponly' => true,
-        'samesite' => 'Strict',
+        'samesite' => 'Lax',
     ]);
 }
 
@@ -42,7 +42,7 @@ session_set_cookie_params([
     'path' => '/',
     'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
     'httponly' => true,
-    'samesite' => 'Strict',
+    'samesite' => 'Lax',
 ]);
 session_start();
 
