@@ -45,6 +45,33 @@
   const current = () => selected || Number(localStorage.getItem(STORAGE_KEY) || 0) || 1;
   window.MobunagaSeason = { current, generalFirstSeason, tacticFirstSeason };
 
+  const hasUsefulValue = (value) => {
+    if (value == null) return false;
+    if (typeof value === "string") return value.trim() !== "";
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === "object") return Object.keys(value).length > 0;
+    return true;
+  };
+  const mergeWithoutBlanks = (base, extra) => {
+    const merged = { ...(base || {}) };
+    for (const [key, value] of Object.entries(extra || {})) {
+      if (!hasUsefulValue(value)) continue;
+      if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        merged[key] &&
+        typeof merged[key] === "object" &&
+        !Array.isArray(merged[key])
+      ) {
+        merged[key] = mergeWithoutBlanks(merged[key], value);
+      } else {
+        merged[key] = value;
+      }
+    }
+    return merged;
+  };
+
   function mergeS4Additions(payload) {
     if (!payload || typeof db === "undefined" || !db) return;
     const generals = Array.isArray(payload.generals) ? payload.generals : [];
@@ -52,16 +79,16 @@
     const patches = Array.isArray(payload.patch_tactics) ? payload.patch_tactics : [];
     for (const patch of patches) {
       const target = db.tactics.find((row) => row.name === patch.name || row.name?.startsWith(patch.name + " "));
-      if (target) Object.assign(target, patch);
+      if (target) Object.assign(target, mergeWithoutBlanks(target, patch));
     }
     for (const general of generals) {
       const index = db.generals.findIndex((row) => row.id === general.id || row.name === general.name);
-      if (index >= 0) db.generals[index] = { ...db.generals[index], ...general };
+      if (index >= 0) db.generals[index] = mergeWithoutBlanks(db.generals[index], general);
       else db.generals.push(general);
     }
     for (const tactic of tactics) {
       const index = db.tactics.findIndex((row) => row.id === tactic.id || row.name === tactic.name);
-      if (index >= 0) db.tactics[index] = { ...db.tactics[index], ...tactic };
+      if (index >= 0) db.tactics[index] = mergeWithoutBlanks(db.tactics[index], tactic);
       else db.tactics.push(tactic);
     }
     if (db.meta) {
