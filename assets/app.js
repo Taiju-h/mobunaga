@@ -17,8 +17,9 @@ const normalized = (value) =>
     .toLowerCase()
     .replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
 const number = (value) => (value == null ? "—" : Number(value).toFixed(1));
+const statAttribute = (row) => row?.attribute ?? row?.stat;
 const stat = (g, name) =>
-  g.stats.find((row) => row.attribute === name)?.level50;
+  g.stats.find((row) => statAttribute(row) === name)?.level50;
 // Clockwise from the top, matching the in-game ability display.
 const GAME_STAT_ORDER = ["知略", "武勇", "魅力", "政務", "速度", "統率"];
 const tierScore = (value) =>
@@ -131,8 +132,26 @@ function formationCard(f) {
   const required = new Map((analysis?.required_limit_breaks || []).map((row) => [row.general_id, row.required_limit_break]));
   return `<button class="card formation-card" data-open="formations" data-id="${esc(f.id)}" aria-label="S${esc(f.season)} ${esc(f.name)}の編成詳細"><div class="card-top">${badge("S" + f.season)}${badge("要注意度 " + danger, "danger-badge")}<span class="card-id">編成 ${esc(f.id.toUpperCase())}</span></div><div class="formation-portraits">${f.members.map((m) => `<div class="soldier"><div class="soldier-image">${portrait(generalMap.get(m.general_id), "")}<span class="soldier-role">${esc(m.role)}</span></div><span class="soldier-name">${esc(m.general_name)}</span>${required.get(m.general_id) == null ? "" : `<span class="red-limit-break" title="成立に必要な凸数">${"◆".repeat(required.get(m.general_id))}</span>`}</div>`).join("")}</div><h3 class="formation-title">${esc(leader)}隊</h3><div class="formation-meta"><span>${esc(f.faction)}</span><span>／</span><span>${esc(troopLabel(f.troops))}</span></div><div class="formation-loadout">${f.members.map((m, i) => `<div><span>${i === 0 ? "主将" : "副将" + i}</span><b>${esc(m.tactics.map((t) => t.tactic_name).join("・"))}</b></div>`).join("")}</div><div class="card-bottom"><span>${esc(f.requirement || (Number(f.season) > 1 ? "戦法・兵学・能力振り" : "戦法・能力振り"))}</span><span>凸と対策を見る ›</span></div></button>`;
 }
+
+function totalStats(g, attributes = GAME_STAT_ORDER) {
+  const values = attributes.map((name) => stat(g, name));
+  if (values.some((value) => value == null || value === "" || !Number.isFinite(Number(value)))) return null;
+  return Math.round(values.reduce((sum, value) => sum + Number(value), 0) * 10) / 10;
+}
+function combatStats(g) {
+  return totalStats(g, ["武勇", "知略", "統率", "速度"]);
+}
+function totalStatsHTML(g) {
+  return `<span class="stat-total" title="Lv50：戦闘属性は武勇・知略・統率・速度、総合値は政務・魅力を含む6能力の合計"><span>戦闘属性</span><strong>${number(combatStats(g))}</strong><span class="stat-total-slash">/</span><small class="stat-total-overall"><span>総合</span> ${number(totalStats(g))}</small></span>`;
+}
+function costHTML(g) {
+  const cost = Number(g.cost);
+  const emphasis = cost === 7 ? "cost-high" : cost === 6 ? "cost-next" : cost === 3 || cost === 4 ? "cost-low" : "cost-normal";
+  return `<span class="cost-badge ${emphasis}"><span>COST</span><strong>${esc(g.cost ?? "—")}</strong></span>`;
+}
+
 function generalCard(g) {
-  return `<button class="card general-card" data-open="generals" data-id="${esc(g.id)}" aria-label="${esc(g.name)}の詳細"><div class="card-head">${portrait(g)}<div><span class="stars">${"★".repeat(Math.min(g.rarity || 0, 5))}</span><h3>${esc(g.name)}</h3><span class="meta">${esc(g.faction)} ／ COST ${esc(g.cost ?? "—")}</span></div>${badge(g.current_tier || "未評価", "tier-badge")}</div><div class="stats">${["武勇", "知略", "統率", "速度"].map((name) => `<span>${name}<b>${number(stat(g, name))}</b></span>`).join("")}</div><p class="skill-line">固有戦法　${esc(g.unique_tactic?.name || "未収録")}</p></button>`;
+  return `<button class="card general-card" data-open="generals" data-id="${esc(g.id)}" aria-label="${esc(g.name)}の詳細"><div class="card-head">${portrait(g)}<div><span class="stars">${"★".repeat(Math.min(g.rarity || 0, 5))}</span><h3>${esc(g.name)}</h3><span class="meta">${esc(g.faction)} ／ ${costHTML(g)}</span></div>${badge(g.current_tier || "未評価", "tier-badge")}</div><div class="stats-heading">${totalStatsHTML(g)}</div><div class="stats">${["武勇", "知略", "統率", "速度"].map((name) => `<span>${name}<b>${number(stat(g, name))}</b></span>`).join("")}</div><p class="skill-line">固有戦法　${esc(g.unique_tactic?.name || "未収録")}</p></button>`;
 }
 function tacticCard(t) {
   const entry = comparison.get(t.id);
@@ -200,7 +219,11 @@ function render() {
         ? (a.kana || a.name).localeCompare(b.kana || b.name, "ja")
         : order === "tier"
           ? tierScore(a.current_tier) - tierScore(b.current_tier)
-          : (stat(b, order) ?? -Infinity) - (stat(a, order) ?? -Infinity),
+          : order === "combat"
+            ? (combatStats(b) ?? -Infinity) - (combatStats(a) ?? -Infinity)
+            : order === "total"
+            ? (totalStats(b) ?? -Infinity) - (totalStats(a) ?? -Infinity)
+            : (stat(b, order) ?? -Infinity) - (stat(a, order) ?? -Infinity),
     );
   } else {
     compareTactics();
@@ -374,7 +397,7 @@ function generalDetail(g) {
     ? `<a href="${esc(versioned(detailImage))}" target="_blank" rel="noopener" aria-label="${esc(g.name)}のカード画像を開く"><img class="general-full-image" src="${esc(versioned(detailImage))}" alt="${esc(g.name)}の武将カード"></a>`
     : portrait(g, "general-full-image");
   const rows = GAME_STAT_ORDER.map(
-    (name) => g.stats.find((s) => s.attribute === name) || { attribute: name },
+    (name) => g.stats.find((s) => statAttribute(s) === name) || { attribute: name },
   );
   const fans = Array.from(
     { length: Math.min(Math.max(Number(g.rarity) || 0, 0), 5) },
@@ -385,10 +408,10 @@ function generalDetail(g) {
         .map((t) => t.troop + (t.bonus == null ? "" : " +" + t.bonus))
         .join("・")
     : "未収録";
-  let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span><span>COST ${esc(g.cost ?? "—")}</span></div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
+  let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span>${costHTML(g)}</div><div class="stats-heading detail-stats-heading">${totalStatsHTML(g)}</div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
   html += section(
     "能力値",
-    `<table class="ability-table"><thead><tr><th>属性</th><th>Lv1</th><th>成長</th><th>Lv50</th></tr></thead><tbody>${rows.map((s) => `<tr><th>${esc(s.attribute)}</th><td>${number(s.level1)}</td><td>${s.growth == null ? "—" : Number(s.growth).toFixed(2)}</td><td>${number(s.level50)}</td></tr>`).join("")}</tbody></table>`,
+    `<table class="ability-table"><thead><tr><th>属性</th><th>Lv1</th><th>成長</th><th>Lv50</th></tr></thead><tbody>${rows.map((s) => `<tr><th>${esc(statAttribute(s))}</th><td>${number(s.level1)}</td><td>${s.growth == null ? "—" : Number(s.growth).toFixed(2)}</td><td>${number(s.level50)}</td></tr>`).join("")}</tbody></table>`,
   );
   html += section(
     "兵種ボーナス",
@@ -468,33 +491,36 @@ function abilityRadar(g) {
   };
   const hexagon = (ratio) =>
     GAME_STAT_ORDER.map((_, i) => point(i, ratio)).join(" ");
-  const labels = [
-    [160, 40],
-    [232, 80],
-    [232, 154],
-    [160, 184],
-    [88, 154],
-    [88, 80],
-  ];
-  const description = `${g.name}のLv50基礎能力。上から時計回りに、${GAME_STAT_ORDER.map((name, i) => name + " " + number(values[i])).join("、")}。全軸の外周は${limit}。`;
-  return `<div class="ability-chart"><details class="radar-help"><summary aria-label="能力図について">i</summary><p class="ability-caption">全軸共通：外周 ${limit} ／ Lv50基礎値<br>装備・強化などの補正は含みません${complete ? "" : "<br>一部の能力値は未収録です"}</p></details><svg class="ability-radar" viewBox="0 0 320 228" role="img" aria-label="${esc(description)}" data-limit="${limit}"><polygon class="radar-background" points="${hexagon(1)}"/>${GAME_STAT_ORDER.map((_, i) => `<polygon class="radar-facet" points="160,118 ${point(i, 1)} ${point((i + 1) % 6, 1)}"/>`).join("")}<polygon class="radar-grid" points="${hexagon(1)}"/>${GAME_STAT_ORDER.map((_, i) => `<line class="radar-grid" x1="160" y1="118" x2="${point(i, 1).split(",")[0]}" y2="${point(i, 1).split(",")[1]}"/>`).join("")}${complete ? `<polygon class="radar-values" points="${values.map((value, i) => point(i, Math.max(0, Number(value)) / limit)).join(" ")}"/>` : ""}${GAME_STAT_ORDER.map((name, i) => `<g data-attribute="${name}"><text class="radar-label" text-anchor="middle" x="${labels[i][0]}" y="${labels[i][1]}">${name}</text><text class="radar-number" text-anchor="middle" x="${labels[i][0]}" y="${labels[i][1] + 24}">${number(values[i]).replace(/\.0$/, "")}</text></g>`).join("")}</svg></div>`;
+  const labels = GAME_STAT_ORDER.map((name, i) => {
+    const [x, y] = point(i, 1.42).split(",");
+    return `<text x="${x}" y="${Number(y) + 4}" text-anchor="middle">${esc(name)}</text>`;
+  }).join("");
+  const polygon = complete
+    ? GAME_STAT_ORDER.map((_, i) => point(i, Math.min(1, Number(values[i]) / limit))).join(" ")
+    : hexagon(0);
+  return `<div class="ability-radar${complete ? "" : " is-empty"}" aria-label="Lv50能力レーダー"><svg viewBox="0 0 320 236" role="img"><polygon class="radar-grid" points="${hexagon(1)}"></polygon><polygon class="radar-grid radar-grid-inner" points="${hexagon(.5)}"></polygon>${GAME_STAT_ORDER.map((_,i)=>`<line class="radar-axis" x1="160" y1="118" x2="${point(i,1).split(",")[0]}" y2="${point(i,1).split(",")[1]}"></line>`).join("")}<polygon class="radar-value" points="${polygon}"></polygon>${labels}</svg>${complete ? `<p>Lv50基礎値 ／ 最大目安 ${limit}</p>` : "<p>能力値は未収録です</p>"}</div>`;
 }
 function tacticDetail(t) {
-  const physical = DamageMath.preset(t).rate !== null;
+  const entry = comparison.get(t.id);
+  const result = entry?.result;
+  const acquisition = t.acquisition || "取得元未収録";
+  const owners = t.general_ids.map((id) => generalMap.get(id)).filter(Boolean);
   return (
-    `<div class="detail-head"><div><p>${esc(t.rank)} ／ ${esc(t.category)}</p><h2 id="detail-title">${esc(t.name)}</h2></div></div>` +
-    section("発動率", `<p>${esc(t.activation_rate || "未収録")}</p>`) +
+    `<div class="detail-head"><div><p>戦法録</p><h2 id="detail-title">${esc(t.name)}</h2><div class="detail-meta">${badge(t.rank + " 戦法")}${badge(t.category)}${t.first_season ? badge(t.first_season + "～") : ""}</div></div></div>` +
+    section("効果", `<p>${esc(t.effect || "元資料に効果の記載がありません。")}</p>`) +
     section(
-      "効果",
-      `<p>${esc(t.effect || "元資料に効果の記載がありません。")}</p>`,
+      "発動・適用",
+      `<dl class="definition"><dt>発動率</dt><dd>${esc(t.activation_rate || "未収録")}</dd><dt>適用兵種</dt><dd>${esc(t.applicable_troop || "指定なし")}</dd></dl>`,
     ) +
     section(
-      "ダメージの考察・試算",
-      `<p>${physical ? "収録された兵刃倍率を独立シミュレーターへ読み込めます。複合効果・追加効果は個別に確認してください。" : "兵刃ダメージの考え方を解説しています。この戦法の倍率は自動入力の対象外です。"}</p><a class="damage-detail-link" href="simulator/${physical ? "?tactic=" + encodeURIComponent(t.id) : ""}">モブナガ試算所で計算する →</a>`,
+      "取得方法",
+      `<p>${esc(acquisition)}</p>${owners.length ? `<div class="owner-list">${owners.map((g) => reference("generals", g.id, g.name)).join("")}</div>` : ""}`,
     ) +
     section(
-      "伝授元の武将",
-      `<p>${t.general_ids.map((id) => reference("generals", id, generalMap.get(id)?.name || id)).join(" ／ ") || "武将伝授以外・未収録"}</p>`,
+      "兵刃1撃の試算",
+      result
+        ? `<p>共通条件：武勇337 / 兵力10,000 / 相手統率500 / 8ターン / 対象1体。</p><dl class="definition"><dt>1回ダメージ</dt><dd>${damageNumber.format(result.hit)}</dd><dt>1ターン平均</dt><dd>${damageNumber.format(result.perTurn)}</dd><dt>8ターン累計期待値</dt><dd>${damageNumber.format(result.expected)}</dd></dl><p><a href="simulator/">独立シミュレーターで条件を変える ›</a></p>`
+        : `<p>${esc(entry?.preset.note || "効果文から兵刃の発動率・倍率を一意に取得できないため、試算していません。")}</p><p><a href="simulator/">独立シミュレーターで手入力して試す ›</a></p>`,
     ) +
     relatedFormations(t.id, "tactics") +
     sourceHTML(t.source)
@@ -521,7 +547,7 @@ function openDetail(type, id, fromBack = false) {
 async function fetchJSON(name) {
   // A malformed/live server error is surfaced, not silently replaced with older data.
   const live = await fetch(versioned(`assets/${name}.live.json`), {
-    cache: "force-cache",
+    cache: "no-cache",
   });
   if (live.ok) return live.json();
   if (live.status !== 404) throw new Error(`HTTP ${live.status}`);
