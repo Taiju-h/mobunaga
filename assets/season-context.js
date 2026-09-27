@@ -25,6 +25,7 @@
     const tiers = (g?.tiers || []).filter((row) => (seasonNo(row.season) || 999) <= n);
     const exact = tiers.find((row) => seasonNo(row.season) === n);
     const latest = tiers.sort((a,b)=>(seasonNo(b.season)||0)-(seasonNo(a.season)||0))[0];
+    clone.tiers = tiers;
     clone.current_tier = (exact || latest)?.tier || g.current_tier;
     return clone;
   };
@@ -170,7 +171,7 @@
       const checked = viewSeasons.has(n);
       return `<button type="button" class="season-check" data-catalog-season="${n}" aria-pressed="${checked}"><span class="tick" aria-hidden="true">✓</span>S${n}</button>`;
     }).join("");
-    tabs.innerHTML = `<span>シーズン</span><button type="button" class="season-all" data-catalog-all aria-pressed="${allView}">すべて</button>${buttons}<small>最初は全選択。S数字を最初に押すと、そのシーズンだけに絞り込みます。</small>`;
+    tabs.innerHTML = `<span>シーズン</span><button type="button" class="season-all" data-catalog-all aria-pressed="${allView}">すべて</button>${buttons}<small>最初は全選択。S数字を最初に押すと、そのシーズン以前を表示します。複数選択時は最も後のシーズンまで含みます。</small>`;
   }
 
   function ensureHeaderPicker() {
@@ -246,9 +247,11 @@
       db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= selected);
       db.formations = originals.formations.filter((f) => (seasonNo(f.season) || 999) <= selected);
     } else {
-      db.generals = originals.generals.filter((g) => viewSeasons.has(generalFirstSeason(g))).map(displayTierSeason);
-      db.tactics = originals.tactics.filter((t) => viewSeasons.has(tacticFirstSeason(t)));
-      db.formations = originals.formations.filter((f) => viewSeasons.has(seasonNo(f.season)));
+      // Catalog content carries forward: first season <= selected ceiling.
+      const ceiling = Math.min(selected, Math.max(...viewSeasons));
+      db.generals = originals.generals.filter((g) => generalFirstSeason(g) <= ceiling).map((g) => generalForSeason(g, ceiling));
+      db.tactics = originals.tactics.filter((t) => tacticFirstSeason(t) <= ceiling);
+      db.formations = originals.formations.filter((f) => (seasonNo(f.season) || 999) <= ceiling);
     }
 
     if (typeof generalMap !== "undefined") generalMap = new Map(db.generals.map((g) => [g.id, g]));
