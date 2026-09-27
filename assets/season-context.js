@@ -79,16 +79,24 @@
     const patches = Array.isArray(payload.patch_tactics) ? payload.patch_tactics : [];
     for (const patch of patches) {
       const target = db.tactics.find((row) => row.name === patch.name || row.name?.startsWith(patch.name + " "));
-      if (target) Object.assign(target, mergeWithoutBlanks(target, patch));
+      if (target) Object.assign(target, mergeWithoutBlanks(patch, target));
     }
     for (const general of generals) {
       const index = db.generals.findIndex((row) => row.id === general.id || row.name === general.name);
-      if (index >= 0) db.generals[index] = mergeWithoutBlanks(db.generals[index], general);
-      else db.generals.push(general);
+      // Additions supply missing fields only; the exported catalog is authoritative.
+      // Older additions use "stat", while cards and radar charts read "attribute".
+      const fallback = {
+        ...general,
+        stats: (general.stats || []).map((row) => ({
+          ...row, attribute: row.attribute || row.stat,
+        })),
+      };
+      if (index >= 0) db.generals[index] = mergeWithoutBlanks(fallback, db.generals[index]);
+      else db.generals.push(fallback);
     }
     for (const tactic of tactics) {
       const index = db.tactics.findIndex((row) => row.id === tactic.id || row.name === tactic.name);
-      if (index >= 0) db.tactics[index] = mergeWithoutBlanks(db.tactics[index], tactic);
+      if (index >= 0) db.tactics[index] = mergeWithoutBlanks(tactic, db.tactics[index]);
       else db.tactics.push(tactic);
     }
     if (db.meta) {

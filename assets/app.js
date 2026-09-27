@@ -525,7 +525,7 @@ function openDetail(type, id, fromBack = false) {
 async function fetchJSON(name) {
   // A malformed/live server error is surfaced, not silently replaced with older data.
   const live = await fetch(versioned(`assets/${name}.live.json`), {
-    cache: "force-cache",
+    cache: "no-cache",
   });
   if (live.ok) return live.json();
   if (live.status !== 404) throw new Error(`HTTP ${live.status}`);
