@@ -2,10 +2,24 @@
 (() => {
   const PARAM = "seasons";
   const initialUrl = new URL(location.href);
+  const sharedSeason = Number(initialUrl.searchParams.get("season"));
+  if (initialUrl.searchParams.has("open") && Number.isInteger(sharedSeason) && sharedSeason >= 1 && sharedSeason <= 9) {
+    localStorage.setItem("mobunagaSeason", String(sharedSeason));
+  }
   const initialRaw = initialUrl.searchParams.get(PARAM) || "";
   const initialSeasons = [...new Set(initialRaw.split(",").map((v) => Number(v)).filter((n) => Number.isInteger(n) && n >= 1 && n <= 9))].sort((a,b)=>a-b);
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6"/></svg>';
   let currentDetail = null;
+  let sharedDetailOpened = false;
+  document.addEventListener("mobunaga:detailopen", (event) => { currentDetail = event.detail; });
+  document.addEventListener("mobunaga:seasonchange", () => {
+    if (sharedDetailOpened) return;
+    const type = initialUrl.searchParams.get("open"), id = initialUrl.searchParams.get("id");
+    if (!["generals", "tactics", "formations"].includes(type) || !id) return;
+    if (typeof db === "undefined" || !db?.[type]?.some((row) => row.id === id)) return;
+    sharedDetailOpened = true;
+    openDetail(type, id);
+  });
 
   if (initialSeasons.length) {
     const maxSeason = Math.max(...initialSeasons);
@@ -57,7 +71,7 @@
       }
     } catch (error) {
       if (error?.name === "AbortError") return;
-      try { await navigator.clipboard.writeText(url); } catch (_) {}
+      try { await navigator.clipboard.writeText(url); button.title = "URLをコピーしました"; } catch (_) { window.prompt("共有URLをコピーしてください", url); }
     }
   }
   function ensureStyles() {

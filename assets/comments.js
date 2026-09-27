@@ -68,6 +68,11 @@
   }
   function queueMount(){if(!current||mountQueued)return;mountQueued=true;setTimeout(()=>{mountQueued=false;if(current)mount(current.type,current.id);},0);}
   document.addEventListener("click",(e)=>{const t=e.target.closest("[data-open]");if(!t)return;const k=t.dataset.open,id=t.dataset.id;if(!id||!['generals','formations','tactics'].includes(k))return;current={type:k==='generals'?'general':k==='formations'?'formation':'tactic',id};queueMount();});
+  document.addEventListener("mobunaga:detailopen", (event) => {
+    const {type,id} = event.detail;
+    current={type:{generals:"general",tactics:"tactic",formations:"formation"}[type],id};
+    queueMount();
+  });
   document.addEventListener("mobunaga:seasonchange",()=>{if(current)queueMount();});
   const detail=document.querySelector("#detail-content");
   if(detail)new MutationObserver(()=>{installDetailFixes();if(current&&!document.querySelector("#content-comments"))queueMount();}).observe(detail,{childList:true,subtree:true});

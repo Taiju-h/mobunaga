@@ -565,6 +565,7 @@ function openDetail(type, id, fromBack = false) {
   dialog.scrollTop = 0;
   $("#detail-title").setAttribute("tabindex", "-1");
   $("#detail-title").focus({ preventScroll: true });
+  document.dispatchEvent(new CustomEvent("mobunaga:detailopen", { detail: { type, id } }));
 }
 async function fetchJSON(name) {
   // A malformed/live server error is surfaced, not silently replaced with older data.
