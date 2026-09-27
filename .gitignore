@@ -9,3 +9,7 @@
 # runtime / secret files must never enter Git
 *.secret
 *.local.ini
+
+# generated runtime catalog (MySQL -> public JSON)
+assets/database.live.json
+assets/database.live.json.tmp.*
