@@ -133,13 +133,16 @@ function formationCard(f) {
   return `<button class="card formation-card" data-open="formations" data-id="${esc(f.id)}" aria-label="S${esc(f.season)} ${esc(f.name)}の編成詳細"><div class="card-top">${badge("S" + f.season)}${badge("要注意度 " + danger, "danger-badge")}<span class="card-id">編成 ${esc(f.id.toUpperCase())}</span></div><div class="formation-portraits">${f.members.map((m) => `<div class="soldier"><div class="soldier-image">${portrait(generalMap.get(m.general_id), "")}<span class="soldier-role">${esc(m.role)}</span></div><span class="soldier-name">${esc(m.general_name)}</span>${required.get(m.general_id) == null ? "" : `<span class="red-limit-break" title="成立に必要な凸数">${"◆".repeat(required.get(m.general_id))}</span>`}</div>`).join("")}</div><h3 class="formation-title">${esc(leader)}隊</h3><div class="formation-meta"><span>${esc(f.faction)}</span><span>／</span><span>${esc(troopLabel(f.troops))}</span></div><div class="formation-loadout">${f.members.map((m, i) => `<div><span>${i === 0 ? "主将" : "副将" + i}</span><b>${esc(m.tactics.map((t) => t.tactic_name).join("・"))}</b></div>`).join("")}</div><div class="card-bottom"><span>${esc(f.requirement || (Number(f.season) > 1 ? "戦法・兵学・能力振り" : "戦法・能力振り"))}</span><span>凸と対策を見る ›</span></div></button>`;
 }
 
-function totalStats(g) {
-  const values = GAME_STAT_ORDER.map((name) => stat(g, name));
+function totalStats(g, attributes = GAME_STAT_ORDER) {
+  const values = attributes.map((name) => stat(g, name));
   if (values.some((value) => value == null || value === "" || !Number.isFinite(Number(value)))) return null;
   return Math.round(values.reduce((sum, value) => sum + Number(value), 0) * 10) / 10;
 }
+function combatStats(g) {
+  return totalStats(g, ["武勇", "知略", "統率", "速度"]);
+}
 function totalStatsHTML(g) {
-  return `<span class="stat-total" title="Lv50の武勇・知略・統率・速度・政務・魅力の合計"><span>総合値</span><strong>${number(totalStats(g))}</strong></span>`;
+  return `<span class="stat-total" title="Lv50：戦闘属性は武勇・知略・統率・速度、総合値は政務・魅力を含む6能力の合計"><span>戦闘属性</span><strong>${number(combatStats(g))}</strong><span class="stat-total-slash">/</span><small class="stat-total-overall"><span>総合</span> ${number(totalStats(g))}</small></span>`;
 }
 function costHTML(g) {
   const cost = Number(g.cost);
@@ -216,7 +219,9 @@ function render() {
         ? (a.kana || a.name).localeCompare(b.kana || b.name, "ja")
         : order === "tier"
           ? tierScore(a.current_tier) - tierScore(b.current_tier)
-          : order === "total"
+          : order === "combat"
+            ? (combatStats(b) ?? -Infinity) - (combatStats(a) ?? -Infinity)
+            : order === "total"
             ? (totalStats(b) ?? -Infinity) - (totalStats(a) ?? -Infinity)
             : (stat(b, order) ?? -Infinity) - (stat(a, order) ?? -Infinity),
     );
