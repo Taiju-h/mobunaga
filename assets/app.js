@@ -385,7 +385,11 @@ function generalTipsVisual(g) {
   if (g.id === "datemasamune") {
     const base = Number(stat(g,"武勇")), intellect = Number(stat(g,"知略"));
     if (!Number.isFinite(base) || !Number.isFinite(intellect)) return "";
-    return figure("「粋」の残量：初期5 → 毎ターン1消費", "補充がない場合の例。各ターンの行動後の残量です。毎回の消費で兵刃・計略の両方を放ちます。",
+    return figure("独眼竜：武勇と知略のバランスが重要", "差が小さいほど与ダメージ上昇が大きくなり、差が20％を超えると無効。以下は上限値で、現在の能力値での上昇率ではありません。",
+      tipsMeter("通常時の上限",[{label:"与ダメージ上昇（％）",value:10,tone:"boost"}],15) +
+      tipsMeter("大将時の上限",[{label:"与ダメージ上昇（％）",value:15,tone:"boost"}],15) +
+      '<p class="tips-flow">武勇 ≒ 知略：独眼竜の効果を高く保つ<br>知略 ＞ 武勇：竜騎兵を計略側へ<br>差を広げすぎる：独眼竜の効果が低下</p>') +
+      figure("「粋」の残量：初期5 → 毎ターン1消費", "補充がない場合の例。各ターンの行動後の残量です。毎回の消費で兵刃・計略の両方を放ちます。",
       Array.from({length:6},(_,i)=>`<div class="tips-stock-row"><strong>${i+1}T</strong><span class="tips-stock" role="img" aria-label="残り${Math.max(0,4-i)}粋">${Array.from({length:5},(_,j)=>`<i class="${j<4-i?'is-full':''}"></i>`).join("")}</span><b>${Math.max(0,4-i)} / 5</b><small>${i<5?"1消費 → 兵刃＋計略":"補充がなければ停止"}</small></div>`).join("") +
       '<p class="tips-flow">兵刃2回 ＋ 計略2回 → 能力上昇1段階<br>4段階到達後、同条件を満たすと「粋」を1補充</p>') +
       figure("武勇・知略：条件達成ごとに上昇", "Lv50の基礎値に5％ずつ加算した計算例。横軸はターン数ではなく、強化の段階です。他の強化効果は含みません。",
