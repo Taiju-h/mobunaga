@@ -106,6 +106,17 @@
       if (index >= 0) db.tactics[index] = mergeWithoutBlanks(tactic, db.tactics[index]);
       else db.tactics.push(tactic);
     }
+    // Keep reviewed S4 templates available with both static and MySQL exports.
+    for (const formation of (payload.formations || [])) {
+      const mapped = { ...formation, members: formation.members.map((member) => ({
+        ...member, tactics: member.tactics.map((tactic) => ({
+          ...tactic, tactic_id: db.tactics.find((row) => row.name === tactic.tactic_name)?.id || tactic.tactic_id,
+        })),
+      })) };
+      const index = db.formations.findIndex((row) => row.id === mapped.id);
+      if (index >= 0) db.formations[index] = mapped;
+      else db.formations.push(mapped);
+    }
     if (db.meta) {
       db.meta.generals = db.generals.length;
       db.meta.tactics = db.tactics.length;
@@ -252,8 +263,9 @@
       db.formations = originals.formations.filter((f) => viewSeasons.has(seasonNo(f.season)));
     }
 
-    if (typeof generalMap !== "undefined") generalMap = new Map(db.generals.map((g) => [g.id, g]));
-    if (typeof tacticMap !== "undefined") tacticMap = new Map(db.tactics.map((t) => [t.id, t]));
+    // Exact season filtering applies to lists; templates still reference older members.
+    if (typeof generalMap !== "undefined") generalMap = new Map(originals.generals.filter((g) => generalFirstSeason(g) <= selected).map((g) => [g.id, generalForSeason(g, selected)]));
+    if (typeof tacticMap !== "undefined") tacticMap = new Map(originals.tactics.filter((t) => tacticFirstSeason(t) <= selected).map((t) => [t.id, t]));
     const tg = document.querySelector("#total-generals"), tt = document.querySelector("#total-tactics"), tf = document.querySelector("#total-formations");
     if (tg) tg.textContent = String(db.generals.length);
     if (tt) tt.textContent = String(db.tactics.length);

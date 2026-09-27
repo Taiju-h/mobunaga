@@ -128,9 +128,9 @@ function setOptions(id, values, placeholder) {
 function formationCard(f) {
   const leader = f.members[0].general_name;
   const analysis = formationAnalysisMap.get(f.id);
-  const danger = analysis?.base_danger_deviation ?? 50;
+  const danger = analysis?.base_danger_deviation;
   const required = new Map((analysis?.required_limit_breaks || []).map((row) => [row.general_id, row.required_limit_break]));
-  return `<button class="card formation-card" data-open="formations" data-id="${esc(f.id)}" aria-label="S${esc(f.season)} ${esc(f.name)}の編成詳細"><div class="card-top">${badge("S" + f.season)}${badge("要注意度 " + danger, "danger-badge")}<span class="card-id">編成 ${esc(f.id.toUpperCase())}</span></div><div class="formation-portraits">${f.members.map((m) => `<div class="soldier"><div class="soldier-image">${portrait(generalMap.get(m.general_id), "")}<span class="soldier-role">${esc(m.role)}</span></div><span class="soldier-name">${esc(m.general_name)}</span>${required.get(m.general_id) == null ? "" : `<span class="red-limit-break" title="成立に必要な凸数">${"◆".repeat(required.get(m.general_id))}</span>`}</div>`).join("")}</div><h3 class="formation-title">${esc(leader)}隊</h3><div class="formation-meta"><span>${esc(f.faction)}</span><span>／</span><span>${esc(troopLabel(f.troops))}</span></div><div class="formation-loadout">${f.members.map((m, i) => `<div><span>${i === 0 ? "主将" : "副将" + i}</span><b>${esc(m.tactics.map((t) => t.tactic_name).join("・"))}</b></div>`).join("")}</div><div class="card-bottom"><span>${esc(f.requirement || (Number(f.season) > 1 ? "戦法・兵学・能力振り" : "戦法・能力振り"))}</span><span>凸と対策を見る ›</span></div></button>`;
+  return `<button class="card formation-card" data-open="formations" data-id="${esc(f.id)}" aria-label="S${esc(f.season)} ${esc(f.name)}の編成詳細"><div class="card-top">${badge("S" + f.season)}${f.tier ? badge(f.tier + (f.tier_provisional ? "（暫定）" : "")) : ""}${danger == null ? "" : badge("要注意度 " + danger, "danger-badge")}<span class="card-id">編成 ${esc(f.id.toUpperCase())}</span></div><div class="formation-portraits">${f.members.map((m) => `<div class="soldier"><div class="soldier-image">${portrait(generalMap.get(m.general_id), "")}<span class="soldier-role">${esc(m.role)}</span></div><span class="soldier-name">${esc(m.general_name)}</span>${required.get(m.general_id) == null ? "" : `<span class="red-limit-break" title="成立に必要な凸数">${"◆".repeat(required.get(m.general_id))}</span>`}</div>`).join("")}</div><h3 class="formation-title">${esc(f.variant_label || leader + "隊")}</h3><div class="formation-meta"><span>${esc(f.faction)}</span><span>／</span><span>${esc(troopLabel(f.troops))}</span></div><div class="formation-loadout">${f.members.map((m, i) => `<div><span>${i === 0 ? "主将" : "副将" + i}</span><b>${esc(m.tactics.map((t) => t.tactic_name).join("・"))}</b></div>`).join("")}</div><div class="card-bottom"><span>${esc(f.requirement || (Number(f.season) > 1 ? "戦法・兵学・能力振り" : "戦法・能力振り"))}</span><span>凸と対策を見る ›</span></div></button>`;
 }
 
 function totalStats(g, attributes = GAME_STAT_ORDER) {
@@ -205,7 +205,7 @@ function render() {
       (a, b) =>
         b.season - a.season ||
         (formationAnalysisMap.get(b.id)?.base_danger_deviation ?? 0) - (formationAnalysisMap.get(a.id)?.base_danger_deviation ?? 0) ||
-        a.source_index - b.source_index,
+        (a.source_index ?? 0) - (b.source_index ?? 0) || a.id.localeCompare(b.id),
     );
   } else if (kind === "generals") {
     filtered = filtered.filter(
@@ -349,7 +349,7 @@ function sourceHTML(source, formation) {
   const when = source.fetched_at
     ? new Date(source.fetched_at).toLocaleDateString("ja-JP")
     : "";
-  return `<div class="source"><p>出典：${sourceLink(source.source_url, source.title?.split("｜")[0] || "取得元を見る")}</p><p>取得日：${esc(when)}${formation ? " ／ 元記事の編成表 " + esc(formation.source_index) + " 番目" : ""}</p>${formation ? "<p>評価は攻略記事の掲載時点のものです。編成の条件・代替案・詳しい解説は出典をご確認ください。兵種の明記がない編成は「未指定」としています。</p>" : ""}</div>`;
+  return `<div class="source"><p>出典：${sourceLink(source.source_url, source.title?.split("｜")[0] || "取得元を見る")}</p><p>取得日：${esc(when)}${formation?.source_index ? " ／ 元記事の編成表 " + esc(formation.source_index) + " 番目" : ""}</p>${formation ? "<p>Tierに「暫定」とあるものはモブナガの編集評価、それ以外は攻略記事の掲載時点の評価です。編成の条件・代替案・詳しい解説は出典をご確認ください。兵種の明記がない編成は「未指定」としています。</p>" : ""}</div>`;
 }
 function mobunagaTips(body) {
   if (!body) return "";
@@ -420,15 +420,16 @@ function formationDetail(f) {
   const limitBreak = formationLimitBreaks.get(f.id) ?? 0;
   const score = analysis?.score_by_limit_break?.find((row) => row.limit_break === limitBreak) || { danger_deviation: 50, meta_grade: "—" };
   const required = new Map((analysis?.required_limit_breaks || []).map((row) => [row.general_id, row.required_limit_break]));
-  let html = `<div class="detail-head"><div><p>編成指南 ／ ${esc(f.id.toUpperCase())}</p><h2 id="detail-title">${esc(f.members[0].general_name)}隊</h2><p>${esc(f.name)}</p><div class="detail-meta">${badge("S" + f.season)}${badge("要注意度偏差値 " + score.danger_deviation, "danger-badge")}${badge(f.faction)}${badge(troopLabel(f.troops))}${f.requirement ? badge(f.requirement) : ""}</div></div></div>`;
-  html += `<section class="limit-break-panel"><div><strong>相手の凸数</strong><p>凸が増えるほど要注意度が上がり、こちらのメタ有効度は下がります。</p></div><div class="limit-break-buttons" role="group" aria-label="相手の凸数">${[0,1,2,3,4,5].map((value) => `<button type="button" data-limit-break="${value}" data-formation-id="${esc(f.id)}" aria-pressed="${value === limitBreak}">${value}凸</button>`).join("")}</div><div class="danger-result"><span>要注意度偏差値</span><b>${score.danger_deviation}</b><span>メタ有効度</span><b>${esc(score.meta_grade)}</b></div></section>`;
+  let html = `<div class="detail-head"><div><p>編成指南 ／ ${esc(f.id.toUpperCase())}</p><h2 id="detail-title">${esc(f.variant_label || f.members[0].general_name + "隊")}</h2><p>${esc(f.name)}</p><div class="detail-meta">${badge("S" + f.season)}${f.tier ? badge(f.tier + (f.tier_provisional ? "（暫定）" : "")) : ""}${analysis ? badge("要注意度偏差値 " + score.danger_deviation, "danger-badge") : ""}${badge(f.faction)}${badge(troopLabel(f.troops))}${f.requirement ? badge(f.requirement) : ""}</div></div></div>`;
+  if (analysis) html += `<section class="limit-break-panel"><div><strong>相手の凸数</strong><p>凸が増えるほど要注意度が上がり、こちらのメタ有効度は下がります。</p></div><div class="limit-break-buttons" role="group" aria-label="相手の凸数">${[0,1,2,3,4,5].map((value) => `<button type="button" data-limit-break="${value}" data-formation-id="${esc(f.id)}" aria-pressed="${value === limitBreak}">${value}凸</button>`).join("")}</div><div class="danger-result"><span>要注意度偏差値</span><b>${score.danger_deviation}</b><span>メタ有効度</span><b>${esc(score.meta_grade)}</b></div></section>`;
 
   html += `<div class="member-details">${f.members.map((m) => `<article class="member-detail"><div class="member-detail-heading">${portrait(generalMap.get(m.general_id))}<div><small>${esc(m.role)}</small><h3>${reference("generals", m.general_id, m.general_name)}</h3></div></div><dl><dt>伝授戦法</dt><dd>${m.tactics.map((t) => `<div class="tactic-link">${reference("tactics", t.tactic_id, t.tactic_name)}</div>`).join("")}</dd><dt>能力振り</dt><dd>${esc(m.attribute_plan || "記載なし")}</dd><dt>主兵学</dt><dd>${esc(m.main_school || "記載なし")}</dd><dt>副兵学</dt><dd>${esc(m.sub_school || "記載なし")}</dd>${m.equipment ? `<dt>装備</dt><dd>${esc(m.equipment)}</dd>` : ""}</dl></article>`).join("")}</div>`;
   html += f.members.map((m) => required.get(m.general_id) == null ? "" : `<p class="red-limit-break-note">${esc(m.general_name)}：必須 ${required.get(m.general_id)}凸 ${"◆".repeat(required.get(m.general_id))}</p>`).join("");
   if (f.members.some((m) => m.tactics.some((t) => !t.tactic_id)))
     html +=
       '<p class="notice">一部の戦法名は取得元の表記を保持しています。戦法録との対応が確定していないものにはリンクを付けていません。</p>';
-  return html + sourceHTML(f.source, f) + (analysis ? mobunagaTips(`<h4>このテンプレートの紹介</h4><p>${esc(analysis.summary)}</p><h4>主な動き</h4><p>${esc(analysis.movement)}</p><h4>要注意ポイント</h4><p>${esc(analysis.warning)}</p><h4>メタ内容</h4><p>${esc(analysis.meta)}</p>`) : "");
+  if (f.editorial) html += `<p class="notice">${esc(f.requirement)}。戦法名は日本版の戦法録に対応付けています。</p>`;
+  return html + sourceHTML(f.source, f) + (f.editorial ? mobunagaTips(`<h4>このテンプレートの紹介</h4><p>${esc(f.editorial.summary)}</p><h4>条件・注意点</h4><p>${esc(f.editorial.warning)}</p><h4>Tierの根拠（モブナガ暫定評価）</h4><p>${esc(f.tier_basis)}</p>`) : "") + (analysis ? mobunagaTips(`<h4>このテンプレートの紹介</h4><p>${esc(analysis.summary)}</p><h4>主な動き</h4><p>${esc(analysis.movement)}</p><h4>要注意ポイント</h4><p>${esc(analysis.warning)}</p><h4>メタ内容</h4><p>${esc(analysis.meta)}</p>`) : "");
 }
 function relatedFormations(id, type) {
   const rows = db.formations.filter((f) =>
@@ -597,7 +598,7 @@ function tacticDetail(t) {
   );
 }
 function openDetail(type, id, fromBack = false) {
-  const row = db?.[type]?.find((r) => r.id === id);
+  const row = type === "generals" ? generalMap.get(id) : type === "tactics" ? tacticMap.get(id) : db?.[type]?.find((r) => r.id === id);
   if (!row) return;
   const dialog = $("#detail");
   if (!dialog.open) detailStack = [];
@@ -675,7 +676,7 @@ async function start() {
   $("#updated").textContent =
     "武将・戦法データ作成：" +
     new Date(db.meta.generated_at).toLocaleDateString("ja-JP") +
-    (formationError ? "" : " ／ 編成資料：S1・S2・S3");
+    (formationError ? "" : " ／ 編成資料：選択シーズンまで");
   changeKind(location.hash.slice(1) || "formations", true);
 }
 $("#filters").addEventListener("submit", (e) => e.preventDefault());
@@ -769,3 +770,4 @@ start()
     loading.classList.add("is-complete");
     setTimeout(() => loading.remove(), 240);
   });
+
