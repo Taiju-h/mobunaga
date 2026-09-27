@@ -25,6 +25,7 @@
     const tiers = (g?.tiers || []).filter((row) => (seasonNo(row.season) || 999) <= n);
     const exact = tiers.find((row) => seasonNo(row.season) === n);
     const latest = tiers.sort((a,b)=>(seasonNo(b.season)||0)-(seasonNo(a.season)||0))[0];
+    clone.tiers = tiers;
     clone.current_tier = (exact || latest)?.tier || g.current_tier;
     return clone;
   };
@@ -43,7 +44,7 @@
     document.cookie = `${COOKIE_KEY}=${encodeURIComponent(n)}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
   };
   const current = () => selected || Number(localStorage.getItem(STORAGE_KEY) || 0) || 1;
-  window.MobunagaSeason = { current, generalFirstSeason, tacticFirstSeason };
+  window.MobunagaSeason = { current, generalFirstSeason, tacticFirstSeason, select: (n) => setSeason(Number(n), true) };
 
   const hasUsefulValue = (value) => {
     if (value == null) return false;
@@ -93,6 +94,12 @@
       };
       if (index >= 0) db.generals[index] = mergeWithoutBlanks(fallback, db.generals[index]);
       else db.generals.push(fallback);
+      // Editorial commentary is versioned separately from generated MySQL effects.
+      const mergedGeneral = index >= 0 ? db.generals[index] : db.generals[db.generals.length - 1];
+      if (general.commentary) {
+        mergedGeneral.commentary = general.commentary;
+        mergedGeneral.commentary_season = general.commentary_season;
+      }
     }
     for (const tactic of tactics) {
       const index = db.tactics.findIndex((row) => row.id === tactic.id || row.name === tactic.name);
@@ -319,7 +326,8 @@
     const seasonButton = e.target.closest("[data-season]");
     if (seasonButton && originals) {
       e.preventDefault(); e.stopImmediatePropagation();
-      setSeason(Number(seasonButton.dataset.season), true);
+      if (typeof chooseSeason === "function") chooseSeason(seasonButton.dataset.season);
+      else setSeason(Number(seasonButton.dataset.season), true);
       return;
     }
   }, true);

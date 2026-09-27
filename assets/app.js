@@ -351,6 +351,70 @@ function sourceHTML(source, formation) {
     : "";
   return `<div class="source"><p>出典：${sourceLink(source.source_url, source.title?.split("｜")[0] || "取得元を見る")}</p><p>取得日：${esc(when)}${formation ? " ／ 元記事の編成表 " + esc(formation.source_index) + " 番目" : ""}</p>${formation ? "<p>評価は攻略記事の掲載時点のものです。編成の条件・代替案・詳しい解説は出典をご確認ください。兵種の明記がない編成は「未指定」としています。</p>" : ""}</div>`;
 }
+function mobunagaTips(body) {
+  if (!body) return "";
+  return `<aside class="detail-section mobunaga-tips" aria-label="モブナガ TIPS"><header class="mobunaga-tips-heading"><span class="mobunaga-tips-avatar"><img src="${esc(versioned("assets/mobunaga.png"))}" alt="" loading="lazy"></span><div><h3>モブナガ TIPS</h3><small>独自の考察・試算</small></div></header><div class="mobunaga-tips-body">${body}</div></aside>`;
+}
+
+function tipsMeter(label, parts, max, note = "") {
+  const total = parts.reduce((sum, part) => sum + part.value, 0);
+  return `<div class="tips-meter-row"><div class="tips-meter-label"><strong>${esc(label)}</strong><span>${esc(note)}</span></div><div class="tips-meter-track" role="img" aria-label="${esc(label + '：' + parts.map(p => p.label + ' ' + p.value).join('、'))}">${parts.map(p => `<span class="tips-meter-fill tips-meter-${p.tone}" style="width:${Math.max(0, Math.min(100, p.value / max * 100))}%"></span>`).join("")}</div><div class="tips-meter-values">${parts.map(p => `<span><i class="tips-key tips-meter-${p.tone}"></i>${esc(p.label)} <b>${Number(p.value).toFixed(2).replace(/\\.?0+$/, "")}</b></span>`).join("")}<strong>計 ${Number(total.toFixed(2))}</strong></div></div>`;
+}
+function generalTipsVisual(g) {
+  const figure = (title, caption, body) => `<figure class="tips-figure"><figcaption><strong>${esc(title)}</strong><p>${esc(caption)}</p></figcaption>${body}</figure>`;
+  if (g.id === "uragamimunekage") {
+    const base = Number(stat(g, "武勇"));
+    const intellect = Number(stat(g, "知略"));
+    if (!Number.isFinite(base) || !Number.isFinite(intellect)) return "";
+    const chart = (commander) => {
+      const decay = commander ? .8 : .75;
+      const turns = commander ? 5 : 4;
+      return Array.from({length:6}, (_, i) => {
+        const bonus = i < turns ? 60 * decay ** i : 0;
+        return tipsMeter(`${i + 1}T`, [{label:"基礎武勇",value:base,tone:"base"},{label:"上乗せ",value:bonus,tone:"boost"}], base + 60,
+          `知略 ${(intellect + bonus).toFixed(2)}${i === 4 ? " ／ 友軍へ混乱" : ""}`);
+      }).join("");
+    };
+    return figure("武勇・知略の上乗せ残量", "Lv50・初回の上乗せを+60と仮定した計算例。青は基礎武勇、緑は上乗せ。知略にも同じ量を加算します。実際の初回上昇量は知略などの条件で変わります。",
+      `<div class="tips-chart-grid"><section><h4>通常時：毎ターン25％減</h4>${chart(false)}</section><section><h4>大将時：毎ターン20％減</h4>${chart(true)}</section></div>`) +
+      figure("実測した上乗せと、その後の目安", "1T・2Tは実測。3T・4Tは初回値から計算した目安です。武勇・知略共通。",
+        [55.46,41.59,55.46*.75**2,55.46*.75**3].map((value,i)=>tipsMeter(`${i+1}T`,[{label:"上乗せ",value,tone:"boost"}],55.46,i<2?"実測":"計算")).join("")) +
+      figure("通常攻撃後の追加計略", "Lv10のダメージ率。属性上昇の終了後も、この追加効果は継続します。実ダメージは兵力・知略・敵の防御などで変わります。",
+        tipsMeter("通常攻撃後",[{label:"計略ダメージ率（％）",value:106,tone:"strategy"}],106));
+  }
+  if (g.id === "datemasamune") {
+    const base = Number(stat(g,"武勇")), intellect = Number(stat(g,"知略"));
+    if (!Number.isFinite(base) || !Number.isFinite(intellect)) return "";
+    return figure("独眼竜：武勇と知略のバランスが重要", "差が小さいほど与ダメージ上昇が大きくなり、差が20％を超えると無効。以下は上限値で、現在の能力値での上昇率ではありません。",
+      tipsMeter("通常時の上限",[{label:"与ダメージ上昇（％）",value:10,tone:"boost"}],15) +
+      tipsMeter("大将時の上限",[{label:"与ダメージ上昇（％）",value:15,tone:"boost"}],15) +
+      '<p class="tips-flow">武勇 ≒ 知略：独眼竜の効果を高く保つ<br>知略 ＞ 武勇：竜騎兵を計略側へ<br>差を広げすぎる：独眼竜の効果が低下</p>') +
+      figure("「粋」の残量：初期5 → 毎ターン1消費", "補充がない場合の例。各ターンの行動後の残量です。毎回の消費で兵刃・計略の両方を放ちます。",
+      Array.from({length:6},(_,i)=>`<div class="tips-stock-row"><strong>${i+1}T</strong><span class="tips-stock" role="img" aria-label="残り${Math.max(0,4-i)}粋">${Array.from({length:5},(_,j)=>`<i class="${j<4-i?'is-full':''}"></i>`).join("")}</span><b>${Math.max(0,4-i)} / 5</b><small>${i<5?"1消費 → 兵刃＋計略":"補充がなければ停止"}</small></div>`).join("") +
+      '<p class="tips-flow">兵刃2回 ＋ 計略2回 → 能力上昇1段階<br>4段階到達後、同条件を満たすと「粋」を1補充</p>') +
+      figure("武勇・知略：条件達成ごとに上昇", "Lv50の基礎値に5％ずつ加算した計算例。横軸はターン数ではなく、強化の段階です。他の強化効果は含みません。",
+        Array.from({length:5},(_,i)=>tipsMeter(`${i}段階（+${i*5}％）`,[{label:"基礎武勇",value:base,tone:"base"},{label:"上乗せ",value:base*.05*i,tone:"boost"}],base*1.2,`知略 ${(intellect*(1+.05*i)).toFixed(2)}`)).join("")) +
+      figure("「粋」1消費のダメージ率", "兵刃と計略は別々に計算されます。棒はダメージ率の内訳で、実ダメージの合計ではありません。",
+        tipsMeter("Lv1",[{label:"兵刃（％）",value:46,tone:"base"},{label:"計略（％）",value:46,tone:"strategy"}],184) +
+        tipsMeter("Lv10",[{label:"兵刃（％）",value:92,tone:"base"},{label:"計略（％）",value:92,tone:"strategy"}],184) +
+        '<p>大将時：4段階到達後の次の粋消費で、さらに兵刃134％・計略134％。</p>' +
+        tipsMeter("大将の追加分",[{label:"追加兵刃（％）",value:134,tone:"base"},{label:"追加計略（％）",value:134,tone:"strategy"}],268) + '<p><strong>開幕から5ターン、兵刃と計略の二段攻撃を毎ターン！</strong></p><p>イメージは、一撃を控えめにした「乱世の華」を毎ターン放つような連続攻撃。初期の「粋」5つで発動抽選に頼らず攻め続け、武勇・知略の強化も狙えます。安定した手数が政宗の強みです！</p><p>さらに大将なら、強化が4段階に達した後の次の粋消費で、追加の二段攻撃も。粋の補充まで回れば、序盤の勢いを長期戦へつなげられます。</p>');
+  }
+  return "";
+}
+
+function tipsParagraphs(text) {
+  return String(text || "").split(/\n\n+/).filter(Boolean).map((paragraph) => {
+    const heading = paragraph.match(/^【([^】]+)】([\s\S]*)$/);
+    return heading ? `<h4>${esc(heading[1])}</h4><p>${esc(heading[2])}</p>` : `<p>${esc(paragraph)}</p>`;
+  }).join("");
+}
+function splitEditorialEffect(effect) {
+  const text = String(effect || "");
+  const index = text.search(/【(?:伊達政宗との相性|Lv50の見方|実数イメージ)】/);
+  return index < 0 ? { effect: text, tips: "" } : { effect: text.slice(0, index), tips: text.slice(index) };
+}
+
 function formationDetail(f) {
   const analysis = formationAnalysisMap.get(f.id);
   const limitBreak = formationLimitBreaks.get(f.id) ?? 0;
@@ -358,13 +422,13 @@ function formationDetail(f) {
   const required = new Map((analysis?.required_limit_breaks || []).map((row) => [row.general_id, row.required_limit_break]));
   let html = `<div class="detail-head"><div><p>編成指南 ／ ${esc(f.id.toUpperCase())}</p><h2 id="detail-title">${esc(f.members[0].general_name)}隊</h2><p>${esc(f.name)}</p><div class="detail-meta">${badge("S" + f.season)}${badge("要注意度偏差値 " + score.danger_deviation, "danger-badge")}${badge(f.faction)}${badge(troopLabel(f.troops))}${f.requirement ? badge(f.requirement) : ""}</div></div></div>`;
   html += `<section class="limit-break-panel"><div><strong>相手の凸数</strong><p>凸が増えるほど要注意度が上がり、こちらのメタ有効度は下がります。</p></div><div class="limit-break-buttons" role="group" aria-label="相手の凸数">${[0,1,2,3,4,5].map((value) => `<button type="button" data-limit-break="${value}" data-formation-id="${esc(f.id)}" aria-pressed="${value === limitBreak}">${value}凸</button>`).join("")}</div><div class="danger-result"><span>要注意度偏差値</span><b>${score.danger_deviation}</b><span>メタ有効度</span><b>${esc(score.meta_grade)}</b></div></section>`;
-  if (analysis) html += section("このテンプレートの紹介", `<p>${esc(analysis.summary)}</p><h4>主な動き</h4><p>${esc(analysis.movement)}</p><h4>要注意ポイント</h4><p>${esc(analysis.warning)}</p><h4>メタ内容</h4><p>${esc(analysis.meta)}</p>`);
+
   html += `<div class="member-details">${f.members.map((m) => `<article class="member-detail"><div class="member-detail-heading">${portrait(generalMap.get(m.general_id))}<div><small>${esc(m.role)}</small><h3>${reference("generals", m.general_id, m.general_name)}</h3></div></div><dl><dt>伝授戦法</dt><dd>${m.tactics.map((t) => `<div class="tactic-link">${reference("tactics", t.tactic_id, t.tactic_name)}</div>`).join("")}</dd><dt>能力振り</dt><dd>${esc(m.attribute_plan || "記載なし")}</dd><dt>主兵学</dt><dd>${esc(m.main_school || "記載なし")}</dd><dt>副兵学</dt><dd>${esc(m.sub_school || "記載なし")}</dd>${m.equipment ? `<dt>装備</dt><dd>${esc(m.equipment)}</dd>` : ""}</dl></article>`).join("")}</div>`;
   html += f.members.map((m) => required.get(m.general_id) == null ? "" : `<p class="red-limit-break-note">${esc(m.general_name)}：必須 ${required.get(m.general_id)}凸 ${"◆".repeat(required.get(m.general_id))}</p>`).join("");
   if (f.members.some((m) => m.tactics.some((t) => !t.tactic_id)))
     html +=
       '<p class="notice">一部の戦法名は取得元の表記を保持しています。戦法録との対応が確定していないものにはリンクを付けていません。</p>';
-  return html + sourceHTML(f.source, f);
+  return html + sourceHTML(f.source, f) + (analysis ? mobunagaTips(`<h4>このテンプレートの紹介</h4><p>${esc(analysis.summary)}</p><h4>主な動き</h4><p>${esc(analysis.movement)}</p><h4>要注意ポイント</h4><p>${esc(analysis.warning)}</p><h4>メタ内容</h4><p>${esc(analysis.meta)}</p>`) : "");
 }
 function relatedFormations(id, type) {
   const rows = db.formations.filter((f) =>
@@ -452,7 +516,12 @@ function generalDetail(g) {
         .map((t) => `<span class="pill">${esc(t.season)} ${esc(t.tier)}</span>`)
         .join(""),
     );
-  const grants = db.tactics.filter((t) => t.general_ids.includes(g.id));
+  const grants = db.tactics.filter((t) =>
+    t.general_ids?.includes(g.id) &&
+    !String(t.id).startsWith("s4-unique-") &&
+    t.name !== g.unique_tactic?.name &&
+    !String(t.acquisition || "").includes("固有")
+  );
   if (grants.length)
     html += section(
       "伝授戦法",
@@ -463,7 +532,8 @@ function generalDetail(g) {
         )
         .join(""),
     );
-  return html + relatedFormations(g.id, "generals") + sourceHTML(g.source);
+  const commentary = g.commentary && Number(g.commentary_season || 1) <= (window.MobunagaSeason?.current?.() || 1) ? g.commentary : "";
+  return html + relatedFormations(g.id, "generals") + sourceHTML(g.source) + mobunagaTips(commentary ? generalTipsVisual(g) + tipsParagraphs(commentary) : "");
 }
 function abilityRadar(g) {
   const limit = Math.max(
@@ -483,8 +553,8 @@ function abilityRadar(g) {
   const point = (i, ratio) => {
     const angle = ((-90 + i * 60) * Math.PI) / 180;
     return [
-      160 + 44 * ratio * Math.cos(angle),
-      118 + 44 * ratio * Math.sin(angle),
+      160 + 68 * ratio * Math.cos(angle),
+      118 + 68 * ratio * Math.sin(angle),
     ]
       .map((n) => n.toFixed(2))
       .join(",");
@@ -493,21 +563,22 @@ function abilityRadar(g) {
     GAME_STAT_ORDER.map((_, i) => point(i, ratio)).join(" ");
   const labels = GAME_STAT_ORDER.map((name, i) => {
     const [x, y] = point(i, 1.42).split(",");
-    return `<text x="${x}" y="${Number(y) + 4}" text-anchor="middle">${esc(name)}</text>`;
+    return `<text class="radar-label" x="${x}" y="${Number(y) - 5}" text-anchor="middle">${esc(name)}</text><text class="radar-number" x="${x}" y="${Number(y) + 15}" text-anchor="middle">${number(values[i])}</text>`;
   }).join("");
   const polygon = complete
     ? GAME_STAT_ORDER.map((_, i) => point(i, Math.min(1, Number(values[i]) / limit))).join(" ")
     : hexagon(0);
-  return `<div class="ability-radar${complete ? "" : " is-empty"}" aria-label="Lv50能力レーダー"><svg viewBox="0 0 320 236" role="img"><polygon class="radar-grid" points="${hexagon(1)}"></polygon><polygon class="radar-grid radar-grid-inner" points="${hexagon(.5)}"></polygon>${GAME_STAT_ORDER.map((_,i)=>`<line class="radar-axis" x1="160" y1="118" x2="${point(i,1).split(",")[0]}" y2="${point(i,1).split(",")[1]}"></line>`).join("")}<polygon class="radar-value" points="${polygon}"></polygon>${labels}</svg>${complete ? `<p>Lv50基礎値 ／ 最大目安 ${limit}</p>` : "<p>能力値は未収録です</p>"}</div>`;
+  return `<div class="ability-radar${complete ? "" : " is-empty"}" aria-label="Lv50能力レーダー"><svg viewBox="0 0 320 236" role="img"><polygon class="radar-background" points="${hexagon(1)}"></polygon><polygon class="radar-grid" points="${hexagon(1)}"></polygon><polygon class="radar-grid radar-grid-inner" points="${hexagon(.5)}"></polygon>${GAME_STAT_ORDER.map((_,i)=>`<line class="radar-axis" x1="160" y1="118" x2="${point(i,1).split(",")[0]}" y2="${point(i,1).split(",")[1]}"></line>`).join("")}<polygon class="radar-values" points="${polygon}"></polygon>${labels}</svg>${complete ? `<p>Lv50基礎値 ／ 最大目安 ${limit}</p>` : "<p>能力値は未収録です</p>"}</div>`;
 }
 function tacticDetail(t) {
+  const editorial = splitEditorialEffect(t.effect);
   const entry = comparison.get(t.id);
   const result = entry?.result;
   const acquisition = t.acquisition || "取得元未収録";
   const owners = t.general_ids.map((id) => generalMap.get(id)).filter(Boolean);
   return (
     `<div class="detail-head"><div><p>戦法録</p><h2 id="detail-title">${esc(t.name)}</h2><div class="detail-meta">${badge(t.rank + " 戦法")}${badge(t.category)}${t.first_season ? badge(t.first_season + "～") : ""}</div></div></div>` +
-    section("効果", `<p>${esc(t.effect || "元資料に効果の記載がありません。")}</p>`) +
+    section("効果", `<p>${esc(editorial.effect || "元資料に効果の記載がありません。")}</p>`) +
     section(
       "発動・適用",
       `<dl class="definition"><dt>発動率</dt><dd>${esc(t.activation_rate || "未収録")}</dd><dt>適用兵種</dt><dd>${esc(t.applicable_troop || "指定なし")}</dd></dl>`,
@@ -516,14 +587,13 @@ function tacticDetail(t) {
       "取得方法",
       `<p>${esc(acquisition)}</p>${owners.length ? `<div class="owner-list">${owners.map((g) => reference("generals", g.id, g.name)).join("")}</div>` : ""}`,
     ) +
-    section(
-      "兵刃1撃の試算",
+    relatedFormations(t.id, "tactics") +
+    sourceHTML(t.source) +
+    mobunagaTips(tipsParagraphs(editorial.tips) + "<h4>兵刃1撃の試算</h4>" + (
       result
         ? `<p>共通条件：武勇337 / 兵力10,000 / 相手統率500 / 8ターン / 対象1体。</p><dl class="definition"><dt>1回ダメージ</dt><dd>${damageNumber.format(result.hit)}</dd><dt>1ターン平均</dt><dd>${damageNumber.format(result.perTurn)}</dd><dt>8ターン累計期待値</dt><dd>${damageNumber.format(result.expected)}</dd></dl><p><a href="simulator/">独立シミュレーターで条件を変える ›</a></p>`
-        : `<p>${esc(entry?.preset.note || "効果文から兵刃の発動率・倍率を一意に取得できないため、試算していません。")}</p><p><a href="simulator/">独立シミュレーターで手入力して試す ›</a></p>`,
-    ) +
-    relatedFormations(t.id, "tactics") +
-    sourceHTML(t.source)
+        : `<p>${esc(entry?.preset.note || "効果文から兵刃の発動率・倍率を一意に取得できないため、試算していません。")}</p><p><a href="simulator/">独立シミュレーターで手入力して試す ›</a></p>`
+    ))
   );
 }
 function openDetail(type, id, fromBack = false) {
@@ -543,6 +613,7 @@ function openDetail(type, id, fromBack = false) {
   dialog.scrollTop = 0;
   $("#detail-title").setAttribute("tabindex", "-1");
   $("#detail-title").focus({ preventScroll: true });
+  document.dispatchEvent(new CustomEvent("mobunaga:detailopen", { detail: { type, id } }));
 }
 async function fetchJSON(name) {
   // A malformed/live server error is surfaced, not silently replaced with older data.
@@ -632,7 +703,7 @@ document
   );
 function chooseSeason(season) {
   changeKind("formations");
-  $("#season").value = season;
+  if (window.MobunagaSeason?.select) window.MobunagaSeason.select(Number(season));
   render();
   $("#catalog").scrollIntoView({ block: "start", behavior: "smooth" });
 }
@@ -641,7 +712,7 @@ document
   .forEach((n) =>
     n.addEventListener("click", () => chooseSeason(n.dataset.season)),
   );
-$("#latest-season").addEventListener("click", () => chooseSeason("3"));
+$("#latest-season").addEventListener("click", () => chooseSeason("4"));
 $("#browse-generals").addEventListener("click", () => changeKind("generals"));
 $("#previous-page").addEventListener("click", () => {
   page--;

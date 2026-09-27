@@ -5,15 +5,7 @@ header('Pragma: no-cache');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
 
-session_name('mobunaga_analysis_room');
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-    'httponly' => true,
-    'samesite' => 'Strict',
-]);
-session_start();
+require_once __DIR__ . '/../includes/analysis-session.php';
 
 if (empty($_SESSION['authorized'])) {
     http_response_code(403);

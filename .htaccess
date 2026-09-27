@@ -2,6 +2,17 @@ DirectoryIndex index.html index.php
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # Route existing share URLs before PHP so a metadata failure cannot block them.
+  RewriteCond %{QUERY_STRING} (^|&)type=general(&|$)
+  RewriteCond %{QUERY_STRING} (^|&)id=([a-z0-9_-]{1,120})(&|$)
+  RewriteRule ^share\.php$ /?open=generals&id=%2 [R=302,L,QSA]
+  RewriteCond %{QUERY_STRING} (^|&)type=tactic(&|$)
+  RewriteCond %{QUERY_STRING} (^|&)id=([a-z0-9_-]{1,120})(&|$)
+  RewriteRule ^share\.php$ /?open=tactics&id=%2 [R=302,L,QSA]
+  RewriteCond %{QUERY_STRING} (^|&)type=formation(&|$)
+  RewriteCond %{QUERY_STRING} (^|&)id=([a-z0-9_-]{1,120})(&|$)
+  RewriteRule ^share\.php$ /?open=formations&id=%2 [R=302,L,QSA]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^assets/details/([a-z0-9_-]+)\.webp$ assets/general-placeholder.php?slug=$1 [L,QSA,NC]
 </IfModule>

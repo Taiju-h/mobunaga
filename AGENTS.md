@@ -43,3 +43,11 @@ This repository is the standalone source of truth for Mobunaga (`https://nobunag
 - Check for staged secret-like files (`.env`, real `.ini`, `.pem`, `.key`) before push.
 - Check actual file/path existence before writing deployment instructions.
 - Do not use the parent UZERO repository for Mobunaga changes.
+
+## Editorial TIPS
+- Place Mobunaga's original commentary and calculations in the trailing TIPS panel, with its distinct color and face icon.
+- Visualize numerical comparisons, turn-by-turn changes, and resource balances with labeled charts/bars; do not rely on number-heavy prose alone.
+- Distinguish observed values, assumed calculation examples, damage rates, and actual damage. Do not invent missing measurements.
+- Use site-owned wording such as 実測; avoid 提供動画 and other wording that treats the site owner's work as an external contribution.
+
+- The main/sidebar season selection includes earlier content (entry season <= viewer season). Search/catalog season filters remain exact-match. Do not conflate these two controls; switching the main season resets search filters. Preserve original season labels.
