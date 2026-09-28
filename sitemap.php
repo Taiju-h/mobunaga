@@ -17,6 +17,7 @@ $urls = [
     $base . '/s4-startdash/',
     $base . '/s4-startdash/land4/',
     $base . '/s4-startdash/land5/',
+    $base . '/s4-startdash/gate7/',
 ];
 
 foreach (($db['generals'] ?? []) as $row) {
@@ -45,3 +46,4 @@ foreach ($urls as $url) {
     echo '  <url><loc>' . $url . "</loc></url>\n";
 }
 echo "</urlset>\n";
+
