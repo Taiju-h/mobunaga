@@ -17,6 +17,7 @@ $urls = [
     $base . '/s4-startdash/',
     $base . '/s4-startdash/land4/',
     $base . '/s4-startdash/land5/',
+    $base . '/s4-startdash/land6/',
     $base . '/s4-startdash/gate7/',
 ];
 
@@ -46,4 +47,5 @@ foreach ($urls as $url) {
     echo '  <url><loc>' . $url . "</loc></url>\n";
 }
 echo "</urlset>\n";
+
 

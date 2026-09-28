@@ -1,0 +1,365 @@
+{
+  "season": 4,
+  "land_level": 6,
+  "recorded_at": "2026-09-28",
+  "people": [
+    {
+      "id": "kakizakikageie",
+      "name": "柿崎景家",
+      "portrait": "assets/portraits/kakizakikageie.webp"
+    },
+    {
+      "id": "chisakakagechika",
+      "name": "千坂景親",
+      "portrait": "assets/portraits/chisakakagechika.webp"
+    },
+    {
+      "id": "oichi",
+      "name": "お市",
+      "portrait": "assets/portraits/oichi.webp"
+    },
+    {
+      "id": "kojimayatarou",
+      "name": "小島弥太郎",
+      "portrait": "assets/portraits/kojimayatarou.webp"
+    },
+    {
+      "id": "datemasamune",
+      "name": "伊達政宗",
+      "portrait": "assets/portraits/datemasamune.webp"
+    },
+    {
+      "id": "satomiyoshitaka",
+      "name": "里見義堯",
+      "portrait": "assets/portraits/satomiyoshitaka.webp"
+    },
+    {
+      "id": "usamisadamitsu",
+      "name": "宇佐美定満",
+      "portrait": "assets/portraits/usamisadamitsu.webp"
+    },
+    {
+      "id": "saegusamasazada",
+      "name": "三枝昌貞",
+      "portrait": "assets/portraits/saegusamasazada.webp"
+    },
+    {
+      "id": "ikedasen",
+      "name": "池田せん",
+      "portrait": "assets/portraits/ikedasen.webp"
+    },
+    {
+      "id": "mouriterumoto",
+      "name": "毛利輝元",
+      "portrait": "assets/portraits/mouriterumoto.webp"
+    },
+    {
+      "id": "ookubotadayo",
+      "name": "大久保忠世",
+      "portrait": "assets/portraits/ookubotadayo.webp"
+    },
+    {
+      "id": "hachisukaiemasa",
+      "name": "蜂須賀家政",
+      "portrait": "assets/portraits/hachisukaiemasa.webp"
+    },
+    {
+      "id": "ikedatsuneoki",
+      "name": "池田恒興",
+      "portrait": "assets/portraits/ikedatsuneoki.webp"
+    },
+    {
+      "id": "sakaimasahisa",
+      "name": "坂井政尚",
+      "portrait": "assets/portraits/sakaimasahisa.webp"
+    }
+  ],
+  "reports": [
+    {
+      "id": "a1",
+      "image": "assets/land-reports/lv6-a1.webp",
+      "original_filename": "image (4).webp",
+      "enemy": "saegusamasazada",
+      "allies": [
+        "kakizakikageie",
+        "chisakakagechika",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 10200,
+      "end": 9535,
+      "dead": 665,
+      "wounded": 0,
+      "enemy_start": 15000,
+      "enemy_end": 0,
+      "result": "勝利",
+      "sequence": "A・1戦目",
+      "morale": 93,
+      "note": ""
+    },
+    {
+      "id": "a2",
+      "image": "assets/land-reports/lv6-a2.webp",
+      "original_filename": "image (5).webp",
+      "enemy": "mouriterumoto",
+      "allies": [
+        "kakizakikageie",
+        "chisakakagechika",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 9535,
+      "end": 8028,
+      "dead": 1253,
+      "wounded": 254,
+      "enemy_start": 15000,
+      "enemy_end": 1359,
+      "result": "勝利",
+      "sequence": "A・2戦目",
+      "morale": 93,
+      "note": "前の戦報の残兵9,535から開始。"
+    },
+    {
+      "id": "b1",
+      "image": "assets/land-reports/lv6-b1.webp",
+      "original_filename": "IMG_6260 (1).webp",
+      "enemy": "saegusamasazada",
+      "allies": [
+        "kakizakikageie",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 9998,
+      "end": 8941,
+      "dead": 600,
+      "wounded": 457,
+      "enemy_start": 15000,
+      "enemy_end": 0,
+      "result": "勝利",
+      "sequence": "B・1戦目",
+      "morale": 92,
+      "note": ""
+    },
+    {
+      "id": "b2",
+      "image": "assets/land-reports/lv6-b2.webp",
+      "original_filename": "IMG_6261 (1).webp",
+      "enemy": "ikedasen",
+      "allies": [
+        "kakizakikageie",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 8941,
+      "end": 3782,
+      "dead": 2793,
+      "wounded": 2366,
+      "enemy_start": 15000,
+      "enemy_end": 7789,
+      "result": "敗北",
+      "sequence": "B・2戦目",
+      "morale": 92,
+      "note": "前の戦報の残兵8,941から開始。大将の柿崎景家が潰走。"
+    },
+    {
+      "id": "c1",
+      "image": "assets/land-reports/lv6-c1.webp",
+      "original_filename": "IMG_6265.webp",
+      "enemy": "ookubotadayo",
+      "allies": [
+        "datemasamune",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        26,
+        26,
+        26
+      ],
+      "start": 12600,
+      "end": 10069,
+      "dead": 2196,
+      "wounded": 335,
+      "enemy_start": 15000,
+      "enemy_end": 2223,
+      "result": "勝利",
+      "sequence": "C・1戦目",
+      "morale": 91,
+      "note": ""
+    },
+    {
+      "id": "c2",
+      "image": "assets/land-reports/lv6-c2.webp",
+      "original_filename": "IMG_6266.webp",
+      "enemy": "mouriterumoto",
+      "allies": [
+        "datemasamune",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        26,
+        26,
+        26
+      ],
+      "start": 10069,
+      "end": 5760,
+      "dead": 3193,
+      "wounded": 1116,
+      "enemy_start": 15000,
+      "enemy_end": 4483,
+      "result": "引分",
+      "sequence": "C・2戦目",
+      "morale": 91,
+      "note": "前の戦報の残兵10,069から開始。経験値欄にLv26→27の表示。"
+    },
+    {
+      "id": "c3",
+      "image": "assets/land-reports/lv6-c3.webp",
+      "original_filename": "IMG_6267.webp",
+      "enemy": "mouriterumoto",
+      "allies": [
+        "datemasamune",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        27,
+        27,
+        27
+      ],
+      "start": 5760,
+      "end": 5409,
+      "dead": 153,
+      "wounded": 198,
+      "enemy_start": 4483,
+      "enemy_end": 2999,
+      "result": "勝利",
+      "sequence": "C・追撃",
+      "morale": 91,
+      "note": "敵は満兵ではなく4,483兵から開始。引分後の追撃であり、単独の低損攻略例ではありません。"
+    },
+    {
+      "id": "d1",
+      "image": "assets/land-reports/lv6-d1.webp",
+      "original_filename": "Screenshot_20260928_155634.webp",
+      "enemy": "ookubotadayo",
+      "allies": [
+        "kakizakikageie",
+        "satomiyoshitaka",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 10800,
+      "end": 10244,
+      "dead": 556,
+      "wounded": 0,
+      "enemy_start": 15000,
+      "enemy_end": 375,
+      "result": "勝利",
+      "sequence": "D・1戦目",
+      "morale": 95,
+      "note": ""
+    },
+    {
+      "id": "d2",
+      "image": "assets/land-reports/lv6-d2.webp",
+      "original_filename": "Screenshot_20260928_155641.webp",
+      "enemy": "hachisukaiemasa",
+      "allies": [
+        "kakizakikageie",
+        "satomiyoshitaka",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 10244,
+      "end": 6985,
+      "dead": 2386,
+      "wounded": 873,
+      "enemy_start": 15000,
+      "enemy_end": 4465,
+      "result": "勝利",
+      "sequence": "D・2戦目",
+      "morale": 95,
+      "note": "前の戦報の残兵10,244から開始。"
+    },
+    {
+      "id": "e1",
+      "image": "assets/land-reports/lv6-e1.webp",
+      "original_filename": "Screenshot_20260928_155829.webp",
+      "enemy": "sakaimasahisa",
+      "allies": [
+        "kakizakikageie",
+        "usamisadamitsu",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        24,
+        28
+      ],
+      "start": 10400,
+      "end": 9125,
+      "dead": 854,
+      "wounded": 421,
+      "enemy_start": 15000,
+      "enemy_end": 2041,
+      "result": "勝利",
+      "sequence": "E・1戦目",
+      "morale": 90,
+      "note": ""
+    },
+    {
+      "id": "e2",
+      "image": "assets/land-reports/lv6-e2.webp",
+      "original_filename": "Screenshot_20260928_155854.webp",
+      "enemy": "ikedatsuneoki",
+      "allies": [
+        "kakizakikageie",
+        "usamisadamitsu",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        24,
+        29
+      ],
+      "start": 9125,
+      "end": 5619,
+      "dead": 2563,
+      "wounded": 943,
+      "enemy_start": 15000,
+      "enemy_end": 440,
+      "result": "勝利",
+      "sequence": "E・2戦目",
+      "morale": 90,
+      "note": "前の戦報の残兵9,125から開始。柿崎景家は経験値欄にLv28→29の表示。"
+    }
+  ]
+}
