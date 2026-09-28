@@ -77,7 +77,7 @@
   "reports": [
     {
       "id": "a1",
-      "image": "assets/land-reports/lv6-a1.webp",
+      "image": "assets/land-reports/lv6-a1.webp?v=20260928-anon1",
       "original_filename": "image (4).webp",
       "enemy": "saegusamasazada",
       "allies": [
@@ -103,7 +103,7 @@
     },
     {
       "id": "a2",
-      "image": "assets/land-reports/lv6-a2.webp",
+      "image": "assets/land-reports/lv6-a2.webp?v=20260928-anon1",
       "original_filename": "image (5).webp",
       "enemy": "mouriterumoto",
       "allies": [
@@ -129,7 +129,7 @@
     },
     {
       "id": "b1",
-      "image": "assets/land-reports/lv6-b1.webp",
+      "image": "assets/land-reports/lv6-b1.webp?v=20260928-anon1",
       "original_filename": "IMG_6260 (1).webp",
       "enemy": "saegusamasazada",
       "allies": [
@@ -155,7 +155,7 @@
     },
     {
       "id": "b2",
-      "image": "assets/land-reports/lv6-b2.webp",
+      "image": "assets/land-reports/lv6-b2.webp?v=20260928-anon1",
       "original_filename": "IMG_6261 (1).webp",
       "enemy": "ikedasen",
       "allies": [
@@ -181,7 +181,7 @@
     },
     {
       "id": "c1",
-      "image": "assets/land-reports/lv6-c1.webp",
+      "image": "assets/land-reports/lv6-c1.webp?v=20260928-anon1",
       "original_filename": "IMG_6265.webp",
       "enemy": "ookubotadayo",
       "allies": [
@@ -207,7 +207,7 @@
     },
     {
       "id": "c2",
-      "image": "assets/land-reports/lv6-c2.webp",
+      "image": "assets/land-reports/lv6-c2.webp?v=20260928-anon1",
       "original_filename": "IMG_6266.webp",
       "enemy": "mouriterumoto",
       "allies": [
@@ -233,7 +233,7 @@
     },
     {
       "id": "c3",
-      "image": "assets/land-reports/lv6-c3.webp",
+      "image": "assets/land-reports/lv6-c3.webp?v=20260928-anon1",
       "original_filename": "IMG_6267.webp",
       "enemy": "mouriterumoto",
       "allies": [
@@ -259,7 +259,7 @@
     },
     {
       "id": "d1",
-      "image": "assets/land-reports/lv6-d1.webp",
+      "image": "assets/land-reports/lv6-d1.webp?v=20260928-anon1",
       "original_filename": "Screenshot_20260928_155634.webp",
       "enemy": "ookubotadayo",
       "allies": [
@@ -285,7 +285,7 @@
     },
     {
       "id": "d2",
-      "image": "assets/land-reports/lv6-d2.webp",
+      "image": "assets/land-reports/lv6-d2.webp?v=20260928-anon1",
       "original_filename": "Screenshot_20260928_155641.webp",
       "enemy": "hachisukaiemasa",
       "allies": [
@@ -311,7 +311,7 @@
     },
     {
       "id": "e1",
-      "image": "assets/land-reports/lv6-e1.webp",
+      "image": "assets/land-reports/lv6-e1.webp?v=20260928-anon1",
       "original_filename": "Screenshot_20260928_155829.webp",
       "enemy": "sakaimasahisa",
       "allies": [
@@ -337,7 +337,7 @@
     },
     {
       "id": "e2",
-      "image": "assets/land-reports/lv6-e2.webp",
+      "image": "assets/land-reports/lv6-e2.webp?v=20260928-anon1",
       "original_filename": "Screenshot_20260928_155854.webp",
       "enemy": "ikedatsuneoki",
       "allies": [

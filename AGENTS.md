@@ -51,3 +51,7 @@ This repository is the standalone source of truth for Mobunaga (`https://nobunag
 - Use site-owned wording such as 実測; avoid 提供動画 and other wording that treats the site owner's work as an external contribution.
 
 - The main/sidebar season selection includes earlier content (entry season <= viewer season). Search/catalog season filters remain exact-match. Do not conflate these two controls; switching the main season resets search filters. Preserve original season labels.
+
+## Public battle-report privacy
+- Before publishing any battle-report screenshot, permanently remove player names and clan names from the image pixels, including images opened at full size. Apply this to every new batch, including S4 land reports.
+- Preserve generals, tactics, levels, troop counts, and battle results exactly. Verify all images before committing, and change image cache versions when redacting an existing asset.
