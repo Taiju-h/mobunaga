@@ -453,6 +453,28 @@ function relatedFormations(id, type) {
       )}</div>${rows.length > 12 ? '<p class="notice">一部を表示しています。編成指南で武将名・戦法名から検索できます。</p>' : ""}`,
   );
 }
+function generalCouncilFeature(g) {
+  if (g.id !== "ookubonagayasu" || (window.MobunagaSeason?.current?.() || 1) < 4) return "";
+  const members = [
+    ["oyamadanobushige", "小山田信茂"], ["endounaotsune", "遠藤直経"],
+    ["fukudomechikamasa", "福留親政"], ["shimotakasadakiyo", "下方貞清"],
+    ["ookubonagayasu", "大久保長安"],
+  ];
+  const membersHTML = members.map(([id, name]) => `<div class="council-member"><img src="${esc(versioned(`assets/portraits/${id}.webp`))}" alt="${esc(name)}" width="70" height="86" loading="lazy">${reference("generals", id, name)}</div>`).join("");
+  const screenshot = esc(versioned("assets/guides/ookubonagayasu-council.png"));
+  return section("特集｜天下の総代官・利点の発動条件", `<div class="council-feature">
+    <p class="council-label">S4 ／ 運営回答・ゲーム画面で確認</p>
+    <p><strong>評定所で4種類の拡張技能を揃え、大久保長安も同時に任命すると利点効果を得られます。</strong></p>
+    <h4>運営が案内した任命例</h4>
+    <div class="council-members">${membersHTML}</div>
+    <p>上記5人を同時に任命する例です。条件は「木材・鉄鉱・石材・兵糧拡張」の4技能と大久保長安の同時任命。各武将と技能の個別対応は、今回の回答では示されていません。</p>
+    <h4>ゲーム画面の技能説明</h4>
+    <dl class="definition"><dt>技能名</dt><dd>天下の総代官（S）</dd><dt>種類・対象</dt><dd>産業 ／ 自身</dd><dt>利点</dt><dd>木産・鉄産・石産・農産拡張を同時に配備している時、自身の資源調達の割合が7.5%→9.4%上昇（政務依存・画像の表示値）。</dd><dt>欠点</dt><dd>4種類を同時に配備していない時、自身の資源調達の割合が10%低下。</dd></dl>
+    <div class="council-effects" aria-label="画像に表示された利点と欠点"><div><b>条件成立：＋7.5%→9.4%（政務依存）</b><div class="council-track"><span class="council-positive"></span></div></div><div><b>条件未成立：−10%</b><div class="council-track"><span class="council-negative"></span></div></div><small>棒は表示値の大きさを比較。利点の棒は表示上限9.4%。全武将・全条件で一律9.4%という意味ではありません。</small></div>
+    <figure class="council-screenshot"><a href="${screenshot}" target="_blank" rel="noopener"><img src="${screenshot}" alt="天下の総代官の技能概要。4種類の拡張を同時配備すると利点、未成立時は10%低下。" width="1855" height="1002" loading="lazy"></a><figcaption>ゲーム内の技能概要。画像を押すと原寸表示。</figcaption></figure>
+    <details><summary>運営回答の原文・出典</summary><blockquote>領主様、こんにちは！大久保長安の評定衆技能につきまして、評定所に「木材・鉄鉱・石材・兵糧拡張」の4つの評定衆技能を持つ武将と、大久保長安を同時に任命することで、利点効果を得られます。例えば、「小山田信茂」「遠藤直経」「福留親政」「下方貞清」と「大久保長安」を同時に任命すること。</blockquote><p>2026年9月28日掲載。運営回答の共有文とゲーム内画像を参照。回答では「木材・鉄鉱・石材・兵糧拡張」、ゲーム画像では「木産・鉄産・石産・農産拡張」と表記されています。</p></details>
+  </div>`);
+}
 function generalDetail(g) {
   const detailImage = detailImages[g.id];
   const hasDetail =
@@ -534,7 +556,7 @@ function generalDetail(g) {
         .join(""),
     );
   const commentary = g.commentary && Number(g.commentary_season || 1) <= (window.MobunagaSeason?.current?.() || 1) ? g.commentary : "";
-  return html + relatedFormations(g.id, "generals") + sourceHTML(g.source) + mobunagaTips(commentary ? generalTipsVisual(g) + tipsParagraphs(commentary) : "");
+  return html + generalCouncilFeature(g) + relatedFormations(g.id, "generals") + sourceHTML(g.source) + mobunagaTips(commentary ? generalTipsVisual(g) + tipsParagraphs(commentary) : "");
 }
 function abilityRadar(g) {
   const limit = Math.max(
