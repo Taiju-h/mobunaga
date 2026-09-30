@@ -71,11 +71,11 @@ function formationEvidence(f,index){
  }
  return {supports,threats,missing};
 }
-function eligible(formations,general,excluded=[]){const removed=new Set(excluded);return formations.filter(f=>f.members.some(m=>m.general_id===general)&&f.members.every(m=>!removed.has(m.general_id)));}
+function eligible(formations,general,excluded=[]){const removed=new Set(excluded),required=Array.isArray(general)?general:[general];return formations.filter(f=>required.length&&required.every(id=>f.members.some(m=>m.general_id===id))&&f.members.every(m=>!removed.has(m.general_id)));}
 function candidates(formations,state,index){
  const enemies=formations.filter(f=>(state.enemies||[]).includes(f.id)).map(f=>({formation:f,evidence:formationEvidence(f,index)}));
  const selected=state.purpose==="land"?[]:(state.counters||[]);
- return eligible(formations,state.general,state.excluded).map(f=>{
+ return eligible(formations,state.generals||state.general,state.excluded).map(f=>{
   const evidence=formationEvidence(f,index);
   const matched=selected.filter(k=>evidence.supports[k]?.length);
   const coverage=enemies.map(enemy=>{const needs=Object.keys(COUNTERS).filter(k=>enemy.evidence.threats[k].length);return {enemy,needs,matched:needs.filter(k=>evidence.supports[k].length)};});

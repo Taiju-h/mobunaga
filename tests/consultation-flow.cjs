@@ -63,7 +63,7 @@ assert.equal(await page.locator('.candidate .soldier strong').filter({hasText:'�
 assert((await page.locator('#step-content').innerText()).includes('土地6'));
 await page.screenshot({path:'/tmp/mobunaga-flow-land.png',fullPage:true});
 // Going back and changing an upstream answer invalidates later completion.
-await page.locator('#flow [data-go="general"]').click();await page.locator('[data-general="kikkawahiroie"]').click();
+await page.locator('#flow [data-go="general"]').click();await page.locator('[data-unpin="matsu"]').click();await page.locator('[data-general="kikkawahiroie"]').click();
 assert(await page.locator('#flow [data-go="results"]').isDisabled());
 await page.locator('[data-next]').click();await page.locator('[data-next]').click();
 assert((await page.locator('.empty').innerText()).includes('0件'));
