@@ -7,16 +7,10 @@ const url=path=>path+"?v="+encodeURIComponent(version);
 function storedSeason(){try{return Number(localStorage.getItem("mobunagaSeason"));}catch{return 0;}}
 const requested=Number(new URLSearchParams(location.search).get("season"));
 const initial=[1,2,3,4].includes(requested)?requested:([1,2,3,4].includes(storedSeason())?storedSeason():4);
-const state={season:initial,purpose:"land",level:7,mode:"general",family:"",query:"",general:"",counter:"confusion",enemy:""};
-let catalog,base,s4,allGenerals=[],templates=[],counts=new Map(),generalMap=new Map();
-const counters={
-confusion:{label:"混乱",text:"主力自身の混乱耐性と、部隊全体の対策を分けて考えます。謙信の特性は自身の混乱確率を下げるもので、全員への完全無効ではありません。",ids:["uesugikenshin"],reason:"自身の混乱耐性から検討"},
-active:{label:"敵の能動戦法",text:"無策を与える候補から検討します。先に動けるか、相手に耐性がないかが条件です。指揮・受動まで止める効果とは扱いません。",ids:["kakizakikageie"],reason:"固有戦法の無策から検討"},
-attack:{label:"通常攻撃・突撃",text:"止める手段と、受けて反撃につなぐ手段を分けます。大祝鶴の編成案は受け役の耐久確認が前提です。通常攻撃が多い相手に必ず有利とは限りません。",ids:["oohouritsuru"],reason:"味方の被通常攻撃を利用する案"},
-heal:{label:"回復・持久戦",text:"回復不可・被回復効果の低下を検討し、対象と持続時間を確認します。武将を選び、掲載戦法の効果と相手の耐性を照合してください。",ids:[],reason:""},
-burst:{label:"高火力速攻",text:"序盤の軽減・制御と、回復が間に合う行動順を確認します。能力が整う前に主力が倒れないことを優先して、掲載編成を比較します。",ids:[],reason:""},
-stop:{label:"自軍の行動阻害",text:"混乱・無策・封撃などを分け、止まる攻撃手段を確認します。単一の耐性で全ての阻害を防げるとは判断しません。",ids:["uesugikenshin","kakizakikageie"],reason:"個別の耐性と凸条件を確認"}
-};
+const state={season:initial,purpose:"",step:"purpose",furthest:0,level:null,general:"",enemies:[],counters:[],excluded:[],family:"",query:"",enemyQuery:"",enemyTier:"",match:"all"};
+let catalog,base,s4,allGenerals=[],templates=[],counts=new Map(),generalMap=new Map(),index;
+const labels={purpose:"目的",level:"土地レベル",enemies:"メタしたいテンプレート",general:"使いたい武将",exclude:"その他の武将を引き算",counter:"したい対策",results:"編成一覧"};
+const purposeLabels={land:"土地攻略",pvp:"対人戦",meta:"対人メタ戦"};
 const tips={
 oohouritsuru:"役割：味方への通常攻撃を火力に変える。吉川広家を受け役にする案は検証候補です。狙われる手段と回復・軽減を用意し、実際の被害を確認してください。鶴の条件は味方が通常攻撃を「受ける」ことです。",
 kikkawahiroie:"役割：大祝鶴と組ませる受け役を検討。自己回復を活かす案ですが、誰が攻撃を引き受けるか、残る1枠が何を補うかを確認します。この組み合わせの低兵損実績は未検証です。効果文が未収録の場合は、ゲーム内の現行効果を確認してください。",
@@ -27,65 +21,95 @@ async function getJSON(path){const r=await fetch(url(path),{cache:"no-cache"});i
 async function liveOrBase(name){const r=await fetch(url("../assets/"+name+".live.json"),{cache:"no-cache"});if(r.ok)return r.json();if(r.status!==404)throw Error("HTTP "+r.status);return getJSON("../assets/"+name+".json");}
 function image(g){const p=g?.portrait;return typeof p==="string"&&/^assets\/portraits\/[a-z0-9_-]+\.webp$/.test(p)?'<img class="portrait" src="'+esc(url("../"+p))+'" alt="" loading="lazy">':'<span class="portrait portrait-fallback" aria-hidden="true">将</span>';}
 function sourceLink(href,text){const safe=C.safeLink(href);return safe?'<a href="'+esc(safe)+'" target="_blank" rel="noopener">'+esc(text)+'</a>':esc(text);}
-function setPurposeControls(){document.querySelectorAll("[data-purpose]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.purpose===state.purpose)));document.querySelectorAll("[data-level]").forEach(b=>b.setAttribute("aria-pressed",String(Number(b.dataset.level)===state.level)));document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===state.mode)));$("land-field").hidden=state.purpose!=="land";$("meta-field").hidden=state.purpose!=="meta";$("counter-field").hidden=state.mode!=="counter";}
-function refreshSeason(){
- allGenerals=catalog.generals.filter(g=>C.firstSeason(g)<=state.season);
- generalMap=new Map(allGenerals.map(g=>[g.id,g]));
- templates=C.templatesForSeason(base,s4,state.season).filter(f=>f.members.every(m=>generalMap.has(m.general_id)));
- counts=C.popularity(allGenerals,templates);
- const families=[...new Set(allGenerals.map(C.family))].sort((a,b)=>a.localeCompare(b,"ja"));
- $("family").innerHTML='<option value="">全家門</option>'+families.map(f=>'<option value="'+esc(f)+'">'+esc(f)+'</option>').join("");
- if(!families.includes(state.family))state.family="";$("family").value=state.family;
- const enemies=templates.filter(f=>C.tier(f)<=0.5).sort((a,b)=>C.tier(a)-C.tier(b)||a.source_index-b.source_index);
- if(!enemies.some(f=>f.id===state.enemy))state.enemy=enemies[0]?.id||"";
- $("enemy").innerHTML=enemies.length?enemies.map(f=>'<option value="'+esc(f.id)+'">'+esc(f.tier+" / "+f.name+" / "+f.id)+'</option>').join(""):'<option value="">上位編成は未収録</option>';
- $("enemy").value=state.enemy;
- $("source-count").textContent="S"+state.season+" · "+templates.length+"編成";
- $("source-link").href=state.season===4?s4.meta.source_url:"https://www.sanguo-zhi.com/entry/s"+state.season+"-template/";
- $("data-summary").textContent="武将"+allGenerals.length+"名 / "+families.length+"家門 · 採用件数はS"+state.season+"の掲載表のみ";
- render();
-}
-function visibleGenerals(){const q=state.query.normalize("NFKC").trim().toLowerCase();return C.rank(allGenerals,templates).filter(g=>(!state.family||C.family(g)===state.family)&&(!q||(g.name+" "+g.kana).normalize("NFKC").toLowerCase().includes(q)));}
 function formationHTML(f,open=false){
  const members=f.members.map(m=>'<div class="soldier">'+image(generalMap.get(m.general_id))+'<div><span>'+esc(m.role)+'</span><strong>'+esc(m.general_name)+'</strong></div></div>').join("");
  const body=f.members.map(m=>'<section><h4>'+esc(m.general_name)+'</h4><dl><dt>戦法</dt><dd>'+m.tactics.map(t=>esc(t.tactic_name)).join(" / ")+'</dd><dt>能力振り</dt><dd>'+esc(m.attribute_plan||"記載なし")+'</dd><dt>主兵学</dt><dd>'+esc(m.main_school||"記載なし")+'</dd><dt>副兵学</dt><dd>'+esc(m.sub_school||"記載なし")+'</dd></dl></section>').join("");
  return '<details class="formation"'+(open?' open':'')+'><summary><div class="formation-title"><span class="tag">'+esc(f.tier||"評価未収録")+'</span><b>'+esc(f.troops?.replaceAll(",","・")||"兵種未指定")+'</b><small>'+esc(f.id)+(f.cost?' / COST '+esc(f.cost):'')+'</small></div><div class="team-row">'+members+'</div></summary><div class="formation-body"><div class="member-grid">'+body+'</div>'+((f.requirement||f.template_notes)?'<div class="source-note"><b>掲載条件・代替案</b>'+esc([f.requirement,f.template_notes].filter(Boolean).join("\n"))+'</div>':'')+'<p class="source-link">'+sourceLink(f.source?.source_url,"出典の編成表 "+(f.source_index||"")+" を確認")+'</p><p class="fine">Tierは出典の掲載評価。表記を保持しているため、戦法名に表記揺れが含まれる場合があります。</p></div></details>';
 }
-function render(){
- setPurposeControls();
- const visible=visibleGenerals();
- if(!visible.some(g=>g.id===state.general))state.general=visible[0]?.id||"";
- $("roster-count").textContent=visible.length+" / "+allGenerals.length+"名";
- $("roster").innerHTML=visible.length?visible.map(g=>'<button class="general-button" data-general="'+esc(g.id)+'" aria-pressed="'+(state.general===g.id)+'">'+image(g)+'<span><b>'+esc(g.name)+'</b><small>'+esc(C.family(g))+' / COST '+esc(g.cost??"—")+'</small></span><span class="count">'+counts.get(g.id)+'<small>件</small></span></button>').join(""):'<p class="empty">該当する武将がいません。名前か家門を変更してください。</p>';
- $("context").textContent="S"+state.season+" / "+(state.purpose==="land"?"土地 Lv."+state.level+" / 低兵損・安定性":state.purpose==="pvp"?"対人戦 / 役割と相性":"特定メタ / 対面の条件");
- const enemy=templates.find(f=>f.id===state.enemy);
- $("enemy-content").innerHTML=state.purpose==="meta"?(enemy?'<h3 class="section-title">対策する相手</h3>'+formationHTML(enemy)+'<p class="warning">相手の戦法・兵種を確認して、自軍候補を選んでください。以下の編成が相手に有利と判定されたわけではありません。</p>':'<p class="empty">このシーズンの上位テンプレートは未収録です。</p>'):"";
- const counter=counters[state.counter];
- const candidateIds=counter.ids.filter(id=>generalMap.has(id));
- // Season filtering applies to names and explanatory text, not only roster rows.
- const counterText=state.season<C.firstSeason(catalog.generals.find(g=>g.id==="kakizakikageie")||{tiers:[{season:3}]})&&state.counter==="active"?"無策を付与する手段と、相手より先に動ける条件を確認します。このシーズンの具体的な武将候補は未収録です。":counter.text;
- $("counter-content").innerHTML=state.mode==="counter"?'<div class="brief"><small>対策 / '+esc(counter.label)+'</small><h3>必要な役割を決める</h3><p>'+esc(counterText)+'</p><p class="fine">対策方針は検討案です。武将選択後に掲載編成を比較します。</p></div>':"";
- $("counter-options").innerHTML=candidateIds.length?'<p class="fine">'+esc(counter.reason)+'</p><div class="partner-list">'+candidateIds.map(id=>'<button data-general="'+esc(id)+'" data-reset-family>'+esc(generalMap.get(id).name)+'</button>').join("")+'</div>':'<p class="fine">具体候補は未収録。家門と武将を選んで戦法を確認してください。</p>';
- const g=generalMap.get(state.general);
- $("result-title").textContent=g?g.name+"を軸に考える":"条件に合う武将がいません";
- $("general-content").innerHTML=g?'<div class="brief"><div class="profile-title">'+image(g)+'<div><small>個性を確認</small><h3>'+esc(g.name)+'</h3><span>'+esc(C.family(g))+' / COST '+esc(g.cost??"—")+'</span></div></div><p><b>'+esc(g.unique_tactic?.name||"固有戦法未収録")+'</b></p><p class="effect">'+esc(g.unique_tactic?.effect||"効果文は未収録です。")+'</p><div class="profile-links"><a href="../?open=generals&amp;id='+encodeURIComponent(g.id)+'&amp;season='+state.season+'#generals">武将録で特性・凸条件を確認</a></div></div>':"";
- const related=g?templates.filter(f=>f.members.some(m=>m.general_id===g.id)):[];
- const partners=g?C.partners(g.id,templates):[];
- $("partners").innerHTML=partners.length?'<div class="section-heading"><h3>よく一緒に採用される相方</h3><span>同時採用件数</span></div><div class="partner-list">'+partners.map(p=>'<button data-general="'+esc(p.id)+'" data-reset-family>'+esc(p.name)+'<b>'+p.count+'件</b></button>').join("")+'</div><p class="fine">掲載された組み合わせの頻度です。相性の実測値や、完全な代替関係を示すものではありません。</p>':"";
- $("template-count").textContent=related.length+"件";
- $("template-note").textContent="人気順の母数：S"+state.season+"の掲載テンプレート "+templates.length+"件。1編成につき武将1名を1回集計。戦法・兵種が異なる掲載案は別編成として数えます。";
- $("templates").innerHTML=related.length?related.map((f,i)=>formationHTML(f,i===0)).join(""):'<div class="empty"><b>この武将の掲載編成は0件です</b>このシーズンのテンプレートに登場していません。固有戦法の条件から相方を検討できますが、未確認の三人編成は提示しません。</div>';
- $("purpose-guide").innerHTML=state.purpose==="land"?'<section class="guide"><div class="section-heading"><h3>土地'+state.level+'での兵損確認</h3><span>テンプレートと戦報は別集計</span></div><div class="stats"><div><span>条件一致の戦報</span><b>未集計</b></div><div><span>想定兵損</span><b>未判定</b></div><div><span>連戦可否</span><b>未判定</b></div></div><p class="fine">上の編成は掲載テンプレートです。土地'+state.level+'の低兵損実績を保証するものではありません。Discord戦報との照合は未実施です。</p><ul><li>守備隊・兵種・レベル・兵力・凸・戦法をそろえて比較。</li><li>'+(state.level>=7?'初戦後の残兵力と、次の守備隊への対応を確認。':'低兵損だった相手と苦手な相手を分けて確認。')+'</li><li>兵損の中央値と最大値を記録し、安定して連戦できるかを見る。</li></ul></section>':'<section class="guide"><h3 class="section-title">実戦で比較すること</h3><ul><li>主力が止まった原因と、補助が間に合う行動順。</li><li>相手の兵種・速度・耐性を踏まえた戦法の成立条件。</li><li>勝敗と残兵力を分け、同条件の複数戦で確認。</li></ul></section>';
- const tip=g?(tips[g.id]||"同時採用件数が多い相方から掲載例を確認し、固有戦法の発動条件を誰が支えているかを見ます。代替時は、失う制御・回復・行動順・兵種の補助を一つずつ比較してください。完全な上位・下位互換の判定は未実施です。"):"";
- $("tips").innerHTML=tip?'<aside class="tips"><header><img src="../assets/mobunaga.png" alt="" loading="lazy"><div><h3>モブナガ TIPS</h3><small>役割と相性の検討案</small></div></header><p>'+esc(tip)+'</p></aside>':"";
+function reset(purpose=""){Object.assign(state,{purpose,step:"purpose",furthest:0,level:null,general:"",enemies:[],counters:[],excluded:[],family:"",query:"",enemyQuery:"",enemyTier:"",match:"all"});}
+function route(){return state.purpose?C.steps(state.purpose):["purpose"];}
+function invalidate(){state.furthest=route().indexOf(state.step);}
+function go(step){state.step=step;state.furthest=Math.max(state.furthest,route().indexOf(step));render();$("step-title").focus();}
+function summary(step){switch(step){case "purpose":return purposeLabels[state.purpose]||"選択してください";case "level":return state.level?"土地 "+state.level:"未選択";case "general":return generalMap.get(state.general)?.name||"未選択";case "enemies":return state.enemies.length?state.enemies.length+"編成を選択":"複数選択できます";case "counter":return state.counters.length?state.counters.map(k=>C.COUNTERS[k].label).join("・"):"対策を指定せず比較";case "exclude":return state.excluded.length+"名を除外";default:return "条件に合う候補を比較";}}
+function allowedNext(){if(state.step==="purpose")return !!state.purpose;if(state.step==="level")return !!state.level;if(state.step==="general")return !!state.general;if(state.step==="enemies")return state.enemies.length>0;return true;}
+function refreshSeason(){
+ allGenerals=catalog.generals.filter(g=>C.firstSeason(g)<=state.season);generalMap=new Map(allGenerals.map(g=>[g.id,g]));
+ templates=C.templatesForSeason(base,s4,state.season).filter(f=>f.members.every(m=>generalMap.has(m.general_id)));
+ counts=C.popularity(allGenerals,templates);index=C.evidenceIndex(catalog,state.season);
+ $("source-count").textContent="S"+state.season+" · "+templates.length+"編成";
+ $("source-link").href=state.season===4?s4.meta.source_url:"https://www.sanguo-zhi.com/entry/s"+state.season+"-template/";
+ $("data-summary").textContent="武将"+allGenerals.length+"名 / "+new Set(allGenerals.map(C.family)).size+"家門 · 採用件数はS"+state.season+"の掲載表のみ";
+ document.querySelectorAll('a.brand,.header-tools>a').forEach(a=>a.href="../?season="+state.season);
+ render();
 }
-document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||!catalog)return;if(b.dataset.purpose)state.purpose=b.dataset.purpose;if(b.dataset.level)state.level=Number(b.dataset.level);if(b.dataset.mode)state.mode=b.dataset.mode;if(b.dataset.general){state.general=b.dataset.general;if(b.hasAttribute("data-reset-family")){state.family="";state.query="";$("family").value="";$("query").value="";}}render();});
+function visibleGenerals(){const q=state.query.normalize("NFKC").trim().toLowerCase();return C.rank(allGenerals,templates).filter(g=>(!state.family||C.family(g)===state.family)&&(!q||(g.name+" "+(g.kana||"")).normalize("NFKC").toLowerCase().includes(q)));}
+function filters(){return '<div class="roster-filters"><div class="field"><label for="family">家門を選択</label><select id="family"><option value="">全家門</option>'+[...new Set(allGenerals.map(C.family))].sort((a,b)=>a.localeCompare(b,"ja")).map(f=>'<option'+(state.family===f?' selected':'')+' value="'+esc(f)+'">'+esc(f)+'</option>').join("")+'</select></div><div class="field"><label for="query">武将名で検索</label><input type="search" id="query" value="'+esc(state.query)+'" placeholder="武将名・ふりがな" autocomplete="off"></div></div>';}
+function rosterHTML(exclude=false){const visible=visibleGenerals();const related=templates.filter(f=>f.members.some(m=>m.general_id===state.general));const pairs=C.popularity(allGenerals,related);
+ return '<div class="roster-heading"><b>人気順</b><span>'+visible.length+' / '+allGenerals.length+'名</span></div><p class="fine">S'+state.season+'のテンプレート採用件数順。0件の武将も選べます。</p><div class="roster flow-roster">'+(visible.length?visible.map(g=>{
+ const pinned=exclude&&g.id===state.general,removed=state.excluded.includes(g.id);
+ return '<button class="general-button'+(removed?' excluded':'')+'" '+(exclude?'data-exclude':'data-general')+'="'+esc(g.id)+'" aria-pressed="'+(exclude?removed:state.general===g.id)+'"'+(pinned?' disabled':'')+'>'+image(g)+'<span><b>'+esc(g.name)+'</b><small>'+esc(C.family(g))+' / COST '+esc(g.cost??"—")+'</small>'+(exclude?'<small>'+(pinned?'軸に固定':removed?'除外中・押すと戻す':'候補に残す・押すと除外')+' / 同時採用 '+(pairs.get(g.id)||0)+'件</small>':'')+'</span><span class="count">'+(counts.get(g.id)||0)+'<small>件</small></span></button>';
+ }).join(""):'<p class="empty">該当する武将がいません。家門か検索条件を変更してください。</p>')+'</div>';
+}
+function selectedGeneral(){const g=generalMap.get(state.general);return g?'<div class="selected-general"><div class="soldier">'+image(g)+'<div><span>使いたい武将</span><strong>'+esc(g.name)+'</strong></div></div><span class="tag">'+(counts.get(g.id)||0)+'掲載編成</span></div>':'<p class="fine">使いたい武将を1名選んでください。</p>';}
+function exclusions(){return '<div class="selection-summary"><b>残り '+C.eligible(templates,state.general,state.excluded).length+'編成</b><span>除外 '+state.excluded.length+'名</span><button class="small-button" data-clear-excluded'+(!state.excluded.length?' disabled':'')+'>除外をすべて戻す</button></div><div class="partner-list">'+state.excluded.map(id=>'<button data-exclude="'+esc(id)+'">'+esc(generalMap.get(id)?.name)+' を戻す</button>').join("")+'</div>';}
+function enemyPicker(){const q=state.enemyQuery.normalize("NFKC").trim().toLowerCase();const visible=[...templates].sort((a,b)=>C.tier(a)-C.tier(b)).filter(f=>(!state.enemyTier||f.tier===state.enemyTier)&&(!q||[f.name,f.troops,...f.members.flatMap(m=>[m.general_name,...m.tactics.map(t=>t.tactic_name)])].join(" ").normalize("NFKC").toLowerCase().includes(q)));
+ return '<p class="fine">相手にしたい掲載案を1件以上選んでください。同じ三人でも戦法が異なる案は別に選べます。</p><div class="selection-summary"><b>'+state.enemies.length+'編成を選択</b><button class="small-button" data-clear-enemies'+(!state.enemies.length?' disabled':'')+'>選択を解除</button></div><div class="partner-list">'+state.enemies.map(id=>{const f=templates.find(f=>f.id===id);return '<button data-enemy="'+esc(id)+'">'+esc(f.name)+' / '+esc(f.id)+' ×</button>';}).join("")+'</div><div class="roster-filters"><div class="field"><label for="enemy-query">相手の武将・戦法・兵種</label><input id="enemy-query" type="search" value="'+esc(state.enemyQuery)+'" placeholder="武田信玄、混乱など"></div><div class="field"><label for="enemy-tier">掲載Tier</label><select id="enemy-tier"><option value="">すべて</option>'+[...new Set(templates.map(f=>f.tier))].map(t=>'<option value="'+esc(t)+'"'+(state.enemyTier===t?' selected':'')+'>'+esc(t)+'</option>').join("")+'</select></div></div><p class="fine">'+visible.length+'件 / 全'+templates.length+'件</p><div class="enemy-list">'+visible.map(f=>'<div class="enemy-option"><label class="enemy-check"><input type="checkbox" data-enemy-check="'+esc(f.id)+'"'+(state.enemies.includes(f.id)?' checked':'')+'>このテンプレートを対策する</label>'+formationHTML(f)+'</div>').join("")+(visible.length?'':'<p class="empty">条件に合うテンプレートがありません。</p>')+'</div>';
+}
+function enemyOverview(){if(state.purpose!=="meta")return "";return '<details class="guide"><summary>選んだ相手の戦法・対策の着眼点（'+state.enemies.length+'編成）</summary>'+state.enemies.map(id=>{const f=templates.find(f=>f.id===id),e=C.formationEvidence(f,index);const needs=Object.keys(C.COUNTERS).filter(k=>e.threats[k].length);return formationHTML(f)+'<p class="fine">着眼点：'+(needs.length?needs.map(k=>esc(C.COUNTERS[k].label)).join(" / "):"効果データからの着眼点は未登録")+'。耐性・対象・行動順は個別確認。</p>';}).join("")+'</details>';}
+function counterPicker(){const enemies=state.enemies.map(id=>C.formationEvidence(templates.find(f=>f.id===id),index));return selectedGeneral()+enemyOverview()+'<p class="fine">対策を複数選べます。指定しない場合は、軸の武将を含む掲載編成をすべて比較します。</p><div class="counter-choices">'+Object.entries(C.COUNTERS).map(([k,v])=>{const n=enemies.filter(e=>e.threats[k].length).length;return '<label class="brief counter-choice"><input type="checkbox" data-counter="'+k+'"'+(state.counters.includes(k)?' checked':'')+'><span><b>'+esc(v.label)+'</b><small>'+esc(v.detail)+'</small>'+(n?'<small>選んだ相手 '+n+' / '+enemies.length+'編成に関連する効果あり</small>':'')+'</span></label>';}).join("")+'</div><div class="field"><label for="match">複数選んだ場合</label><select id="match"><option value="all"'+(state.match==="all"?' selected':'')+'>すべての対策に手段がある編成</option><option value="any"'+(state.match==="any"?' selected':'')+'>いずれかの対策に手段がある編成</option></select></div><p class="fine">判定対象は掲載戦法・固有戦法・確認済みの無凸特性です。本人限定や確率発動も含むため、候補の根拠で対象・条件を確認してください。</p>';}
+function evidenceHTML(record,keys){return keys.map(k=>{const rows=record.evidence.supports[k];return '<section class="evidence-group"><h4>'+esc(C.COUNTERS[k].label)+'：'+(rows.length?'検討できる手段あり':'確認済みの手段なし')+'</h4>'+rows.map(e=>'<details><summary>'+esc(e.owner+' / '+e.name+'（'+e.kind+'）')+'</summary><p class="effect">'+esc(e.effect)+'</p><p class="source-link">'+sourceLink(e.source,"効果の出典")+'</p></details>').join("")+'</section>';}).join("");}
+function matchupHTML(record){if(!record.coverage.length)return "";return '<details class="evidence"><summary>相手'+record.coverage.length+'編成との照合（手段・未確認）</summary><div class="matchups"><h4>選んだ相手ごとの確認</h4>'+record.coverage.map(c=>'<section class="matchup"><b>'+esc(c.enemy.formation.name)+'</b><small>'+esc(c.enemy.formation.id)+'</small>'+(c.needs.length?'<p>対策の着眼点：'+c.needs.map(k=>esc(C.COUNTERS[k].label)).join(" / ")+'</p><p>自軍の手段：'+(c.matched.length?c.matched.map(k=>esc(C.COUNTERS[k].label)).join(" / "):"確認済みの手段なし")+'</p>':'<p>この相手の対策情報は未登録です。</p>')+'<details><summary>相手側の根拠・未確認部分</summary>'+c.needs.map(k=>'<p><b>'+esc(C.COUNTERS[k].label)+'</b></p>'+c.enemy.evidence.threats[k].map(e=>'<p class="effect">'+esc(e.owner+' / '+e.name)+'：'+esc(e.effect)+'</p>').join("")).join("")+'<p class="fine">相手側の効果文未収録 '+c.enemy.evidence.missing+'件。兵種・速度・対象への命中・耐性・発動順による成否は未判定です。</p></details></section>').join("")+'<p class="fine">手段の存在を比較しています。相手に勝てる判定や、全員を守れる保証ではありません。</p></div></details>';}
+function landGuide(){if(state.purpose!=="land")return "";const link=state.season===4&&[4,5,6].includes(state.level)?'<a href="../s4-startdash/land'+state.level+'/?season=4">土地'+state.level+'の守備隊・攻略資料を確認</a>':"このシーズン・土地レベルの攻略資料との自動照合は未対応です。";return '<div class="brief"><small>S'+state.season+' / 土地'+state.level+'</small><h3>出撃前に守備隊と照合</h3><p>'+link+'</p><p class="fine">以下は武将条件に合う掲載テンプレートです。土地'+state.level+'での勝率・兵損・必要兵力は未判定です。'+(state.level>=7?'初戦後の残兵力と、続く守備隊への対応も確認してください。':'相手の兵種、武将レベル、戦法レベル、士気をそろえて戦報と比較してください。')+'</p></div>';}
+function resultsHTML(){const result=C.candidates(templates,state,index);const total=templates.filter(f=>f.members.some(m=>m.general_id===state.general)).length;const available=C.eligible(templates,state.general,state.excluded).length;const g=generalMap.get(state.general);
+ return selectedGeneral()+landGuide()+enemyOverview()+'<div class="section-heading"><h3>条件に合う編成 '+result.length+'件</h3><button class="small-button" data-go="'+(state.purpose==="land"?'exclude':'counter')+'">条件を変更</button></div><p class="fine">軸の武将を採用 '+total+'件 → 武将の除外後 '+available+'件 → 対策条件 '+result.length+'件。'+(state.purpose==="meta"?'選択した対策の一致数、相手の着眼点に手段がある編成数、掲載Tierの順。':'掲載Tier順。')+'同じ三人でも掲載案ごとに表示します。</p>'+
+ (result.length?result.map((r,i)=>'<article class="candidate">'+formationHTML(r.formation,i===0)+(state.purpose!=="land"?'<details class="evidence"><summary>対策の根拠と対象・成立条件</summary>'+evidenceHTML(r,state.counters.length?state.counters:Object.keys(C.COUNTERS).filter(k=>r.evidence.supports[k].length))+'<p class="fine">効果文未収録 '+r.evidence.missing+'件。未登録の手段は判定に含めていません。装備戦法の所持、対象、発動率、ターン制限、凸条件を確認してください。</p></details>'+matchupHTML(r):'')+'</article>').join(""):'<div class="empty"><b>条件に合う掲載編成は0件です</b><p>'+(total===0?'この武将を含むテンプレートは未収録です。武将を選び直してください。':available===0?'除外した武将を戻すと、候補が増えます。':'指定した対策の手段を確認できる編成がありません。対策を減らすか「いずれか」に変更してください。')+'</p><button class="small-button" data-go="general">軸の武将を選び直す</button> '+(state.excluded.length?'<button class="small-button" data-clear-excluded>除外をすべて戻す</button>':'')+(state.counters.length?'<button class="small-button" data-clear-counters>対策指定を外して比較する</button>':'')+'</div>')+
+ '<details class="guide"><summary>'+esc(g.name)+'の固有戦法を確認</summary><p><b>'+esc(g.unique_tactic?.name||"未収録")+'</b></p><p class="effect">'+esc(g.unique_tactic?.effect||"効果文は未収録です。")+'</p><a href="../?open=generals&amp;id='+encodeURIComponent(g.id)+'&amp;season='+state.season+'#generals">武将録で特性・凸条件を確認</a></details><aside class="tips"><header><img src="../assets/mobunaga.png" alt="" loading="lazy"><div><h3>モブナガ TIPS</h3><small>役割と相性の検討案</small></div></header><p>'+esc(tips[g.id]||"軸の武将を固定して、残る二人が補う回復・制御・行動順・兵種を確認します。対策手段があっても、対象が本人だけなら他の二人は守れません。掲載条件と自軍の育成状況を照合してください。")+'</p></aside>';
+}
+function render(focusId){
+ const focus=focusId?$(focusId):null,pos=focus?.selectionStart;
+ document.querySelectorAll("[data-purpose]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.purpose===state.purpose)));
+ $("context").textContent="S"+state.season+" / "+(purposeLabels[state.purpose]||"目的を選択")+(state.purpose==="land"&&state.level?' / 土地'+state.level:'');
+ $("step-title").textContent=labels[state.step];
+ const path=route(),current=path.indexOf(state.step);
+ $("flow").innerHTML=path.map((step,i)=>'<div class="flow-node"><button data-go="'+step+'"'+(i>state.furthest?' disabled':'')+(step===state.step?' aria-current="step"':'')+'><i>'+String(i+1).padStart(2,"0")+'</i><span><b>'+labels[step]+'</b><small>'+esc(i<=state.furthest?summary(step):"未選択")+'</small></span></button></div>').join("");
+ let html="";
+ if(state.step==="purpose")html='<div class="brief"><h3>上の三つから目的を選んでください</h3><p>目的に合わせて、必要な条件を順番に伺います。</p></div>';
+ if(state.step==="level")html='<p class="fine">攻略する土地レベルを選んでください。</p><div class="levels">'+[4,5,6,7,8].map(n=>'<button data-level="'+n+'" aria-pressed="'+(state.level===n)+'">'+n+'</button>').join("")+'<p class="fine">土地攻略資料への案内と、出撃前の確認項目が切り替わります。</p>';
+ if(state.step==="enemies")html=enemyPicker();
+ if(state.step==="general")html='<div id="selected-general">'+selectedGeneral()+'</div>'+filters()+'<div id="roster-content">'+rosterHTML()+'</div>';
+ if(state.step==="exclude")html=selectedGeneral()+'<p class="fine">最初は全武将を候補に残しています。未所持・他部隊で使用中など、使わない武将を押して外してください。もう一度押すと戻せます。軸の武将は固定です。</p><div id="exclusion-summary">'+exclusions()+'</div>'+filters()+'<div id="roster-content">'+rosterHTML(true)+'</div>';
+ if(state.step==="counter")html=counterPicker();
+ if(state.step==="results")html=resultsHTML();
+ $("step-content").innerHTML=html;
+ $("flow-actions").innerHTML=(current>0?'<button class="small-button" data-back>前へ戻る</button>':'')+(current<path.length-1&&state.step!=="purpose"?'<button class="small-button next" data-next'+(!allowedNext()?' disabled':'')+'>'+((path[current+1]==="results")?'編成一覧を見る':'次へ：'+labels[path[current+1]])+'</button>':'');
+ if(focusId&&$(focusId)){const el=$(focusId);el.focus();if(typeof pos==="number"&&el.type==="search")el.setSelectionRange(pos,pos);}
+}
+function updateRoster(){const el=$("roster-content");if(el)el.innerHTML=rosterHTML(state.step==="exclude");}
+function toggle(list,value){return list.includes(value)?list.filter(x=>x!==value):[...list,value];}
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||!catalog||b.disabled)return;
+ if(b.dataset.purpose){reset(b.dataset.purpose);go(route()[1]);return;}
+ if(b.id==="restart"){reset();go("purpose");return;}
+ if(b.hasAttribute("data-next")){if(allowedNext()){state.family="";state.query="";go(route()[route().indexOf(state.step)+1]);}return;}
+ if(b.hasAttribute("data-back")){go(route()[route().indexOf(state.step)-1]);return;}
+ if(b.dataset.go){if(route().indexOf(b.dataset.go)<=state.furthest)go(b.dataset.go);return;}
+ if(b.dataset.level){const n=Number(b.dataset.level);if(state.level!==n){state.level=n;invalidate();}render();return;}
+ if(b.dataset.general){if(state.general!==b.dataset.general){state.general=b.dataset.general;state.excluded=[];state.counters=[];invalidate();}const scroll=document.querySelector('.flow-roster')?.scrollTop||0;render();document.querySelector('.flow-roster').scrollTop=scroll;document.querySelector('[data-general="'+state.general+'"]').focus({preventScroll:true});return;}
+ if(b.dataset.exclude){if(b.dataset.exclude===state.general)return;state.excluded=toggle(state.excluded,b.dataset.exclude);if(state.step==="exclude"){invalidate();const sc=document.querySelector('.flow-roster').scrollTop;updateRoster();$("exclusion-summary").innerHTML=exclusions();document.querySelector('.flow-roster').scrollTop=sc;document.querySelector('[data-exclude="'+b.dataset.exclude+'"]')?.focus({preventScroll:true});$("announcement").textContent='残り '+C.eligible(templates,state.general,state.excluded).length+'編成';document.querySelector('#flow [data-go="exclude"] small').textContent=summary('exclude');document.querySelector('#flow [data-go="results"]').disabled=true;}else render();return;}
+ if(b.dataset.enemy){state.enemies=toggle(state.enemies,b.dataset.enemy);state.counters=[];invalidate();render();return;}
+ if(b.hasAttribute("data-clear-excluded")){state.excluded=[];render();return;}
+ if(b.hasAttribute("data-clear-enemies")){state.enemies=[];state.counters=[];invalidate();render();return;}
+ if(b.hasAttribute("data-clear-counters")){state.counters=[];render();}
+});
+document.addEventListener("change",e=>{const el=e.target;if(el.id==="season"){state.season=Number(el.value);try{localStorage.setItem("mobunagaSeason",String(state.season));}catch{}document.cookie="mobunaga_season="+state.season+"; Path=/; Max-Age=31536000; SameSite=Lax"+(location.protocol==="https:"?"; Secure":"");const u=new URL(location.href);u.searchParams.set("season",String(state.season));history.replaceState(null,"",u);reset();if(catalog)refreshSeason();return;}
+ if(!catalog)return;
+ if(el.id==="family"){state.family=el.value;updateRoster();}
+ if(el.id==="enemy-tier"){state.enemyTier=el.value;render("enemy-tier");}
+ if(el.dataset.enemyCheck){state.enemies=toggle(state.enemies,el.dataset.enemyCheck);state.counters=[];invalidate();const sc=document.querySelector('.enemy-list').scrollTop;render();document.querySelector('.enemy-list').scrollTop=sc;document.querySelector('[data-enemy-check="'+el.dataset.enemyCheck+'"]').focus({preventScroll:true});}
+ if(el.dataset.counter){state.counters=toggle(state.counters,el.dataset.counter);invalidate();render();document.querySelector('[data-counter="'+el.dataset.counter+'"]').focus({preventScroll:true});}
+ if(el.id==="match"){state.match=el.value;invalidate();render("match");}
+});
+document.addEventListener("input",e=>{if(!catalog)return;if(e.target.id==="query"){state.query=e.target.value;updateRoster();}if(e.target.id==="enemy-query"){state.enemyQuery=e.target.value;render("enemy-query");}});
 $("season").value=String(state.season);
-$("season").addEventListener("change",e=>{state.season=Number(e.target.value);try{localStorage.setItem("mobunagaSeason",String(state.season));}catch{}document.cookie="mobunaga_season="+state.season+"; Path=/; Max-Age=31536000; SameSite=Lax"+(location.protocol==="https:"?"; Secure":"");state.general="";state.family="";state.query="";$("query").value="";if(catalog)refreshSeason();});
-$("family").addEventListener("change",e=>{state.family=e.target.value;if(catalog)render();});
-$("query").addEventListener("input",e=>{state.query=e.target.value;if(catalog)render();});
-$("counter").addEventListener("change",e=>{state.counter=e.target.value;if(catalog)render();});
-$("enemy").addEventListener("change",e=>{state.enemy=e.target.value;if(catalog)render();});
 document.addEventListener("error",e=>{const img=e.target;if(img?.matches?.("img.portrait")){const fallback=document.createElement("span");fallback.className="portrait portrait-fallback";fallback.setAttribute("aria-hidden","true");fallback.textContent="将";img.replaceWith(fallback);}},true);
 (async()=>{try{const result=await Promise.all([liveOrBase("database"),liveOrBase("formations"),getJSON("../assets/s4-additions.json"),getJSON("../assets/s4-templates.json")]);if(!Array.isArray(result[0].generals)||!Array.isArray(result[1].formations)||!Array.isArray(result[3].formations))throw Error("Invalid catalog");catalog=C.catalog(result[0],result[2],result[1]);base=result[1];s4=result[3];refreshSeason();$("workspace").hidden=false;$("load-status").hidden=true;}catch(error){$("load-status").textContent="資料を読み込めませんでした。通信状態を確認して再読み込みしてください。";const retry=document.createElement("button");retry.className="small-button";retry.textContent="再読み込み";retry.addEventListener("click",()=>location.reload());$("load-status").append(" ",retry);console.error("Formation consultation load failed",error);}})();
 })();
