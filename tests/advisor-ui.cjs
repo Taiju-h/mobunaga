@@ -8,7 +8,7 @@ await page.goto(process.env.CONSULTATION_TEST_URL||'http://127.0.0.1:8765/consul
 await page.locator('#workspace').waitFor({state:'visible'});
 await page.locator('[data-purpose=pvp]').click();
 await page.locator('[data-general=kakizakikageie]').click();await page.locator('[data-general=matsu]').click();
-assert(await page.locator('[data-general=toyotomihideyoshi]').isDisabled());
+assert(!(await page.locator('[data-general=toyotomihideyoshi]').isDisabled()));
 assert.equal(await page.locator('[data-unpin]').count(),2);
 await page.locator('[data-next]').click();await page.locator('[data-next]').click();
 assert((await page.locator('#advisor-root .brief h3').innerText()).includes('柿崎景家・まつ'));

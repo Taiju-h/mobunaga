@@ -38,3 +38,19 @@ const snapshot=JSON.stringify(forms);
 for(const g of db.generals){p=L.team([g.id],{},index,forms,opt);assert.equal(p.configs[g.id].tactics.filter(Boolean).length,2);assert(Number.isFinite(A.analyze(p.profiles).score));assert.equal(new Set(names(p).map(id=>index.tactics.get(id)?.name)).size,2);const command=L.team([g.id],{[g.id]:{focus:'defense'}},index,forms,opt);assert.equal(new Set(names(command).map(id=>index.tactics.get(id)?.name)).size,2);}
 assert.equal(JSON.stringify(forms),snapshot);
 console.log('Loadouts: all 137 generals, attribute/purpose defaults, manual preservation, strict family/alliance, fixed equipment, unknown leaders, exclusion, seasons PASS');
+// Recommendation order follows the displayed parameter, never a hidden aggregate score.
+for(const recommendBy of ['martial','intellect','defense','healing']){
+ const r=L.recommend(['kakizakikageie'],db.generals,{},index,{},4,[],forms,{mode:'family',recommendBy});assert(r.length>1);
+ assert(r.every((v,i)=>i===0||r[i-1].metrics[recommendBy]>=v.metrics[recommendBy]));
+}
+assert.equal(L.recommend(['kakizakikageie','uesugikenshin','usamisadamitsu'],db.generals,{},index,{},4,[],forms,opt).length,0);
+// Completed teams can compare one-slot tactic changes without adding a fourth member.
+const three=['kakizakikageie','matsu','toyotomihideyoshi'];
+const configured={kakizakikageie:{martial:300,tactics:['tr002','tr113'],manualSlots:[true,true]},matsu:{tactics:['tr054','tr027'],manualSlots:[true,true]},toyotomihideyoshi:{tactics:['tr028','tr029'],manualSlots:[true,true]}};
+let proposalCount=0;
+for(const tacticGoal of ['attack','recovery','mitigation','control','shield']){
+ const proposals=L.suggestTactics(three,configured,index,forms,{}, {...ally,tacticGoal});proposalCount+=proposals.length;
+ for(const v of proposals){assert(v.gain>0);assert.equal(v.after.profiles.length,3);assert(v.after.allianceEquipped);let changed=0;for(const id of three)for(let slot=0;slot<2;slot++)changed+=Number(configured[id].tactics[slot]!==v.configs[id].tactics[slot]);assert.equal(changed,1);assert.equal(v.configs.kakizakikageie.tactics[1],'tr113');}
+}
+assert(proposalCount>0);assert.equal(L.suggestTactics(three.slice(0,2),{},index,forms,{},ally).length,0);
+console.log('Parameter sorting, three-member limit, single-slot tactic proposals and alliance preservation PASS');
