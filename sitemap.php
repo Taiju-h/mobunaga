@@ -12,6 +12,7 @@ $formations = is_readable($formationsPath) ? json_decode((string)file_get_conten
 $urls = [
     $base . '/',
     $base . '/help/',
+    $base . '/consultation/',
     $base . '/simulator/',
     $base . '/research/',
     $base . '/s4-startdash/',

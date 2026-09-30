@@ -428,6 +428,7 @@ function formationDetail(f) {
   if (f.members.some((m) => m.tactics.some((t) => !t.tactic_id)))
     html +=
       '<p class="notice">一部の戦法名は取得元の表記を保持しています。戦法録との対応が確定していないものにはリンクを付けていません。</p>';
+  if (f.template_notes) html += section("掲載条件・代替案", `<p style="white-space:pre-line">${esc(f.template_notes)}</p>`);
   if (f.editorial) html += `<p class="notice">${esc(f.requirement)}。戦法名は日本版の戦法録に対応付けています。</p>`;
   return html + sourceHTML(f.source, f) + (f.editorial ? mobunagaTips(`<h4>このテンプレートの紹介</h4><p>${esc(f.editorial.summary)}</p><h4>条件・注意点</h4><p>${esc(f.editorial.warning)}</p><h4>Tierの根拠（モブナガ暫定評価）</h4><p>${esc(f.tier_basis)}</p>`) : "") + (analysis ? mobunagaTips(`<h4>このテンプレートの紹介</h4><p>${esc(analysis.summary)}</p><h4>主な動き</h4><p>${esc(analysis.movement)}</p><h4>要注意ポイント</h4><p>${esc(analysis.warning)}</p><h4>メタ内容</h4><p>${esc(analysis.meta)}</p>`) : "");
 }

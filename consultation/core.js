@@ -1,0 +1,17 @@
+"use strict";
+(function(root){
+const FAMILIES={"oda-clan":"織田家","toyotomi-clan":"豊臣家","tokugawa-clan":"徳川家","takeda-clan":"武田家","uesugi-clan":"上杉家","date-clan":"伊達家","mori-clan":"毛利家","hojo-clan":"北条家","amago-clan":"尼子家","ando-clan":"安東家","asai-clan":"浅井家","asakura-clan":"朝倉家","chosokabe-clan":"長宗我部家","fujibayashi-clan":"藤林家","honganji-clan":"本願寺家","imagawa-clan":"今川家","kokujin":"国人","kono-clan":"河野家","miyoshi-clan":"三好家","nanbu-clan":"南部家","otomo-clan":"大友家","ouchi-clan":"大内家","saito-clan":"斎藤家","sanada-clan":"真田家","satake-clan":"佐竹家","satomi-clan":"里見家","shimazu-clan":"島津家","soma-clan":"相馬家","suzuki-clan":"鈴木家","uragami-clan":"浦上家","family-040":"浦上家"};
+const season=v=>Number(String(v||"").match(/\d+/)?.[0]||0);
+function firstSeason(g){if(Number.isInteger(g.catalog_first_season))return g.catalog_first_season;const n=(g.tiers||[]).map(t=>season(t.season)).filter(Boolean);return n.length?Math.min(...n):1;}
+function filled(v){return v!=null&&v!==""&&(!Array.isArray(v)||v.length>0)&&(!(typeof v==="object"&&!Array.isArray(v))||Object.keys(v).length>0);}
+function merge(base,extra){const out={...base};for(const [k,v] of Object.entries(extra||{})){if(!filled(v))continue;out[k]=v&&typeof v==="object"&&!Array.isArray(v)&&out[k]&&typeof out[k]==="object"&&!Array.isArray(out[k])?merge(out[k],v):v;}return out;}
+function catalog(database,additions,formations={}){const gm=new Map((database.generals||[]).map(g=>[g.id,{...g}]));for(const g of additions.generals||[]){const merged=merge(g,gm.get(g.id));merged.stats=(merged.stats||[]).map(s=>({...s,attribute:s.attribute||s.stat}));gm.set(g.id,merged);}const tm=new Map((database.tactics||[]).map(t=>[t.id,t]));for(const t of additions.tactics||[])if(!tm.has(t.id))tm.set(t.id,t);for(const f of formations.formations||[]){const n=season(f.season);if(![1,2,3,4].includes(n))continue;for(const m of f.members||[]){const g=gm.get(m.general_id);if(g)g.catalog_first_season=Math.min(firstSeason(g),n);}}return {generals:[...gm.values()],tactics:[...tm.values()]};}
+function templatesForSeason(base,s4,n){const source=n===4?s4:base;const seen=new Set();return (source.formations||[]).filter(f=>{if(season(f.season)!==n||seen.has(f.id))return false;seen.add(f.id);return true;});}
+function popularity(generals,formations){const counts=new Map(generals.map(g=>[g.id,0]));for(const f of formations)for(const id of new Set(f.members.map(m=>m.general_id)))if(counts.has(id))counts.set(id,counts.get(id)+1);return counts;}
+function rank(generals,formations){const counts=popularity(generals,formations);return [...generals].sort((a,b)=>(counts.get(b.id)||0)-(counts.get(a.id)||0)||String(a.kana||a.name).localeCompare(String(b.kana||b.name),"ja"));}
+function partners(id,formations){const counts=new Map();for(const f of formations.filter(f=>f.members.some(m=>m.general_id===id)))for(const m of f.members)if(m.general_id!==id){const p=counts.get(m.general_id)||{id:m.general_id,name:m.general_name,count:0};p.count++;counts.set(m.general_id,p);}return [...counts.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,"ja"));}
+function family(g){return FAMILIES[g.family]||"家門未分類";}
+function safeLink(value){try{const u=new URL(value);return u.protocol==="https:"?u.href:"";}catch{return "";}}
+function tier(f){return /god/i.test(f.tier)?-1:Number(String(f.tier||"99").replace(/[^\d.]/g,""));}
+root.MobunagaConsult={season,firstSeason,merge,catalog,templatesForSeason,popularity,rank,partners,family,safeLink,tier};
+})(typeof window!=="undefined"?window:globalThis);

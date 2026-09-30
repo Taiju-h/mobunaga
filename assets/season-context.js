@@ -128,8 +128,27 @@
     additionsLoading = true;
     try {
       const version = document.documentElement.dataset.dataVersion || "1";
-      const response = await fetch(`assets/s4-additions.json?v=${encodeURIComponent(version)}`, { cache: "force-cache" });
-      if (response.ok) mergeS4Additions(await response.json());
+      const results = await Promise.allSettled(["s4-additions", "s4-templates"].map(async (name) => {
+        const response = await fetch(`assets/${name}.json?v=${encodeURIComponent(version)}`, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
+        const payload = await response.json();
+        if (name === "s4-templates" && !Array.isArray(payload.formations)) throw new Error("Invalid S4 templates");
+        return payload;
+      }));
+      for (const result of results) {
+        if (result.status === "fulfilled") mergeS4Additions(result.value);
+        else {
+          console.warn("Additional catalog unavailable", result.reason);
+          const catalog = document.querySelector("#catalog");
+          if (catalog && !document.querySelector("#additional-catalog-error")) {
+            const notice = document.createElement("p");
+            notice.id = "additional-catalog-error";
+            notice.className = "notice";
+            notice.textContent = "追加資料の一部を読み込めませんでした。最新の編成を確認するには再読み込みしてください。";
+            catalog.prepend(notice);
+          }
+        }
+      }
     } catch (error) {
       console.warn("S4 additions could not be loaded", error);
     } finally {
