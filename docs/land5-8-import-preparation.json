@@ -1,0 +1,38 @@
+[
+  {
+    "level": 5,
+    "source_sha256": "54f0824b2983958c2cedfc2f0795f9da810adc7f431c51ff13d04857e30d2c64",
+    "messages": 21,
+    "attachment_images": 17,
+    "downloaded": 17,
+    "status": "pending_redaction_and_fact_review",
+    "published": false
+  },
+  {
+    "level": 6,
+    "source_sha256": "273a4b24d4bd3a09a18ba91b5c570853f5804c81be0447685bcc909f1a47cacc",
+    "messages": 25,
+    "attachment_images": 26,
+    "downloaded": 26,
+    "status": "pending_redaction_and_fact_review",
+    "published": false
+  },
+  {
+    "level": 7,
+    "source_sha256": "563c9eb239184b07417239b5ef6b4f6c3460eb4458e94d5da2f920c1e839a3e9",
+    "messages": 11,
+    "attachment_images": 10,
+    "downloaded": 10,
+    "status": "pending_redaction_and_fact_review",
+    "published": false
+  },
+  {
+    "level": 8,
+    "source_sha256": "7e8156afc3d2af00b944065af58bcf4b7a21ff27609fbe6667b56ad6a5eddba1",
+    "messages": 12,
+    "attachment_images": 26,
+    "downloaded": 26,
+    "status": "pending_redaction_and_fact_review",
+    "published": false
+  }
+]

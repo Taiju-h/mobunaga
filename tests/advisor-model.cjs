@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-require('../consultation/core.js');require('../consultation/evidence.js');require('../consultation/advisor.js');
+require('../consultation/core.js');require('../consultation/evidence.js');require('../consultation/advisor.js');require('../consultation/loadout.js');
 const C=global.MobunagaConsult,A=global.MobunagaAdvisor;
 const close=(a,b)=>assert(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 const base=require('../assets/formations.json'),s4=require('../assets/s4-templates.json');const db=C.catalog(require('../assets/database.json'),require('../assets/s4-additions.json'),base),index=C.evidenceIndex(db,4);
@@ -29,7 +29,7 @@ ps=team();ps[0].effects=[{name:'回復',kind:'能動',p:1,e:[{kind:'heal',rate:2
 ps[0].effects[0].kind='指揮';assert.equal(A.analyze(ps,{activeUptime:0}).healing,600);
 assert.deepEqual(A.castTimeline(1,4,1),[0,1,0,1]);
 // Only three different factions with an eligible leader can activate the equipped formation.
-ps=team();ps[0].effects=[{name:'固有',isUnique:true,kind:'能動',p:.4,e:[{kind:'physical',rate:100,targets:1}]}];ps[1].tactics=['tr113'];assert.equal(A.analyze(ps,{turns:1},4).actors[0].physical,153);ps[2].general.faction='b';assert.equal(A.analyze(ps,{turns:1},4).actors[0].physical,140);
+ps=team();ps[0].effects=[{name:'固有',isUnique:true,kind:'能動',p:.4,e:[{kind:'physical',rate:100,targets:1}]}];ps[1].tactics=['tr113'];assert.equal(A.analyze(ps,{turns:1},4).actors[0].physical,153);ps[2].general.family='b';assert.equal(A.analyze(ps,{turns:1},4).actors[0].physical,140);
 const forms=C.templatesForSeason(base,s4,4),fixed=['matsu','kakizakikageie'];assert(C.eligible(forms,fixed).every(f=>fixed.every(id=>f.members.some(m=>m.general_id===id))));
 const recommendations=A.recommend(fixed,db.generals,{},index,{},4,['toyotomihideyoshi'],forms);assert(!recommendations.some(r=>r.general.id==='toyotomihideyoshi'));assert(recommendations.every(r=>!fixed.includes(r.general.id)));assert(recommendations.every(r=>Number.isFinite(r.score)));
 const unknown=A.profile(index.generals.get('uesugikenshin'),{},index);assert(unknown.unknown.length>0);

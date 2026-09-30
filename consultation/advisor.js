@@ -50,7 +50,7 @@ const T={
  tr099:{e:[D('magic',260),D('control',1,1,{status:'被回復低下'})]},
  tr101:{e:[D('physical',316)]},tr103:{e:[D('control',1,1,{status:'無策'})]},
  tr104:{e:[D('physical',232),D('heal',54,1,{target:'self',from:3})]},
- tr113:{kind:'陣形',p:1,e:[],note:'3勢力・大将固有の種類を満たす場合のみ大将固有の発動率+13ポイント。副将の兵力順が不明なため副将の増減は未計算'}
+ tr113:{kind:'陣形',p:1,e:[],note:'3家門・大将固有の種類を満たす場合のみ大将固有の発動率+13ポイント。副将の兵力順が不明なため副将の増減は未計算'}
 };
 const G={
  oichi:{kind:'能動',p:.5,e:[D('heal',118,2)],note:'発動率50%は出典の運用解説から確認。与ダメ上昇は未加算'},
@@ -99,9 +99,9 @@ function castTimeline(p,turns,prepare=0,cooldown=0,availability=1){
  }return out;
 }
 function alliance(profiles,season){if(season<3)return {eligible:false,reason:'会盟の陣はS3以降'};if(profiles.length!==3)return {eligible:false,reason:'会盟は3名が揃ってから判定'};
- const factions=profiles.map(p=>p.general.faction);if(factions.some(f=>!f)||new Set(factions).size!==3)return {eligible:false,reason:'会盟は3名の所属勢力がすべて異なる必要があります'};
+ const factions=profiles.map(p=>p.general.family);if(factions.some(f=>!f)||new Set(factions).size!==3)return {eligible:false,reason:'会盟は3名の家門がすべて異なる必要があります'};
  if(!['能動','突撃'].includes(profiles[0].uniqueKind))return {eligible:false,reason:'大将固有が能動・突撃かを確認してください'};
- return {eligible:true,reason:'3勢力・大将固有の条件を満たす会盟候補（装備時のみ有効）'};
+ return {eligible:true,reason:'3家門・大将固有の条件を満たす会盟候補（装備時のみ有効）'};
 }
 function recipients(effect,owner,profiles){const n=profiles.length,all=profiles.map((_,i)=>i);let ids=all;
  if(effect.target==='rikuryoku'){const mode=profiles[owner].rikuryokuTarget;if(mode==='lowest')return profiles.map((_,i)=>i===owner?1:1/Math.max(1,n-1));if(mode==='others')return profiles.map((_,i)=>i===owner?0:Math.min(1,2/Math.max(1,n-1)));}
@@ -165,16 +165,7 @@ function analyze(profiles,scenario={},season=4){
   score:40*Math.min(1,attack)+30*recovery+20*defense+8*Math.min(1,mitigation/2)+2*(1-controlNone),
   deficits:[...(attack<1?['攻撃']:[]),...(actors.some(a=>a.risk)?['耐久']:[]),...(recovery<1?['回復']:[]),...(mitigation<2?['軽減']:[])]};
 }
-function recommend(anchors,generals,overrides,index,scenario,season,excluded=[],formations=[]){
- const selected=new Set(anchors),removed=new Set(excluded),base=anchors.map(id=>profile(index.generals.get(id),overrides[id],index));const before=analyze(base,scenario,season);
- return generals.filter(g=>index.generals.has(g.id)&&!selected.has(g.id)&&!removed.has(g.id)).map(g=>{const profiles=[...base,profile(g,overrides[g.id],index)],assessment=analyze(profiles,scenario,season);
- const family=base.filter(p=>p.general.family&&p.general.family===g.family).length;
- const adopted=formations.filter(f=>[...anchors,g.id].every(id=>f.members.some(m=>m.general_id===id))).length;
- const delta=assessment.score-before.score;
- const affinity=before.deficits.length?(assessment.alliance.eligible?3:family):0;
- return {general:g,assessment,delta,family,adopted,score:delta+affinity,reasons:[...(assessment.attack>before.attack?['火力の改善']:[]),...(assessment.recovery>before.recovery?['回復不足の縮小']:[]),...(assessment.defense>before.defense?['軽減・盾の補強']:[]),...(assessment.mitigation>before.mitigation?['軽減手段の追加']:[]),...(assessment.controlChance>before.controlChance?['状態異常の機会を追加']:[]),...(family?['固定武将と同じ家門']:[]),...(assessment.alliance.eligible?['会盟の成立候補']:[])]};
- }).sort((a,b)=>b.score-a.score||b.adopted-a.adopted||a.general.name.localeCompare(b.general.name,'ja'));
-}
+function recommend(...args){if(!root.MobunagaLoadout)throw new Error('Load consultation/loadout.js before recommending a team');return root.MobunagaLoadout.recommend(...args);}
 function replacementVariants(formations,index,overrides={},scenario={},season=4,anchors=[],excluded=[]){
  if(season<4||!index.tactics.has(RIKURYOKU))return [];
  const variants=[];
@@ -192,5 +183,5 @@ function replacementVariants(formations,index,overrides={},scenario={},season=4,
  }
  return variants.sort((a,b)=>Number(b.removedKnown)-Number(a.removedKnown)||b.delta-a.delta);
 }
-root.MobunagaAdvisor={RIKURYOKU,replacementVariants,defaultScenario,baseStats,profile,analyze,recommend,probability,castTimeline,alliance};
+root.MobunagaAdvisor={tacticModel:id=>T[id]||null,RIKURYOKU,replacementVariants,defaultScenario,baseStats,profile,analyze,recommend,probability,castTimeline,alliance};
 })(typeof window!=="undefined"?window:globalThis);

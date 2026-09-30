@@ -7,11 +7,11 @@ page.on('pageerror',e=>errors.push(e.message));
 await page.goto(process.env.CONSULTATION_TEST_URL||'http://127.0.0.1:8765/consultation/?season=4');
 await page.locator('#workspace').waitFor({state:'visible'});
 await page.locator('[data-purpose=pvp]').click();
-await page.locator('[data-general=matsu]').click();await page.locator('[data-general=kakizakikageie]').click();
+await page.locator('[data-general=kakizakikageie]').click();await page.locator('[data-general=matsu]').click();
 assert(await page.locator('[data-general=toyotomihideyoshi]').isDisabled());
 assert.equal(await page.locator('[data-unpin]').count(),2);
 await page.locator('[data-next]').click();await page.locator('[data-next]').click();
-assert((await page.locator('#advisor-root .brief h3').innerText()).includes('まつ・柿崎景家'));
+assert((await page.locator('#advisor-root .brief h3').innerText()).includes('柿崎景家・まつ'));
 for(const candidate of await page.locator('.candidate').all()){const t=await candidate.innerText();assert(t.includes('まつ')&&t.includes('柿崎景家'));}
 // Exclude a recommended member, shrink and restore. Both fixed members stay selected.
 const first=await page.locator('[data-unowned]').first().getAttribute('data-unowned');
@@ -21,8 +21,8 @@ assert.equal(await page.locator(`.unowned-small[data-restore="${first}"]`).count
 assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('mobunagaAdvisorUnowned')))).includes(first));
 await page.locator(`[data-restore="${first}"]`).click();
 assert.equal(await page.locator(`[data-unowned="${first}"]`).count(),1);
-await page.locator('[data-preview]').first().click();assert.equal(await page.locator('#advisor-root .profile-settings').count(),3);
-await page.locator('[data-clear-preview]').click();assert.equal(await page.locator('#advisor-root .profile-settings').count(),2);
+await page.locator('[data-preview]').first().click();assert.equal(await page.locator('#advisor-root .advisor-settings .profile-settings').count(),3);
+await page.locator('[data-clear-preview]').click();assert.equal(await page.locator('#advisor-root .advisor-settings .profile-settings').count(),2);
 // Load a derived template and edit command-dependent healing on any holder.
 await page.locator('.rikuryoku-variants>summary').click();assert((await page.locator('[data-variant]').count())>0);
 await page.locator('[data-variant]').first().click();assert((await page.locator('#advisor-root .selection-summary').innerText()).includes('原典とは別案'));
