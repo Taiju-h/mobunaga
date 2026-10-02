@@ -1,0 +1,1724 @@
+{
+  "season": 4,
+  "updated_at": "2026-10-02",
+  "coverage": [
+    {
+      "level": 5,
+      "verified": 4,
+      "pending_images": 17,
+      "status": "新規画像の再確認待ち"
+    },
+    {
+      "level": 6,
+      "verified": 11,
+      "pending_images": 26,
+      "status": "新規画像の再確認待ち"
+    },
+    {
+      "level": 7,
+      "verified": 0,
+      "pending_images": 10,
+      "status": "新規画像の再確認待ち"
+    },
+    {
+      "level": 8,
+      "verified": 0,
+      "pending_images": 26,
+      "status": "新規画像の再確認待ち"
+    }
+  ],
+  "people": [
+    {
+      "id": "akechihidemitsu",
+      "name": "明智秀満",
+      "kana": "あけちひでみつ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/akechihidemitsu.webp"
+    },
+    {
+      "id": "akechimitsuhide",
+      "name": "明智光秀",
+      "kana": "あけちみつひで",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/akechimitsuhide.webp"
+    },
+    {
+      "id": "amagoharuhisa",
+      "name": "尼子晴久",
+      "kana": "あまごはるひさ",
+      "family": "amago-clan",
+      "family_name": "尼子家",
+      "portrait": "assets/portraits/amagoharuhisa.webp"
+    },
+    {
+      "id": "amakasukagemochi",
+      "name": "甘粕景持",
+      "kana": "あまかすかげもち",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/amakasukagemochi.webp"
+    },
+    {
+      "id": "amakasukagetsugu",
+      "name": "甘粕景継",
+      "kana": "あまかすかげつぐ",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/amakasukagetsugu.webp"
+    },
+    {
+      "id": "amaritorayasu",
+      "name": "甘利虎泰",
+      "kana": "あまりとらやす",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/amaritorayasu.webp"
+    },
+    {
+      "id": "andouchikasue",
+      "name": "安東愛季",
+      "kana": "あんどうちかすえ",
+      "family": "ando-clan",
+      "family_name": "安東家",
+      "portrait": "assets/portraits/andouchikasue.webp"
+    },
+    {
+      "id": "andoumorinari",
+      "name": "安藤守就",
+      "kana": "あんどうもりなり",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/andoumorinari.webp"
+    },
+    {
+      "id": "arakimurashige",
+      "name": "荒木村重",
+      "kana": "あらきむらしげ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/arakimurashige.webp"
+    },
+    {
+      "id": "asakurayoshikage",
+      "name": "朝倉義景",
+      "kana": "あさくらよしかげ",
+      "family": "asakura-clan",
+      "family_name": "朝倉家",
+      "portrait": "assets/portraits/asakurayoshikage.webp"
+    },
+    {
+      "id": "atagifuyuyasu",
+      "name": "安宅冬康",
+      "kana": "あたぎふゆやす",
+      "family": "miyoshi-clan",
+      "family_name": "三好家",
+      "portrait": "assets/portraits/atagifuyuyasu.webp"
+    },
+    {
+      "id": "azainagamasa",
+      "name": "浅井長政",
+      "kana": "あざいながまさ",
+      "family": "asai-clan",
+      "family_name": "浅井家",
+      "portrait": "assets/portraits/azainagamasa.webp"
+    },
+    {
+      "id": "babanobuharu",
+      "name": "馬場信春",
+      "kana": "ばばのぶはる",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/babanobuharu.webp"
+    },
+    {
+      "id": "chisakakagechika",
+      "name": "千坂景親",
+      "kana": "ちさかかげちか",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/chisakakagechika.webp"
+    },
+    {
+      "id": "chousokabemotochika",
+      "name": "長宗我部元親",
+      "kana": "ちょうそかべもとちか",
+      "family": "chosokabe-clan",
+      "family_name": "長宗我部家",
+      "portrait": "assets/portraits/chousokabemotochika.webp"
+    },
+    {
+      "id": "dateharumune",
+      "name": "伊達晴宗",
+      "kana": "だてはるむね",
+      "family": "date-clan",
+      "family_name": "伊達家",
+      "portrait": "assets/portraits/dateharumune.webp"
+    },
+    {
+      "id": "datemasamune",
+      "name": "伊達政宗",
+      "kana": "だてまさむね",
+      "family": "date-clan",
+      "family_name": "伊達家",
+      "portrait": "assets/portraits/datemasamune.webp"
+    },
+    {
+      "id": "dateterumune",
+      "name": "伊達輝宗",
+      "kana": "だててるむね",
+      "family": "date-clan",
+      "family_name": "伊達家",
+      "portrait": "assets/portraits/dateterumune.webp"
+    },
+    {
+      "id": "endounaotsune",
+      "name": "遠藤直経",
+      "kana": "えんどうなおつね",
+      "family": "asai-clan",
+      "family_name": "浅井家",
+      "portrait": "assets/portraits/endounaotsune.webp"
+    },
+    {
+      "id": "fujibayashimasayasu",
+      "name": "藤林正保",
+      "kana": "ふじばやしまさやす",
+      "family": "kokujin",
+      "family_name": "国人",
+      "portrait": "assets/portraits/fujibayashimasayasu.webp"
+    },
+    {
+      "id": "fukudomechikamasa",
+      "name": "福留親政",
+      "kana": "ふくどめちかまさ",
+      "family": "chosokabe-clan",
+      "family_name": "長宗我部家",
+      "portrait": "assets/portraits/fukudomechikamasa.webp"
+    },
+    {
+      "id": "fukuharasadatoshi",
+      "name": "福原貞俊",
+      "kana": "ふくはらさだとし",
+      "family": "mori-clan",
+      "family_name": "毛利家",
+      "portrait": "assets/portraits/fukuharasadatoshi.webp"
+    },
+    {
+      "id": "fukushimamasanori",
+      "name": "福島正則",
+      "kana": "ふくしままさのり",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/fukushimamasanori.webp"
+    },
+    {
+      "id": "hachisukaiemasa",
+      "name": "蜂須賀家政",
+      "kana": "はちすかいえまさ",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/hachisukaiemasa.webp"
+    },
+    {
+      "id": "hachisukakoroku",
+      "name": "蜂須賀小六",
+      "kana": "はちすかころく",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/hachisukakoroku.webp"
+    },
+    {
+      "id": "haratoratane",
+      "name": "原虎胤",
+      "kana": "はらとらたね",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/haratoratane.webp"
+    },
+    {
+      "id": "higuchikanetoyo",
+      "name": "樋口兼豊",
+      "kana": "ひぐちかねとよ",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/higuchikanetoyo.webp"
+    },
+    {
+      "id": "hondamasanobu",
+      "name": "本多正信",
+      "kana": "ほんだまさのぶ",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/hondamasanobu.webp"
+    },
+    {
+      "id": "hondatadakatsu",
+      "name": "本多忠勝",
+      "kana": "ほんだただかつ",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/hondatadakatsu.webp"
+    },
+    {
+      "id": "honganjikennyo",
+      "name": "本願寺顕如",
+      "kana": "ほんがんじけんにょ",
+      "family": "honganji-clan",
+      "family_name": "本願寺家",
+      "portrait": "assets/portraits/honganjikennyo.webp"
+    },
+    {
+      "id": "horinaomasa",
+      "name": "堀直政",
+      "kana": "ほりなおまさ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/horinaomasa.webp"
+    },
+    {
+      "id": "hoshinamasatoshi",
+      "name": "保科正俊",
+      "kana": "ほしなまさとし",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/hoshinamasatoshi.webp"
+    },
+    {
+      "id": "houjoutsunashige",
+      "name": "北条綱成",
+      "kana": "ほうじょうつなしげ",
+      "family": "hojo-clan",
+      "family_name": "北条家",
+      "portrait": "assets/portraits/houjoutsunashige.webp"
+    },
+    {
+      "id": "houjouujiyasu",
+      "name": "北条氏康",
+      "kana": "ほうじょううじやす",
+      "family": "hojo-clan",
+      "family_name": "北条家",
+      "portrait": "assets/portraits/houjouujiyasu.webp"
+    },
+    {
+      "id": "ichijounobutatsu",
+      "name": "一条信龍",
+      "kana": "いちじょうのぶたつ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/ichijounobutatsu.webp"
+    },
+    {
+      "id": "ikedasen",
+      "name": "池田せん",
+      "kana": "いけだせん",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/ikedasen.webp"
+    },
+    {
+      "id": "ikedaterumasa",
+      "name": "池田輝政",
+      "kana": "いけだてるまさ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/ikedaterumasa.webp"
+    },
+    {
+      "id": "ikedatsuneoki",
+      "name": "池田恒興",
+      "kana": "いけだつねおき",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/ikedatsuneoki.webp"
+    },
+    {
+      "id": "imagawayoshimoto",
+      "name": "今川義元",
+      "kana": "いまがわよしもと",
+      "family": "imagawa-clan",
+      "family_name": "今川家",
+      "portrait": "assets/portraits/imagawayoshimoto.webp"
+    },
+    {
+      "id": "inabaittetsu",
+      "name": "稲葉一鉄",
+      "kana": "いなばいってつ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/inabaittetsu.webp"
+    },
+    {
+      "id": "isonokazumasa",
+      "name": "磯野員昌",
+      "kana": "いそのかずまさ",
+      "family": "asai-clan",
+      "family_name": "浅井家",
+      "portrait": "assets/portraits/isonokazumasa.webp"
+    },
+    {
+      "id": "itagakinobukata",
+      "name": "板垣信方",
+      "kana": "いたがきのぶかた",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/itagakinobukata.webp"
+    },
+    {
+      "id": "iwakichikataka",
+      "name": "岩城親隆",
+      "kana": "いわきちかたか",
+      "family": "date-clan",
+      "family_name": "伊達家",
+      "portrait": "assets/portraits/iwakichikataka.webp"
+    },
+    {
+      "id": "jukeini",
+      "name": "寿桂尼",
+      "kana": "じゅけいに",
+      "family": "imagawa-clan",
+      "family_name": "今川家",
+      "portrait": "assets/portraits/jukeini.webp"
+    },
+    {
+      "id": "kakizakikageie",
+      "name": "柿崎景家",
+      "kana": "かきざきかげいえ",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/kakizakikageie.webp"
+    },
+    {
+      "id": "kanisaizou",
+      "name": "可児才蔵",
+      "kana": "かにさいぞう",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/kanisaizou.webp"
+    },
+    {
+      "id": "katoukiyomasa",
+      "name": "加藤清正",
+      "kana": "かとうきよまさ",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/katoukiyomasa.webp"
+    },
+    {
+      "id": "katouyoshiakira",
+      "name": "加藤嘉明",
+      "kana": "かとうよしあきら",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/katouyoshiakira.webp"
+    },
+    {
+      "id": "kawadanagachika",
+      "name": "河田長親",
+      "kana": "かわだながちか",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/kawadanagachika.webp"
+    },
+    {
+      "id": "kichou",
+      "name": "帰蝶",
+      "kana": "きちょう",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/kichou.webp"
+    },
+    {
+      "id": "kikkawahiroie",
+      "name": "吉川広家",
+      "kana": "きっかわひろいえ",
+      "family": "mori-clan",
+      "family_name": "毛利家",
+      "portrait": "assets/portraits/kikkawahiroie.webp"
+    },
+    {
+      "id": "kojimayatarou",
+      "name": "小島弥太郎",
+      "kana": "こじまやたろう",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/kojimayatarou.webp"
+    },
+    {
+      "id": "kourikikiyonaga",
+      "name": "高力清長",
+      "kana": "こうりききよなが",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/kourikikiyonaga.webp"
+    },
+    {
+      "id": "kunishimotosuke",
+      "name": "国司元相",
+      "kana": "くにしもとすけ",
+      "family": "mori-clan",
+      "family_name": "毛利家",
+      "portrait": "assets/portraits/kunishimotosuke.webp"
+    },
+    {
+      "id": "kunohemasazane",
+      "name": "九戸政実",
+      "kana": "くのへまさざね",
+      "family": "nanbu-clan",
+      "family_name": "南部家",
+      "portrait": "assets/portraits/kunohemasazane.webp"
+    },
+    {
+      "id": "kuriyamazensuke",
+      "name": "栗山善助",
+      "kana": "くりやまぜんすけ",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/kuriyamazensuke.webp"
+    },
+    {
+      "id": "kurodakanbee",
+      "name": "黒田官兵衛",
+      "kana": "くろだかんべえ",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/kurodakanbee.webp"
+    },
+    {
+      "id": "maedakeiji",
+      "name": "前田慶次",
+      "kana": "まえだけいじ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/maedakeiji.webp"
+    },
+    {
+      "id": "maedatoshiie",
+      "name": "前田利家",
+      "kana": "まえだとしいえ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/maedatoshiie.webp"
+    },
+    {
+      "id": "magaranaotaka",
+      "name": "真柄直隆",
+      "kana": "まがらなおたか",
+      "family": "asakura-clan",
+      "family_name": "朝倉家",
+      "portrait": "assets/portraits/magaranaotaka.webp"
+    },
+    {
+      "id": "matsu",
+      "name": "まつ",
+      "kana": "まつ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/matsu.webp"
+    },
+    {
+      "id": "matsudairanobuyasu",
+      "name": "松平信康",
+      "kana": "まつだいらのぶやす",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/matsudairanobuyasu.webp"
+    },
+    {
+      "id": "matsunagahisahide",
+      "name": "松永久秀",
+      "kana": "まつながひさひで",
+      "family": "miyoshi-clan",
+      "family_name": "三好家",
+      "portrait": "assets/portraits/matsunagahisahide.webp"
+    },
+    {
+      "id": "miyabekeijun",
+      "name": "宮部継潤",
+      "kana": "みやべけいじゅん",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/miyabekeijun.webp"
+    },
+    {
+      "id": "miyoshijikkyuu",
+      "name": "三好実休",
+      "kana": "みよしじっきゅう",
+      "family": "miyoshi-clan",
+      "family_name": "三好家",
+      "portrait": "assets/portraits/miyoshijikkyuu.webp"
+    },
+    {
+      "id": "moriyoshinari",
+      "name": "森可成",
+      "kana": "もりよしなり",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/moriyoshinari.webp"
+    },
+    {
+      "id": "mourimotonari",
+      "name": "毛利元就",
+      "kana": "もうりもとなり",
+      "family": "mori-clan",
+      "family_name": "毛利家",
+      "portrait": "assets/portraits/mourimotonari.webp"
+    },
+    {
+      "id": "mouritakamoto",
+      "name": "毛利隆元",
+      "kana": "もうりたかもと",
+      "family": "mori-clan",
+      "family_name": "毛利家",
+      "portrait": "assets/portraits/mouritakamoto.webp"
+    },
+    {
+      "id": "mouriterumoto",
+      "name": "毛利輝元",
+      "kana": "もうりてるもと",
+      "family": "mori-clan",
+      "family_name": "毛利家",
+      "portrait": "assets/portraits/mouriterumoto.webp"
+    },
+    {
+      "id": "naganonarimasa",
+      "name": "長野業正",
+      "kana": "ながのなりまさ",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/naganonarimasa.webp"
+    },
+    {
+      "id": "naitoumasatoyo",
+      "name": "内藤昌豊",
+      "kana": "ないとうまさとよ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/naitoumasatoyo.webp"
+    },
+    {
+      "id": "nanbuharumasa",
+      "name": "南部晴政",
+      "kana": "なんぶはるまさ",
+      "family": "nanbu-clan",
+      "family_name": "南部家",
+      "portrait": "assets/portraits/nanbuharumasa.webp"
+    },
+    {
+      "id": "naritakai",
+      "name": "成田甲斐",
+      "kana": "なりたかい",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/naritakai.webp"
+    },
+    {
+      "id": "nene",
+      "name": "ねね",
+      "kana": "ねね",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/nene.webp"
+    },
+    {
+      "id": "obatakagenori",
+      "name": "小幡景憲",
+      "kana": "おばたかげのり",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/obatakagenori.webp"
+    },
+    {
+      "id": "obutoramasa",
+      "name": "飯富虎昌",
+      "kana": "おぶとらまさ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/obutoramasa.webp"
+    },
+    {
+      "id": "odanobunaga",
+      "name": "織田信長",
+      "kana": "おだのぶなが",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/odanobunaga.webp"
+    },
+    {
+      "id": "ogou",
+      "name": "お江",
+      "kana": "おごう",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/ogou.webp"
+    },
+    {
+      "id": "ohatsu",
+      "name": "お初",
+      "kana": "おはつ",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/ohatsu.webp"
+    },
+    {
+      "id": "oichi",
+      "name": "お市",
+      "kana": "おいち",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/oichi.webp"
+    },
+    {
+      "id": "okabemotonobu",
+      "name": "岡部元信",
+      "kana": "おかべもとのぶ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/okabemotonobu.webp"
+    },
+    {
+      "id": "oniniwasagetsusai",
+      "name": "鬼庭左月斎",
+      "kana": "おににわさげつさい",
+      "family": "date-clan",
+      "family_name": "伊達家",
+      "portrait": "assets/portraits/oniniwasagetsusai.webp"
+    },
+    {
+      "id": "oohouritsuru",
+      "name": "大祝鶴",
+      "kana": "おおほうりつる",
+      "family": "kono-clan",
+      "family_name": "河野家",
+      "portrait": "assets/portraits/oohouritsuru.webp"
+    },
+    {
+      "id": "ookubonagayasu",
+      "name": "大久保長安",
+      "kana": "おおくぼながやす",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/ookubonagayasu.webp"
+    },
+    {
+      "id": "ookubotadayo",
+      "name": "大久保忠世",
+      "kana": "おおくぼただよ",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/ookubotadayo.webp"
+    },
+    {
+      "id": "ootagyuuichi",
+      "name": "太田牛一",
+      "kana": "おおたぎゅういち",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/ootagyuuichi.webp"
+    },
+    {
+      "id": "ootasukemasa",
+      "name": "太田資正",
+      "kana": "おおたすけまさ",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/ootasukemasa.webp"
+    },
+    {
+      "id": "oouchiyoshitaka",
+      "name": "大内義隆",
+      "kana": "おおうちよしたか",
+      "family": "ouchi-clan",
+      "family_name": "大内家",
+      "portrait": "assets/portraits/oouchiyoshitaka.webp"
+    },
+    {
+      "id": "oyamadanobushige",
+      "name": "小山田信茂",
+      "kana": "おやまだのぶしげ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/oyamadanobushige.webp"
+    },
+    {
+      "id": "oyamadashigemasa",
+      "name": "小山田茂誠",
+      "kana": "おやまだしげまさ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/oyamadashigemasa.webp"
+    },
+    {
+      "id": "saegusamasazada",
+      "name": "三枝昌貞",
+      "kana": "さえぐさまさざだ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/saegusamasazada.webp"
+    },
+    {
+      "id": "saitoutoshimitsu",
+      "name": "斎藤利三",
+      "kana": "さいとうとしみつ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/saitoutoshimitsu.webp"
+    },
+    {
+      "id": "saitouyoshitatsu",
+      "name": "斎藤義龍",
+      "kana": "さいとうよしたつ",
+      "family": "saito-clan",
+      "family_name": "斎藤家",
+      "portrait": "assets/portraits/saitouyoshitatsu.webp"
+    },
+    {
+      "id": "sakaimasahisa",
+      "name": "坂井政尚",
+      "kana": "さかいまさひさ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/sakaimasahisa.webp"
+    },
+    {
+      "id": "sakaitadatsugu",
+      "name": "酒井忠次",
+      "kana": "さかいただつぐ",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/sakaitadatsugu.webp"
+    },
+    {
+      "id": "sakakibarayasumasa",
+      "name": "榊原康政",
+      "kana": "さかきばらやすまさ",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/sakakibarayasumasa.webp"
+    },
+    {
+      "id": "sakumamorimasa",
+      "name": "佐久間盛政",
+      "kana": "さくまもりまさ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/sakumamorimasa.webp"
+    },
+    {
+      "id": "sakumanobumori",
+      "name": "佐久間信盛",
+      "kana": "さくまのぶもり",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/sakumanobumori.webp"
+    },
+    {
+      "id": "sanadamasayuki",
+      "name": "真田昌幸",
+      "kana": "さなだまさゆき",
+      "family": "sanada-clan",
+      "family_name": "真田家",
+      "portrait": "assets/portraits/sanadamasayuki.webp"
+    },
+    {
+      "id": "satakeyoshishige",
+      "name": "佐竹義重",
+      "kana": "さたけよししげ",
+      "family": "satake-clan",
+      "family_name": "佐竹家",
+      "portrait": "assets/portraits/satakeyoshishige.webp"
+    },
+    {
+      "id": "satomiyoshitaka",
+      "name": "里見義堯",
+      "kana": "さとみよしたか",
+      "family": "satomi-clan",
+      "family_name": "里見家",
+      "portrait": "assets/portraits/satomiyoshitaka.webp"
+    },
+    {
+      "id": "sengokugonbee",
+      "name": "仙石権兵衛",
+      "kana": "せんごくごんべえ",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/sengokugonbee.webp"
+    },
+    {
+      "id": "sentouin",
+      "name": "仙桃院",
+      "kana": "せんとういん",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/sentouin.webp"
+    },
+    {
+      "id": "shibatakatsuie",
+      "name": "柴田勝家",
+      "kana": "しばたかついえ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/shibatakatsuie.webp"
+    },
+    {
+      "id": "shibatashigeie",
+      "name": "新発田重家",
+      "kana": "しばたしげいえ",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/shibatashigeie.webp"
+    },
+    {
+      "id": "shimazutakahisa",
+      "name": "島津貴久",
+      "kana": "しまづたかひさ",
+      "family": "shimazu-clan",
+      "family_name": "島津家",
+      "portrait": "assets/portraits/shimazutakahisa.webp"
+    },
+    {
+      "id": "shimotakasadakiyo",
+      "name": "下方貞清",
+      "kana": "しもたかさだきよ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/shimotakasadakiyo.webp"
+    },
+    {
+      "id": "sogoukazumasa",
+      "name": "十河一存",
+      "kana": "そごうかずまさ",
+      "family": "miyoshi-clan",
+      "family_name": "三好家",
+      "portrait": "assets/portraits/sogoukazumasa.webp"
+    },
+    {
+      "id": "soumamoritane",
+      "name": "相馬盛胤",
+      "kana": "そうまもりたね",
+      "family": "soma-clan",
+      "family_name": "相馬家",
+      "portrait": "assets/portraits/soumamoritane.webp"
+    },
+    {
+      "id": "sueharukata",
+      "name": "陶晴賢",
+      "kana": "すえはるかた",
+      "family": "ouchi-clan",
+      "family_name": "大内家",
+      "portrait": "assets/portraits/sueharukata.webp"
+    },
+    {
+      "id": "suibarachikanori",
+      "name": "水原親憲",
+      "kana": "すいばらちかのり",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/suibarachikanori.webp"
+    },
+    {
+      "id": "suwahime",
+      "name": "諏訪姫",
+      "kana": "すわひめ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/suwahime.webp"
+    },
+    {
+      "id": "suzukisadayuu",
+      "name": "鈴木佐大夫",
+      "kana": "すずきさだゆう",
+      "family": "suzuki-clan",
+      "family_name": "鈴木家",
+      "portrait": "assets/portraits/suzukisadayuu.webp"
+    },
+    {
+      "id": "suzukishigetomo",
+      "name": "鈴木重朝",
+      "kana": "すずきしげとも",
+      "family": "suzuki-clan",
+      "family_name": "鈴木家",
+      "portrait": "assets/portraits/suzukishigetomo.webp"
+    },
+    {
+      "id": "tachibanadousetsu",
+      "name": "立花道雪",
+      "kana": "たちばなどうせつ",
+      "family": "otomo-clan",
+      "family_name": "大友家",
+      "portrait": "assets/portraits/tachibanadousetsu.webp"
+    },
+    {
+      "id": "tachibanaginchiyo",
+      "name": "立花誾千代",
+      "kana": "たちばなぎんちよ",
+      "family": "otomo-clan",
+      "family_name": "大友家",
+      "portrait": "assets/portraits/tachibanaginchiyo.webp"
+    },
+    {
+      "id": "tadasanpachirou",
+      "name": "多田三八郎",
+      "kana": "たださんぱちろう",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/tadasanpachirou.webp"
+    },
+    {
+      "id": "takahashijouun",
+      "name": "高橋紹運",
+      "kana": "たかはしじょううん",
+      "family": "otomo-clan",
+      "family_name": "大友家",
+      "portrait": "assets/portraits/takahashijouun.webp"
+    },
+    {
+      "id": "takedashingen",
+      "name": "武田信玄",
+      "kana": "たけだしんげん",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/takedashingen.webp"
+    },
+    {
+      "id": "takedayoshinobu",
+      "name": "武田義信",
+      "kana": "たけだよしのぶ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/takedayoshinobu.webp"
+    },
+    {
+      "id": "takenakahanbee",
+      "name": "竹中半兵衛",
+      "kana": "たけなかはんべえ",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/takenakahanbee.webp"
+    },
+    {
+      "id": "tokugawaieyasu",
+      "name": "徳川家康",
+      "kana": "とくがわいえやす",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/tokugawaieyasu.webp"
+    },
+    {
+      "id": "toriimototada",
+      "name": "鳥居元忠",
+      "kana": "とりいもとただ",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/toriimototada.webp"
+    },
+    {
+      "id": "toyotomihideyoshi",
+      "name": "豊臣秀吉",
+      "kana": "とよとみひでよし",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/toyotomihideyoshi.webp"
+    },
+    {
+      "id": "tsudasanchou",
+      "name": "津田算長",
+      "kana": "つださんちょう",
+      "family": "kokujin",
+      "family_name": "国人",
+      "portrait": "assets/portraits/tsudasanchou.webp"
+    },
+    {
+      "id": "tsumakihiroko",
+      "name": "妻木熙子",
+      "kana": "つまきひろこ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/tsumakihiroko.webp"
+    },
+    {
+      "id": "uesugikenshin",
+      "name": "上杉謙信",
+      "kana": "うえすぎけんしん",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/uesugikenshin.webp"
+    },
+    {
+      "id": "ujiiebokuzen",
+      "name": "氏家卜全",
+      "kana": "うじいえぼくぜん",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/ujiiebokuzen.webp"
+    },
+    {
+      "id": "uragamimunekage",
+      "name": "浦上宗景",
+      "kana": "うらがみむねかげ",
+      "family": "family-040",
+      "family_name": "浦上家",
+      "portrait": "assets/portraits/uragamimunekage.webp"
+    },
+    {
+      "id": "usamisadamitsu",
+      "name": "宇佐美定満",
+      "kana": "うさみさだみつ",
+      "family": "uesugi-clan",
+      "family_name": "上杉家",
+      "portrait": "assets/portraits/usamisadamitsu.webp"
+    },
+    {
+      "id": "wakizakayasuharu",
+      "name": "脇坂安治",
+      "kana": "わきざかやすはる",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/wakizakayasuharu.webp"
+    },
+    {
+      "id": "yamagatamasakage",
+      "name": "山県昌景",
+      "kana": "やまがたまさかげ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/yamagatamasakage.webp"
+    },
+    {
+      "id": "yamamotokansuke",
+      "name": "山本勘助",
+      "kana": "やまもとかんすけ",
+      "family": "takeda-clan",
+      "family_name": "武田家",
+      "portrait": "assets/portraits/yamamotokansuke.webp"
+    },
+    {
+      "id": "yamauchikazutoyo",
+      "name": "山内一豊",
+      "kana": "やまうちかずとよ",
+      "family": "oda-clan",
+      "family_name": "織田家",
+      "portrait": "assets/portraits/yamauchikazutoyo.webp"
+    },
+    {
+      "id": "yokoyamakinai",
+      "name": "横山喜内",
+      "kana": "よこやまきない",
+      "family": "toyotomi-clan",
+      "family_name": "豊臣家",
+      "portrait": "assets/portraits/yokoyamakinai.webp"
+    },
+    {
+      "id": "yuukihideyasu",
+      "name": "結城秀康",
+      "kana": "ゆうきひでやす",
+      "family": "tokugawa-clan",
+      "family_name": "徳川家",
+      "portrait": "assets/portraits/yuukihideyasu.webp"
+    },
+    {
+      "id": "zuikeiin",
+      "name": "瑞渓院",
+      "kana": "ずいけいいん",
+      "family": "hojo-clan",
+      "family_name": "北条家",
+      "portrait": "assets/portraits/zuikeiin.webp"
+    },
+    {
+      "id": "shishidotakaie",
+      "name": "宍戸隆家",
+      "portrait": "assets/portraits/shishidotakaie.webp"
+    }
+  ],
+  "selectable_generals": [
+    "akechihidemitsu",
+    "akechimitsuhide",
+    "amagoharuhisa",
+    "amakasukagemochi",
+    "amakasukagetsugu",
+    "amaritorayasu",
+    "andouchikasue",
+    "andoumorinari",
+    "arakimurashige",
+    "asakurayoshikage",
+    "atagifuyuyasu",
+    "azainagamasa",
+    "babanobuharu",
+    "chisakakagechika",
+    "chousokabemotochika",
+    "dateharumune",
+    "datemasamune",
+    "dateterumune",
+    "endounaotsune",
+    "fujibayashimasayasu",
+    "fukudomechikamasa",
+    "fukuharasadatoshi",
+    "fukushimamasanori",
+    "hachisukaiemasa",
+    "hachisukakoroku",
+    "haratoratane",
+    "higuchikanetoyo",
+    "hondamasanobu",
+    "hondatadakatsu",
+    "honganjikennyo",
+    "horinaomasa",
+    "hoshinamasatoshi",
+    "houjoutsunashige",
+    "houjouujiyasu",
+    "ichijounobutatsu",
+    "ikedasen",
+    "ikedaterumasa",
+    "ikedatsuneoki",
+    "imagawayoshimoto",
+    "inabaittetsu",
+    "isonokazumasa",
+    "itagakinobukata",
+    "iwakichikataka",
+    "jukeini",
+    "kakizakikageie",
+    "kanisaizou",
+    "katoukiyomasa",
+    "katouyoshiakira",
+    "kawadanagachika",
+    "kichou",
+    "kikkawahiroie",
+    "kojimayatarou",
+    "kourikikiyonaga",
+    "kunishimotosuke",
+    "kunohemasazane",
+    "kuriyamazensuke",
+    "kurodakanbee",
+    "maedakeiji",
+    "maedatoshiie",
+    "magaranaotaka",
+    "matsu",
+    "matsudairanobuyasu",
+    "matsunagahisahide",
+    "miyabekeijun",
+    "miyoshijikkyuu",
+    "moriyoshinari",
+    "mourimotonari",
+    "mouritakamoto",
+    "mouriterumoto",
+    "naganonarimasa",
+    "naitoumasatoyo",
+    "nanbuharumasa",
+    "naritakai",
+    "nene",
+    "obatakagenori",
+    "obutoramasa",
+    "odanobunaga",
+    "ogou",
+    "ohatsu",
+    "oichi",
+    "okabemotonobu",
+    "oniniwasagetsusai",
+    "oohouritsuru",
+    "ookubonagayasu",
+    "ookubotadayo",
+    "ootagyuuichi",
+    "ootasukemasa",
+    "oouchiyoshitaka",
+    "oyamadanobushige",
+    "oyamadashigemasa",
+    "saegusamasazada",
+    "saitoutoshimitsu",
+    "saitouyoshitatsu",
+    "sakaimasahisa",
+    "sakaitadatsugu",
+    "sakakibarayasumasa",
+    "sakumamorimasa",
+    "sakumanobumori",
+    "sanadamasayuki",
+    "satakeyoshishige",
+    "satomiyoshitaka",
+    "sengokugonbee",
+    "sentouin",
+    "shibatakatsuie",
+    "shibatashigeie",
+    "shimazutakahisa",
+    "shimotakasadakiyo",
+    "sogoukazumasa",
+    "soumamoritane",
+    "sueharukata",
+    "suibarachikanori",
+    "suwahime",
+    "suzukisadayuu",
+    "suzukishigetomo",
+    "tachibanadousetsu",
+    "tachibanaginchiyo",
+    "tadasanpachirou",
+    "takahashijouun",
+    "takedashingen",
+    "takedayoshinobu",
+    "takenakahanbee",
+    "tokugawaieyasu",
+    "toriimototada",
+    "toyotomihideyoshi",
+    "tsudasanchou",
+    "tsumakihiroko",
+    "uesugikenshin",
+    "ujiiebokuzen",
+    "uragamimunekage",
+    "usamisadamitsu",
+    "wakizakayasuharu",
+    "yamagatamasakage",
+    "yamamotokansuke",
+    "yamauchikazutoyo",
+    "yokoyamakinai",
+    "yuukihideyasu",
+    "zuikeiin"
+  ],
+  "reports": [
+    {
+      "id": "land6-a1",
+      "image": "assets/land-reports/lv6-a1.webp?v=20260928-anon1",
+      "enemy": "saegusamasazada",
+      "allies": [
+        "kakizakikageie",
+        "chisakakagechika",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 10200,
+      "end": 9535,
+      "dead": 665,
+      "wounded": 0,
+      "enemy_start": 15000,
+      "enemy_end": 0,
+      "result": "勝利",
+      "sequence": "A・1戦目",
+      "morale": 93,
+      "note": "",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-a2",
+      "image": "assets/land-reports/lv6-a2.webp?v=20260928-anon1",
+      "enemy": "mouriterumoto",
+      "allies": [
+        "kakizakikageie",
+        "chisakakagechika",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 9535,
+      "end": 8028,
+      "dead": 1253,
+      "wounded": 254,
+      "enemy_start": 15000,
+      "enemy_end": 1359,
+      "result": "勝利",
+      "sequence": "A・2戦目",
+      "morale": 93,
+      "note": "前の戦報の残兵9,535から開始。",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-b1",
+      "image": "assets/land-reports/lv6-b1.webp?v=20260928-anon1",
+      "enemy": "saegusamasazada",
+      "allies": [
+        "kakizakikageie",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 9998,
+      "end": 8941,
+      "dead": 600,
+      "wounded": 457,
+      "enemy_start": 15000,
+      "enemy_end": 0,
+      "result": "勝利",
+      "sequence": "B・1戦目",
+      "morale": 92,
+      "note": "",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-b2",
+      "image": "assets/land-reports/lv6-b2.webp?v=20260928-anon1",
+      "enemy": "ikedasen",
+      "allies": [
+        "kakizakikageie",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 8941,
+      "end": 3782,
+      "dead": 2793,
+      "wounded": 2366,
+      "enemy_start": 15000,
+      "enemy_end": 7789,
+      "result": "敗北",
+      "sequence": "B・2戦目",
+      "morale": 92,
+      "note": "前の戦報の残兵8,941から開始。大将の柿崎景家が潰走。",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-c1",
+      "image": "assets/land-reports/lv6-c1.webp?v=20260928-anon1",
+      "enemy": "ookubotadayo",
+      "allies": [
+        "datemasamune",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        26,
+        26,
+        26
+      ],
+      "start": 12600,
+      "end": 10069,
+      "dead": 2196,
+      "wounded": 335,
+      "enemy_start": 15000,
+      "enemy_end": 2223,
+      "result": "勝利",
+      "sequence": "C・1戦目",
+      "morale": 91,
+      "note": "",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-c2",
+      "image": "assets/land-reports/lv6-c2.webp?v=20260928-anon1",
+      "enemy": "mouriterumoto",
+      "allies": [
+        "datemasamune",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        26,
+        26,
+        26
+      ],
+      "start": 10069,
+      "end": 5760,
+      "dead": 3193,
+      "wounded": 1116,
+      "enemy_start": 15000,
+      "enemy_end": 4483,
+      "result": "引分",
+      "sequence": "C・2戦目",
+      "morale": 91,
+      "note": "前の戦報の残兵10,069から開始。経験値欄にLv26→27の表示。",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-c3",
+      "image": "assets/land-reports/lv6-c3.webp?v=20260928-anon1",
+      "enemy": "mouriterumoto",
+      "allies": [
+        "datemasamune",
+        "kojimayatarou",
+        "oichi"
+      ],
+      "levels": [
+        27,
+        27,
+        27
+      ],
+      "start": 5760,
+      "end": 5409,
+      "dead": 153,
+      "wounded": 198,
+      "enemy_start": 4483,
+      "enemy_end": 2999,
+      "result": "勝利",
+      "sequence": "C・追撃",
+      "morale": 91,
+      "note": "敵は満兵ではなく4,483兵から開始。引分後の追撃であり、単独の低損攻略例ではありません。",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-d1",
+      "image": "assets/land-reports/lv6-d1.webp?v=20260928-anon1",
+      "enemy": "ookubotadayo",
+      "allies": [
+        "kakizakikageie",
+        "satomiyoshitaka",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 10800,
+      "end": 10244,
+      "dead": 556,
+      "wounded": 0,
+      "enemy_start": 15000,
+      "enemy_end": 375,
+      "result": "勝利",
+      "sequence": "D・1戦目",
+      "morale": 95,
+      "note": "",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-d2",
+      "image": "assets/land-reports/lv6-d2.webp?v=20260928-anon1",
+      "enemy": "hachisukaiemasa",
+      "allies": [
+        "kakizakikageie",
+        "satomiyoshitaka",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        28,
+        28
+      ],
+      "start": 10244,
+      "end": 6985,
+      "dead": 2386,
+      "wounded": 873,
+      "enemy_start": 15000,
+      "enemy_end": 4465,
+      "result": "勝利",
+      "sequence": "D・2戦目",
+      "morale": 95,
+      "note": "前の戦報の残兵10,244から開始。",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-e1",
+      "image": "assets/land-reports/lv6-e1.webp?v=20260928-anon1",
+      "enemy": "sakaimasahisa",
+      "allies": [
+        "kakizakikageie",
+        "usamisadamitsu",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        24,
+        28
+      ],
+      "start": 10400,
+      "end": 9125,
+      "dead": 854,
+      "wounded": 421,
+      "enemy_start": 15000,
+      "enemy_end": 2041,
+      "result": "勝利",
+      "sequence": "E・1戦目",
+      "morale": 90,
+      "note": "",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land6-e2",
+      "image": "assets/land-reports/lv6-e2.webp?v=20260928-anon1",
+      "enemy": "ikedatsuneoki",
+      "allies": [
+        "kakizakikageie",
+        "usamisadamitsu",
+        "oichi"
+      ],
+      "levels": [
+        28,
+        24,
+        29
+      ],
+      "start": 9125,
+      "end": 5619,
+      "dead": 2563,
+      "wounded": 943,
+      "enemy_start": 15000,
+      "enemy_end": 440,
+      "result": "勝利",
+      "sequence": "E・2戦目",
+      "morale": 90,
+      "note": "前の戦報の残兵9,125から開始。柿崎景家は経験値欄にLv28→29の表示。",
+      "land_level": 6,
+      "source_page": "s4-startdash/land6/",
+      "recorded_at": "2026-09-28",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land5-shishido-dosetsu",
+      "land_level": 5,
+      "image": "assets/land-reports/lv5-shishido-dosetsu.webp",
+      "enemy": "shishidotakaie",
+      "allies": [
+        "tachibanadousetsu",
+        "sogoukazumasa",
+        "katouyoshiakira"
+      ],
+      "levels": [
+        16,
+        16,
+        16
+      ],
+      "start": 4800,
+      "end": 4304,
+      "dead": 314,
+      "wounded": 182,
+      "enemy_start": null,
+      "enemy_end": null,
+      "result": "勝利",
+      "sequence": "",
+      "morale": null,
+      "note": "敵兵力・士気は未転記。勝利は戦報の表示結果です。",
+      "source_page": "s4-startdash/land5/",
+      "recorded_at": "2026-09-27",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land5-shishido-shingen",
+      "land_level": 5,
+      "image": "assets/land-reports/lv5-shishido-shingen.webp",
+      "enemy": "shishidotakaie",
+      "allies": [
+        "takedashingen",
+        "sogoukazumasa",
+        "oichi"
+      ],
+      "levels": [
+        18,
+        18,
+        18
+      ],
+      "start": 5400,
+      "end": 3883,
+      "dead": 737,
+      "wounded": 780,
+      "enemy_start": null,
+      "enemy_end": null,
+      "result": "勝利",
+      "sequence": "",
+      "morale": null,
+      "note": "敵兵力・士気は未転記。勝利は戦報の表示結果です。",
+      "source_page": "s4-startdash/land5/",
+      "recorded_at": "2026-09-27",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land5-shishido-kakizaki",
+      "land_level": 5,
+      "image": "assets/land-reports/lv5-shishido-kakizaki.webp",
+      "enemy": "shishidotakaie",
+      "allies": [
+        "kakizakikageie",
+        "hondamasanobu",
+        "oichi"
+      ],
+      "levels": [
+        18,
+        18,
+        18
+      ],
+      "start": 5400,
+      "end": 1851,
+      "dead": 2279,
+      "wounded": 1270,
+      "enemy_start": null,
+      "enemy_end": null,
+      "result": "勝利",
+      "sequence": "",
+      "morale": null,
+      "note": "敵兵力・士気は未転記。勝利は戦報の表示結果です。",
+      "source_page": "s4-startdash/land5/",
+      "recorded_at": "2026-09-27",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    },
+    {
+      "id": "land5-shimotaka-draw",
+      "land_level": 5,
+      "image": "assets/land-reports/lv5-shimotaka-draw.webp",
+      "enemy": "shimotakasadakiyo",
+      "allies": [
+        "kakizakikageie",
+        "hondamasanobu",
+        "katouyoshiakira"
+      ],
+      "levels": [
+        18,
+        18,
+        18
+      ],
+      "start": 5400,
+      "end": 3148,
+      "dead": 1684,
+      "wounded": 568,
+      "enemy_start": null,
+      "enemy_end": null,
+      "result": "引分",
+      "sequence": "",
+      "morale": null,
+      "note": "敵兵力・士気は未転記。勝利は戦報の表示結果です。",
+      "source_page": "s4-startdash/land5/",
+      "recorded_at": "2026-09-27",
+      "tactics": [],
+      "tactic_status": "詳細戦報画像で確認"
+    }
+  ]
+}
