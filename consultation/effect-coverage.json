@@ -7,8 +7,8 @@
     "trait:未計算": 424,
     "trait:仮定で比較": 3,
     "unique:partial": 22,
-    "tactic:unmodeled": 81,
-    "tactic:partial": 45
+    "tactic:unmodeled": 58,
+    "tactic:partial": 68
   },
   "entries": [
     {
@@ -7595,9 +7595,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "同名S4戦法の発動率35%を使用。次の与ダメ低下・重ね掛けは未計算"
     },
     {
       "type": "tactic",
@@ -7623,9 +7625,11 @@
         "attack",
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "敵2〜3名は平均2.5名。敵の能力低下は未計算"
     },
     {
       "type": "tactic",
@@ -7696,9 +7700,12 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "normalBonus",
+        "splash"
+      ],
+      "notes": "乱舞は通常攻撃1回につき他の敵2名へ。通常攻撃与ダメ上昇は乱舞へ重複加算しない"
     },
     {
       "type": "tactic",
@@ -7765,9 +7772,11 @@
         "attack",
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "magic"
+      ],
+      "notes": "対象の計略被ダメ上昇は未計算"
     },
     {
       "type": "tactic",
@@ -7778,9 +7787,11 @@
         "attack",
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "magic"
+      ],
+      "notes": "対象の兵刃被ダメ上昇は未計算"
     },
     {
       "type": "tactic",
@@ -7790,8 +7801,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
+      "status": "partial",
+      "calculations": [
+        "magic",
+        "magic"
+      ],
       "notes": null
     },
     {
@@ -7934,8 +7948,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
+      "status": "partial",
+      "calculations": [
+        "physical",
+        "weaken"
+      ],
       "notes": null
     },
     {
@@ -7971,9 +7988,12 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical",
+        "physical"
+      ],
+      "notes": "追加攻撃は表記65%で1回分のみ。再抽選・会心と速度依存増分は未計算"
     },
     {
       "type": "tactic",
@@ -8029,9 +8049,11 @@
         "attack",
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "友軍の統率上昇・援護は未計算"
     },
     {
       "type": "tactic",
@@ -8087,9 +8109,11 @@
         "attack",
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "adaptive"
+      ],
+      "notes": "武勇・知略の高い属性で計算。被ダメ軽減は未計算"
     },
     {
       "type": "tactic",
@@ -8127,9 +8151,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "先攻による行動順の変化は未計算"
     },
     {
       "type": "tactic",
@@ -8140,9 +8166,11 @@
         "attack",
         "recovery"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "敵2〜3名は平均2.5名。離反と被ダメ上昇は未計算"
     },
     {
       "type": "tactic",
@@ -8168,9 +8196,11 @@
         "attack",
         "status"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "威圧と速度上昇は未計算"
     },
     {
       "type": "tactic",
@@ -8194,9 +8224,12 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical",
+        "magic"
+      ],
+      "notes": "属性条件の強化分は未計算"
     },
     {
       "type": "tactic",
@@ -8222,8 +8255,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
+      "status": "partial",
+      "calculations": [
+        "double",
+        "outgoingDown"
+      ],
       "notes": null
     },
     {
@@ -8234,9 +8270,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "味方の兵刃与ダメ上昇は未計算"
     },
     {
       "type": "tactic",
@@ -8274,9 +8312,11 @@
         "attack",
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "magic"
+      ],
+      "notes": "挑発による被弾先の変化は未計算"
     },
     {
       "type": "tactic",
@@ -8308,9 +8348,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "magic"
+      ],
+      "notes": "自身と友軍の計略与ダメ上昇は未計算"
     },
     {
       "type": "tactic",
@@ -8321,9 +8363,11 @@
         "attack",
         "status"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "強化解除は未計算"
     },
     {
       "type": "tactic",
@@ -8333,8 +8377,10 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
       "notes": null
     },
     {
@@ -8361,9 +8407,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "会心は未計算"
     },
     {
       "type": "tactic",
@@ -8430,9 +8478,11 @@
         "attack",
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "magic"
+      ],
+      "notes": "統率低下は未計算"
     },
     {
       "type": "tactic",
@@ -9226,9 +9276,11 @@
       "axes": [
         "attack"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "physical"
+      ],
+      "notes": "次の与ダメ低下・重ね掛けは未計算"
     },
     {
       "type": "tactic",

@@ -11,6 +11,29 @@ const D=(kind,rate,targets=1,extra={})=>({kind,rate,targets,...extra});
 // Only reviewed, unambiguous portions are quantified. Notes name omissions.
 const RIKURYOKU='naganonarimasa-rikuryokudoushin';
 const T={
+ tr001:{prepare:1,e:[D('physical',102,2.5)],note:'敵2〜3名は平均2.5名。敵の能力低下は未計算'},
+ tr006:{e:[D('normalBonus',.5,1,{duration:2}),D('splash',70,2,{duration:2})],note:'乱舞は通常攻撃1回につき他の敵2名へ。通常攻撃与ダメ上昇は乱舞へ重複加算しない'},
+ tr011:{e:[D('magic',102,2,{duration:2,dot:true})],note:'対象の計略被ダメ上昇は未計算'},
+ tr012:{e:[D('magic',104,2,{duration:2,dot:true})],note:'対象の兵刃被ダメ上昇は未計算'},
+ tr013:{prepare:1,e:[D('magic',104,3),D('magic',74,3,{duration:2,dot:true})]},
+ tr023:{prepare:1,e:[D('physical',252),D('weaken',.5,1,{duration:2})]},
+ tr026:{e:[D('physical',116),D('physical',98,1,{chance:.65})],note:'追加攻撃は表記65%で1回分のみ。再抽選・会心と速度依存増分は未計算'},
+ tr030:{e:[D('physical',96,2)],note:'友軍の統率上昇・援護は未計算'},
+ tr034:{e:[D('adaptive',184)],note:'武勇・知略の高い属性で計算。被ダメ軽減は未計算'},
+ tr037:{e:[D('physical',122,2)],note:'先攻による行動順の変化は未計算'},
+ tr038:{e:[D('physical',118,2.5)],note:'敵2〜3名は平均2.5名。離反と被ダメ上昇は未計算'},
+ tr040:{e:[D('physical',154)],note:'威圧と速度上昇は未計算'},
+ tr042:{e:[D('physical',148),D('magic',148)],note:'属性条件の強化分は未計算'},
+ tr044:{e:[D('double',1,1,{target:'self'}),D('outgoingDown',.15,1,{target:'self'})]},
+ tr045:{prepare:1,e:[D('physical',296)],note:'味方の兵刃与ダメ上昇は未計算'},
+ tr048:{e:[D('magic',56,3)],note:'挑発による被弾先の変化は未計算'},
+ tr051:{prepare:1,e:[D('magic',148,2)],note:'自身と友軍の計略与ダメ上昇は未計算'},
+ tr052:{e:[D('physical',256)],note:'強化解除は未計算'},
+ tr053:{prepare:1,e:[D('physical',332)]},
+ tr055:{prepare:1,e:[D('physical',312)],note:'会心は未計算'},
+ tr060:{prepare:1,e:[D('magic',105,2,{duration:2,dot:true})],note:'統率低下は未計算'},
+ 's4-ifuurinrin':{kind:'突撃',p:.35,e:[D('physical',238)],note:'次の与ダメ低下・重ね掛けは未計算'},
+ 'miyoshijikkyuu-ifuurinrin':{kind:'突撃',p:.35,e:[D('physical',238)],note:'同名S4戦法の発動率35%を使用。次の与ダメ低下・重ね掛けは未計算'},
  'naganonarimasa-rikuryokudoushin':{kind:'指揮',p:.34,e:[D('heal',82,2,{target:'rikuryoku',scaling:'統率'})],note:'発動率と回復率は統率依存。上乗せ式は未確定なので、表記34%・82%を初期値とし実機表示で補正。回復先は兵力条件で変更'},
  tr002:{prepare:1,e:[D('physical',254,3)]},tr003:{prepare:1,e:[D('magic',142,2),D('heal',106,2)]},
  tr004:{e:[D('heal',260,1,{target:'injured'}),D('cleanse',1,1,{target:'injured'})]},
@@ -96,7 +119,7 @@ function profile(g,override={},index){const p={...baseStats(g),...override,gener
  if(p.uniqueKind)unique.kind=p.uniqueKind;
  if(p.uniqueRate!==null&&p.uniqueRate!==''&&p.uniqueRate!==undefined)unique.p=clamp(p.uniqueRate/100);
  p.uniqueKind=unique.kind;p.effects.push({...unique,isUnique:true});
- for(const id of [...new Set(p.tactics||[])].slice(0,2)){const t=index.tactics.get(id);if(!id)continue;if(t)p.effects.push({...resolveModel(g,t,index,false),source:t.source?.source_url,id});else p.unknown.push('装備戦法のデータなし / '+id);}
+ for(const id of [...new Set(p.tactics||[])].slice(0,2)){const t=index.tactics.get(id);if(!id)continue;if(t){const model=resolveModel(g,t,index,false);const rate=p.tacticRates?.[id];if(rate!==undefined&&rate!==null&&rate!=='')model.p=clamp(Number(rate)/100);p.effects.push({...model,source:t.source?.source_url,id});}else p.unknown.push('装備戦法のデータなし / '+id);}
  for(const e of p.effects){if(e.id===RIKURYOKU){e.p=clamp(p.rikuryokuRate/100);e.e=e.e.map(x=>({...x,rate:clamp(p.rikuryokuHeal,0,1000)}));}if(e.unmodeled)p.unknown.push(e.name+'：数値モデル未登録');else if(e.p===null)p.unknown.push(e.name+'：発動率未収録');if(e.note)p.unknown.push(e.name+'：'+e.note);}
  return p;
 }
@@ -152,7 +175,9 @@ function analyze(profiles,scenario={},season=4){
     for(let t=Math.max(0,turn-duration);t<turn;t++)uptime*=1-clamp(values[t]*schedule(e,t+1,p));uptime=1-uptime;
     const casts=(model.kind==='突撃'?chance*normalsAt[owner]:values[turn-1])*current,proc=casts*(e.chance??1),targets=e.targets||1,hits=e.hits||1;
     const rec=recipients(e,owner,profiles),token=p.general.id+':'+model.name;
-    if(e.kind==='physical'||e.kind==='magic'){const amount=e.rate*targets*hits*(e.dot?uptime:proc);(e.kind==='physical'?physical:magic)[owner]+=amount;}
+    if(e.kind==='normalBonus')physical[owner]+=100*normalsAt[owner]*e.rate*uptime;
+    if(e.kind==='splash')physical[owner]+=e.rate*targets*normalsAt[owner]*uptime;
+    if(e.kind==='physical'||e.kind==='magic'||e.kind==='adaptive'){const amount=e.rate*targets*hits*(e.dot?uptime:proc);(e.kind==='physical'||e.kind==='adaptive'&&p.martial>=p.intellect?physical:magic)[owner]+=amount;}
     if(e.kind==='heal'){const amount=e.rate*proc*cfg.healAllowed/100;rec.forEach((v,i)=>{heal[i]+=amount*v;if(model.kind==='能動')activeHeal[i]+=amount*v;});actorTotals[owner].heal+=sum(rec)*amount;if(model.kind==='能動')actorTotals[owner].activeHeal+=sum(rec)*amount;}
     if(e.kind==='dr'&&uptime){let rate=e.rate;if(e.dynamic==='chisha'){const moreInt=profiles.filter(p=>p.intellect>p.martial).length>profiles.filter(p=>p.martial>p.intellect).length;const phys=p.chishaPhysical==null?(moreInt?24:18):clamp(p.chishaPhysical,0,90),magic=p.chishaMagic==null?(moreInt?18:24):clamp(p.chishaMagic,0,90);rate=(phys*cfg.physicalShare/100+magic*(1-cfg.physicalShare/100))/100;}rec.forEach((v,i)=>dr[i]*=1-clamp(rate*uptime*v));drSources.add(token);}
     if(e.kind==='outgoingDown')rec.forEach((v,i)=>outgoing[i]*=1-clamp(e.rate*uptime*v));
