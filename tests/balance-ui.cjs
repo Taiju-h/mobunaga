@@ -14,6 +14,7 @@ const {JSDOM,VirtualConsole}=require('jsdom');
  assert.equal(d.querySelectorAll('.quick-tactics .fixed-tactic').length,1);assert.equal(d.querySelectorAll('.quick-tactics [data-tactic]').length,2);
  replace(0,'hondatadakatsu');
  select('.quick-loadout [data-stat=rank]','1');assert(d.querySelector('.effect-basis').textContent.includes('剛猛Ⅱ'));
+ select('.quick-tactics [data-tactic="0"]','tr024');assert(d.querySelector('.variance-panel'));assert(d.querySelector('.cast-risk').textContent.includes('自立の志'));assert(d.querySelector('.variance-panel').textContent.includes('21.6%'));assert(d.querySelector('.defense-risk').textContent.includes('序盤3T'));assert(d.querySelector('.radar-range-high'));const varianceBefore=d.querySelector('.variance-panel').textContent;click('[data-open-picker="1"]');assert.equal(d.querySelector('.variance-panel').textContent,varianceBefore);click('[data-close-picker]');
  select('.quick-tactics [data-tactic="0"]','tr004');const fireBefore=d.querySelector('.attack-power').textContent;
  select('.quick-tactics [data-tactic="0"]','tr013');assert.notEqual(d.querySelector('.attack-power').textContent,fireBefore,'healing to fire attack changes power');
  select('.quick-tactics [data-tactic="0"]','tr053');assert(d.querySelector('[data-tactic-rate=tr053]'));const beforeRate=d.querySelector('.attack-power').textContent;select('[data-tactic-rate=tr053]','40');assert.notEqual(d.querySelector('.attack-power').textContent,beforeRate);assert.equal(d.querySelector('[data-tactic-rate=tr053]').value,'40');

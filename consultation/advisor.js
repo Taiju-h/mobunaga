@@ -11,6 +11,7 @@ const D=(kind,rate,targets=1,extra={})=>({kind,rate,targets,...extra});
 // Only reviewed, unambiguous portions are quantified. Notes name omissions.
 const RIKURYOKU='naganonarimasa-rikuryokudoushin';
 const T={
+ tr024:{kind:'能動',p:.4,probabilitySource:'https://slgsim.com/skill/jiritsunokokorozashi',e:[D('taunt',1,3,{duration:2}),D('defenseBoost',.55,1,{target:'self',duration:2})],note:'挑発と統率55%上昇が同じ発動で2T持続。行動前被弾・敵の浄化と統率依存戦法への波及は未計算'},
  tr001:{prepare:1,e:[D('physical',102,2.5)],note:'敵2〜3名は平均2.5名。敵の能力低下は未計算'},
  tr006:{e:[D('normalBonus',.5,1,{duration:2}),D('splash',70,2,{duration:2})],note:'乱舞は通常攻撃1回につき他の敵2名へ。通常攻撃与ダメ上昇は乱舞へ重複加算しない'},
  tr011:{e:[D('magic',102,2,{duration:2,dot:true})],note:'対象の計略被ダメ上昇は未計算'},
@@ -144,7 +145,11 @@ function recipients(effect,owner,profiles){const n=profiles.length,all=profiles.
  return profiles.map((_,i)=>ids.includes(i)?Math.min(1,targets/Math.max(1,ids.length)):0);
 }
 function schedule(e,t,profile){if(t<(e.from||1)||t>(e.until||8))return 0;if(Array.isArray(e.schedule))return e.schedule[t-1]||0;if(e.schedule==='keifuu')return t%2===0?.8:profile.general.gender==='女性'?.2:0;return 1;}
-function analyze(profiles,scenario={},season=4){
+// Sample completed casts, preserving preparation/cooldown and multiple normal attacks.
+function trials(count,p,rng){let n=Math.floor(count),out=0;if(rng()<count-n)n++;for(let i=0;i<n;i++)if(rng()<clamp(p))out++;return out;}
+function sampleTimeline(p,turns,prepare,cooldown,availability,rng){let wait=0;return Array.from({length:turns},()=>{if(wait>0){wait--;if(!wait){wait=-cooldown;return 1;}return 0;}if(wait<0){wait++;return 0;}if(rng()<clamp(p)*clamp(availability)){if(prepare){wait=prepare;return 0;}wait=-cooldown;return 1;}return 0;});}
+function analyze(profiles,scenario={},season=4,simulation=null){
+ const rng=simulation?.rng;
  const cfg={...defaultScenario,...scenario};cfg.turns=Math.round(clamp(cfg.turns,1,8));cfg.enemyRate=clamp(cfg.enemyRate,1,2000);
  for(const key of ['activeUptime','normalUptime','healAllowed','enemyResistance','physicalShare','basicShare'])cfg[key]=clamp(cfg[key],0,100);cfg.enemyHits=clamp(cfg.enemyHits,1,30);cfg.enemyNormalHits=clamp(cfg.enemyNormalHits,0,30);cfg.aggroMedium=clamp(cfg.aggroMedium,1,5);
  const n=profiles.length;if(!n)return null;const w=profiles.map(p=>p.weight),totalWeight=sum(w);const shares=w.map(x=>totalWeight?x/totalWeight:1/n);
@@ -153,7 +158,7 @@ function analyze(profiles,scenario={},season=4){
  let chance=model.p;if(chance===null)return {model,values:Array(cfg.turns).fill(0),unknown:true};
  if(model.isUnique&&i===0&&hasAlliance&&a.eligible)chance=clamp(chance+.13);
  const active=model.kind==='能動',trigger=model.kind==='突撃';
- const values=active?castTimeline(chance,cfg.turns,model.prepare||0,model.cooldown||0,cfg.activeUptime/100):Array(cfg.turns).fill(trigger?chance*p.normals*cfg.normalUptime/100:chance);
+ const values=rng?(active?sampleTimeline(chance,cfg.turns,model.prepare||0,model.cooldown||0,cfg.activeUptime/100,rng):Array.from({length:cfg.turns},()=>trigger?0:trials(1,chance,rng))):active?castTimeline(chance,cfg.turns,model.prepare||0,model.cooldown||0,cfg.activeUptime/100):Array(cfg.turns).fill(trigger?chance*p.normals*cfg.normalUptime/100:chance);
  return {model,values,chance};
  }));
  const rows=[],weakenSources=new Set(),drSources=new Set(),unknown=profiles.flatMap(p=>p.unknown.map(s=>p.general.name+' / '+s));
@@ -162,24 +167,27 @@ function analyze(profiles,scenario={},season=4){
  let controlNone=1;const leechStacks=profiles.map(()=>0);
  for(let turn=1;turn<=cfg.turns;turn++){
   const physical=profiles.map(()=>0),magic=profiles.map(()=>0),heal=profiles.map(()=>0),activeHeal=profiles.map(()=>0),dr=profiles.map(()=>1),shield=profiles.map(()=>0),protect=profiles.map(()=>0),doubles=profiles.map(()=>0),outgoing=profiles.map(()=>1),selfSustain=profiles.map(()=>0);
-  const weighted=profiles.map((p,i)=>w[i]*(p.activeTraits?.some(t=>/通常攻撃を受ける確率中幅上昇/.test(t.effect))?cfg.aggroMedium:1));const weightedTotal=sum(weighted);let normalShares=weighted.map(x=>weightedTotal?x/weightedTotal:1/n);const basicDR=profiles.map(()=>1),taunts=[];
-  profiles.forEach((p,owner)=>{for(const {model,values} of timelines[owner])for(const e of model.e){const proc=values[turn-1]*schedule(e,turn,p);if(e.kind==='basicDR')basicDR[owner]*=1-clamp(proc*e.rate);if(e.kind==='taunt'&&owner!==0&&proc>0)taunts.push({owner,coverage:clamp(proc*e.rate*e.targets/3*(1-cfg.enemyResistance/100))});}});
+  const weighted=profiles.map((p,i)=>w[i]*(p.activeTraits?.some(t=>/通常攻撃を受ける確率中幅上昇/.test(t.effect))?cfg.aggroMedium:1));const weightedTotal=sum(weighted);let normalShares=weighted.map(x=>weightedTotal?x/weightedTotal:1/n);const basicDR=profiles.map(()=>1),defenseFactor=profiles.map(()=>1),taunts=[];
+  profiles.forEach((p,owner)=>{for(const {model,values} of timelines[owner])for(const e of model.e){const proc=values[turn-1]*schedule(e,turn,p);if(e.kind==='basicDR')basicDR[owner]*=1-clamp(proc*e.rate);if(e.kind==='taunt'&&(model.id!=='tr064'||owner!==0)){let miss=1;for(let t=Math.max(0,turn-(e.duration||1));t<turn;t++)miss*=1-clamp(values[t]*schedule(e,t+1,p));const uptime=1-miss;if(uptime>0)taunts.push({owner,coverage:clamp(uptime*e.rate*e.targets/3*(1-cfg.enemyResistance/100))});}}});
   if(taunts.length){taunts.sort((a,b)=>b.coverage-a.coverage);const t=taunts[0];normalShares=normalShares.map((v,i)=>v*(1-t.coverage)+(i===t.owner?t.coverage:0));}
 
   profiles.forEach((p,owner)=>{for(const {model,values,unknown:missing} of timelines[owner]){if(missing)continue;for(const e of model.e.filter(e=>e.kind==='double')){let miss=1;for(let t=Math.max(0,turn-(e.duration||1));t<turn;t++)miss*=1-clamp(values[t]*schedule(e,t+1,p));recipients(e,owner,profiles).forEach((v,i)=>{doubles[i]=Math.max(doubles[i],clamp((1-miss)*v));});}}});
   const normalsAt=profiles.map((p,i)=>(p.normals+Math.max(0,2-p.normals)*doubles[i])*cfg.normalUptime/100);
   const weakened={physical:1,magic:1};let controlMiss=1,hardStop=0;
   profiles.forEach((p,owner)=>{for(const {model,values,chance,unknown:missing} of timelines[owner]){if(missing)continue;
+   const sampledCasts=rng&&model.kind==='突撃'?trials(normalsAt[owner],chance,rng):null;
+   if(simulation){const key=owner+':'+(model.id||'unique');simulation.casts[key]=(simulation.casts[key]||0)+(sampledCasts??values[turn-1]);if(turn<=3){simulation.earlyCasts=simulation.earlyCasts||{};simulation.earlyCasts[key]=(simulation.earlyCasts[key]||0)+(sampledCasts??values[turn-1]);}}
    for(const e of model.e){const current=schedule(e,turn,p),duration=e.duration||1;let uptime=1;
     // Repeated same-source effects refresh; they do not add indefinitely.
     for(let t=Math.max(0,turn-duration);t<turn;t++)uptime*=1-clamp(values[t]*schedule(e,t+1,p));uptime=1-uptime;
-    const casts=(model.kind==='突撃'?chance*normalsAt[owner]:values[turn-1])*current,proc=casts*(e.chance??1),targets=e.targets||1,hits=e.hits||1;
+    const casts=(model.kind==='突撃'?sampledCasts??chance*normalsAt[owner]:values[turn-1])*current,proc=rng?trials(casts,e.chance??1,rng):casts*(e.chance??1),targets=e.targets||1,hits=e.hits||1;
     const rec=recipients(e,owner,profiles),token=p.general.id+':'+model.name;
     if(e.kind==='normalBonus')physical[owner]+=100*normalsAt[owner]*e.rate*uptime;
     if(e.kind==='splash')physical[owner]+=e.rate*targets*normalsAt[owner]*uptime;
     if(e.kind==='physical'||e.kind==='magic'||e.kind==='adaptive'){const amount=e.rate*targets*hits*(e.dot?uptime:proc);(e.kind==='physical'||e.kind==='adaptive'&&p.martial>=p.intellect?physical:magic)[owner]+=amount;}
     if(e.kind==='heal'){const amount=e.rate*proc*cfg.healAllowed/100;rec.forEach((v,i)=>{heal[i]+=amount*v;if(model.kind==='能動')activeHeal[i]+=amount*v;});actorTotals[owner].heal+=sum(rec)*amount;if(model.kind==='能動')actorTotals[owner].activeHeal+=sum(rec)*amount;}
     if(e.kind==='dr'&&uptime){let rate=e.rate;if(e.dynamic==='chisha'){const moreInt=profiles.filter(p=>p.intellect>p.martial).length>profiles.filter(p=>p.martial>p.intellect).length;const phys=p.chishaPhysical==null?(moreInt?24:18):clamp(p.chishaPhysical,0,90),magic=p.chishaMagic==null?(moreInt?18:24):clamp(p.chishaMagic,0,90);rate=(phys*cfg.physicalShare/100+magic*(1-cfg.physicalShare/100))/100;}rec.forEach((v,i)=>dr[i]*=1-clamp(rate*uptime*v));drSources.add(token);}
+    if(e.kind==='defenseBoost')rec.forEach((v,i)=>defenseFactor[i]*=1-uptime*v+uptime*v/(1+e.rate));
     if(e.kind==='outgoingDown')rec.forEach((v,i)=>outgoing[i]*=1-clamp(e.rate*uptime*v));
     if(e.kind==='weaken'&&uptime){const r=clamp(e.rate*uptime*targets/3*(1-cfg.enemyResistance/100));weakened.physical*=1-r;weakened.magic*=1-r;weakenSources.add(token);}
     if(e.kind==='shield')rec.forEach((v,i)=>shield[i]+=proc*(model.id==='tr097'&&owner===0?1:e.rate)*v);
@@ -188,10 +196,10 @@ function analyze(profiles,scenario={},season=4){
     if(e.kind==='control'){const application=clamp(e.rate*(e.chance??1)*(1-cfg.enemyResistance/100));const attempts=casts;let event=clamp(attempts*application);if(model.kind==='突撃'){const tries=normalsAt[owner],whole=Math.floor(tries),fraction=tries-whole,q=clamp(chance*application*current);event=(1-fraction)*(1-Math.pow(1-q,whole))+fraction*(1-Math.pow(1-q,whole+1));}controlMiss*=1-event;if(e.stopChance)hardStop+=uptime*e.rate*e.stopChance*targets*(1-cfg.enemyResistance/100);}
    }
   }});
-  profiles.forEach((p,i)=>{const normals=(p.normals+Math.max(0,2-p.normals)*doubles[i])*cfg.normalUptime/100;physical[i]+=100*normals+clamp(p.physicalExtra,0,5000);magic[i]+=clamp(p.magicExtra,0,5000);physical[i]*=outgoing[i];magic[i]*=outgoing[i];const counter=p.effects.flatMap(m=>m.e).find(e=>e.kind==='counter');if(counter){const casts=cfg.enemyNormalHits*normalShares[i]*counter.chance;physical[i]+=casts*counter.rate*outgoing[i];const cap=i===0?10:counter.stacks;const old=leechStacks[i];leechStacks[i]=Math.min(cap,old+casts);const leech=counter.leech*(old+leechStacks[i])/2;selfSustain[i]=physical[i]*leech*cfg.healAllowed/100;heal[i]+=selfSustain[i];actorTotals[i].heal+=selfSustain[i];}heal[i]+=clamp(p.healExtra,0,5000)*cfg.healAllowed/100;actorTotals[i].physical+=physical[i];actorTotals[i].magic+=magic[i];actorTotals[i].normals+=normals;});
+  profiles.forEach((p,i)=>{const normals=(p.normals+Math.max(0,2-p.normals)*doubles[i])*cfg.normalUptime/100;physical[i]+=100*normals+clamp(p.physicalExtra,0,5000);magic[i]+=clamp(p.magicExtra,0,5000);physical[i]*=outgoing[i];magic[i]*=outgoing[i];const counter=p.effects.flatMap(m=>m.e).find(e=>e.kind==='counter');if(counter){const casts=rng?trials(cfg.enemyNormalHits*normalShares[i],counter.chance,rng):cfg.enemyNormalHits*normalShares[i]*counter.chance;physical[i]+=casts*counter.rate*outgoing[i];const cap=i===0?10:counter.stacks;const old=leechStacks[i];leechStacks[i]=Math.min(cap,old+casts);const leech=counter.leech*(old+leechStacks[i])/2;selfSustain[i]=physical[i]*leech*cfg.healAllowed/100;heal[i]+=selfSustain[i];actorTotals[i].heal+=selfSustain[i];}heal[i]+=clamp(p.healExtra,0,5000)*cfg.healAllowed/100;actorTotals[i].physical+=physical[i];actorTotals[i].magic+=magic[i];actorTotals[i].normals+=normals;});
   const enemyFactor=weakened.physical*cfg.physicalShare/100+weakened.magic*(1-cfg.physicalShare/100);
   const exposure=profiles.map((p,i)=>(1-cfg.basicShare/100)*shares[i]+cfg.basicShare/100*normalShares[i]*basicDR[i]);
-  const need=profiles.map((p,i)=>cfg.enemyRate*exposure[i]*150/Math.max(1,p.defense)*dr[i]*enemyFactor);
+  const need=profiles.map((p,i)=>cfg.enemyRate*exposure[i]*150/Math.max(1,p.defense)*dr[i]*defenseFactor[i]*enemyFactor);
   const covered=heal.map((v,i)=>Math.min(v,need[i]));
   const row={turn,physical,magic,heal,activeHeal,need,covered,dr,shield,protect,normalShares,basicDR,selfSustain,enemyReduction:1-enemyFactor,controlChance:1-controlMiss,hardStop};rows.push(row);controlNone*=controlMiss;
  }
@@ -224,5 +232,5 @@ function replacementVariants(formations,index,overrides={},scenario={},season=4,
  }
  return variants.sort((a,b)=>Number(b.removedKnown)-Number(a.removedKnown)||b.delta-a.delta);
 }
-root.MobunagaAdvisor={traitUnlock,tacticModel:id=>T[id]||null,RIKURYOKU,replacementVariants,defaultScenario,baseStats,profile,analyze,recommend,probability,castTimeline,alliance};
+root.MobunagaAdvisor={traitUnlock,tacticModel:id=>T[id]||null,RIKURYOKU,replacementVariants,defaultScenario,baseStats,profile,analyze,recommend,probability,castTimeline,sampleTimeline,trials,alliance};
 })(typeof window!=="undefined"?window:globalThis);

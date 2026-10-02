@@ -7,8 +7,8 @@
     "trait:未計算": 424,
     "trait:仮定で比較": 3,
     "unique:partial": 22,
-    "tactic:unmodeled": 58,
-    "tactic:partial": 68
+    "tactic:unmodeled": 57,
+    "tactic:partial": 69
   },
   "entries": [
     {
@@ -7963,9 +7963,12 @@
       "axes": [
         "defense"
       ],
-      "status": "unmodeled",
-      "calculations": [],
-      "notes": null
+      "status": "partial",
+      "calculations": [
+        "taunt",
+        "defenseBoost"
+      ],
+      "notes": "挑発と統率55%上昇が同じ発動で2T持続。行動前被弾・敵の浄化と統率依存戦法への波及は未計算"
     },
     {
       "type": "tactic",
