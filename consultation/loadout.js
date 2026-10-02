@@ -19,7 +19,7 @@ function modeFor(ids,overrides,index,requested){
  if(ids.some(id=>(overrides[id]?.tactics||[]).includes('tr113')))return 'alliance';
  if(requested)return requested;
  const ps=ids.map(id=>A.profile(index.generals.get(id),overrides[id],index));
- return ps.length>1&&new Set(ps.map(p=>p.general.family)).size===ps.length&&['能動','突撃'].includes(ps[0].uniqueKind)?'alliance':'family';
+ return ps.length>1&&new Set(ps.map(p=>p.general.family)).size===ps.length?'alliance':'family';
 }
 function rankedTactics(g,config,index,formations,options={}){
  const attribute=focus(g,config),counts=new Map(),chosen=options.counters||[];

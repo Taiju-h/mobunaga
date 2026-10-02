@@ -77,7 +77,7 @@ function baseStats(g){const get=k=>Number((g.stats||[]).find(s=>(s.attribute||s.
 function resolveModel(g,t,index,isUnique){
  let def=isUnique?G[g.id]:T[t.id],source=t;
  if(def?.alias){source=index.tactics.get(def.alias)||t;def=T[def.alias];}
- const kind=def?.kind||source.category||(String(t.effect).startsWith('通常攻撃後')?'突撃':String(t.effect).startsWith('1ターンの準備後')?'能動':'未確認');
+ const kind=def?.kind||source.category||(isUnique&&g.id==='tachibanaginchiyo'?'指揮':null)||(String(t.effect).startsWith('通常攻撃後')?'突撃':String(t.effect).startsWith('1ターンの準備後')?'能動':'未確認');
  const p=def?.p??probability(source);
  return {...(def||{}),kind,p,e:def?.e||[],name:t.name||'固有戦法',effect:t.effect||'',source:g.source?.source_url,unmodeled:!def};
 }

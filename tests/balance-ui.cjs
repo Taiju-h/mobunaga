@@ -1,0 +1,28 @@
+const assert=require('node:assert/strict');
+const {JSDOM,VirtualConsole}=require('jsdom');
+(async()=>{
+ const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));
+ const dom=await JSDOM.fromURL(process.env.CONSULTATION_TEST_URL||'http://127.0.0.1:8774/consultation/?season=4',{resources:'usable',runScripts:'dangerously',virtualConsole:vc,beforeParse(w){w.fetch=(u,o)=>fetch(new URL(u,w.location.href),o);w.HTMLElement.prototype.scrollIntoView=function(){};}});
+ const w=dom.window,d=w.document;
+ for(let i=0;i<200&&d.querySelector('#workspace').hidden;i++)await new Promise(r=>setTimeout(r,50));
+ assert(!d.querySelector('#workspace').hidden);
+ const click=s=>{assert(d.querySelector(s),s);d.querySelector(s).click();};
+ const select=(s,v)=>{const e=d.querySelector(s);assert(e,s);e.value=v;e.dispatchEvent(new w.Event('change',{bubbles:true}));};
+ click('[data-purpose=pvp]');click('[data-general=tachibanaginchiyo]');click('[data-next]');click('[data-next]');
+ assert(d.querySelector('.balance-radar'));assert.equal(d.querySelectorAll('[data-replace-slot]').length,3);
+ select('[data-replace-slot="1"]','tachibanadousetsu');
+ assert(d.querySelector('.synergy-note').textContent.includes('立花道雪'));assert(d.querySelector('.radar-before'));
+ select('[data-replace-slot="2"]','houjouujiyasu');
+ assert.equal(d.querySelectorAll('.balance-slot option:checked').length,3);
+ select('[data-replace-slot="1"]','kakizakikageie');
+ assert(d.querySelector('.alliance-note'));assert(d.querySelector('.leader-badge'));
+ assert.equal(d.querySelector('[data-replace-slot="0"]').value,'tachibanaginchiyo');
+ click('.balance-slot [data-leader=kakizakikageie]');
+ assert.equal(d.querySelector('[data-replace-slot="0"]').value,'kakizakikageie');
+ assert(d.querySelector('.alliance-note').textContent.includes('装備済み'));
+ select('[data-replace-slot="2"]','tachibanadousetsu');
+ assert(!d.querySelector('.alliance-note'));assert(!d.querySelector('.leader-badge'));
+ select('#season','2');click('[data-purpose=pvp]');click('[data-general=toyotomihideyoshi]');click('[data-next]');click('[data-next]');
+ assert(!d.querySelector('.balance-lab option[value=tachibanaginchiyo]'));
+ assert.deepEqual(errors,[]);dom.window.close();console.log('Balance UI: add/swap three slots, previous graph, synergy, captain change, alliance and season isolation PASS');
+})().catch(e=>{console.error(e);process.exit(1)});

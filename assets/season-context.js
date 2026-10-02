@@ -300,6 +300,7 @@
     const picker = document.querySelector("#global-season-picker");
     if (picker) picker.value = String(selected);
     document.documentElement.dataset.userSeason = String(selected);
+    document.querySelectorAll("[data-only-season]").forEach(link => { link.hidden = Number(link.dataset.onlySeason) !== selected; });
     allView = true;
     viewSeasons = new Set(availableSeasons());
     ensureCatalogSeasonTabs();

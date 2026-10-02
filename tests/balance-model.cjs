@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+require('../consultation/core.js');require('../consultation/evidence.js');require('../consultation/advisor.js');require('../consultation/loadout.js');require('../consultation/balance.js');
+const C=global.MobunagaConsult,A=global.MobunagaAdvisor,B=global.MobunagaBalance,L=global.MobunagaLoadout;
+const base=require('../assets/formations.json'),db=C.catalog(require('../assets/database.json'),require('../assets/s4-additions.json'),base),index=C.evidenceIndex(db,4);
+const evalTeam=ids=>B.evaluate(A.analyze(ids.map(id=>A.profile(index.generals.get(id),{},index))));
+const solo=evalTeam(['tachibanaginchiyo']),pair=evalTeam(['tachibanaginchiyo','tachibanadousetsu']);
+assert(pair.axes.find(x=>x.key==='recovery').value>solo.axes.find(x=>x.key==='recovery').value);
+assert(pair.inflict>solo.inflict);assert.equal(pair.resist,0);assert(pair.notes.some(x=>x.includes('＋20')));
+const plan=L.team(['tachibanaginchiyo','kakizakikageie','toyotomihideyoshi'],{},index,[],{season:4});
+assert.equal(plan.mode,'alliance');assert.equal(plan.rule.eligible,false);
+const roles=B.evaluate(A.analyze(plan.profiles));assert(roles.threeFamilies);assert(!roles.leaders.includes('tachibanaginchiyo'));assert(roles.leaders.includes('kakizakikageie'));
+const reordered=L.team(['kakizakikageie','tachibanaginchiyo','toyotomihideyoshi'],{},index,[],{season:4});assert(A.analyze(reordered.profiles).allianceEquipped);
+for(const b of [solo,pair,roles])for(const axis of b.axes)assert(Number.isFinite(axis.value)&&axis.value>=0&&axis.value<=100);
+console.log('Balance: paralysis/recovery synergy, separate resistance, alliance captain and finite scores PASS');
