@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');require('../consultation/general-picker.js');const P=globalThis.MobunagaGeneralPicker;
+const g=t=>({unique_tactic:{effect:t}});
+assert(P.features(g('友軍複数（2名）の兵力を回復（回復率152%）')).includes('heal'));
+assert(!P.features(g('敵軍全体に回復不可を付与')).includes('heal'));
+assert(P.features(g('敵軍全体に回復不可を付与')).includes('status'));
+assert(!P.features(g('自身は麻痺と混乱を無効にする')).includes('status'));
+assert(P.features(g('敵軍複数（2名）に兵刃ダメージを付与')).includes('multi'));
+assert(!P.features(g('友軍複数（2名）を回復し、敵軍単体にダメージ')).includes('multi'));
+assert(P.features(g('自身が46%の乱舞を獲得')).includes('multi'));
+assert(P.features(g('敵軍単体に挑発を付与')).includes('taunt'));
+assert(!P.features(g('挑発を無効にする')).includes('taunt'));
+assert(P.features(g('自身の武勇が50増加')).includes('buff'));
+assert(P.features(g('友軍複数の与ダメージが75%上昇')).includes('allyAttack'));
+assert(!P.features(g('敵軍の与ダメージが30%低下')).includes('allyAttack'));
+assert.equal(P.defaultFamily([{f:'a'},{f:'a'}],x=>x.f),'a');assert.equal(P.defaultFamily([{f:'a'},{f:'b'}],x=>x.f),'');assert.equal(P.defaultFamily([{f:'a'}],x=>x.f),'');
+const gs=[{name:'a',stats:[{attribute:'速度',level50:2}]},{name:'b',stats:[{attribute:'速度',level50:8}]},{name:'c'}];assert.deepEqual(P.filter(gs,{sort:'速度'},()=>'' ).map(x=>x.name),['b','a','c']);
+console.log('General picker: unique-only feature filters, negative cases, same-family default, stat sorting PASS');

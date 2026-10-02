@@ -69,9 +69,7 @@ await page.locator('[data-next]').click();await page.locator('[data-next]').clic
 assert((await page.locator('.empty').innerText()).includes('0件'));
 // PvP skips land/enemy/exclusion questions and supports multiple filters.
 await page.locator('[data-purpose=pvp]').click();assert.equal(await title(),'使いたい武将');
-await page.locator('[data-general="matsu"]').click();await page.locator('[data-next]').click();assert.equal(await title(),'したい対策');
-await page.locator('[data-counter="confusion"]').check();await page.locator('[data-counter="stop"]').check();
-await page.locator('[data-next]').click();assert.equal(await title(),'編成一覧');
+await page.locator('[data-general="matsu"]').click();await page.locator('[data-next]').click();assert.equal(await title(),'編成一覧');
 assert((await page.locator('.candidate').count())>0);
 await page.locator('.candidate .evidence').first().locator('summary').first().click();
 assert((await page.locator('.candidate').first().innerText()).includes('淑徳'));
@@ -83,7 +81,7 @@ await page.locator('#enemy-query').fill('存在しない武将');assert.equal(aw
 assert((await page.locator('.selection-summary').innerText()).includes('2編成'));
 await page.locator('#enemy-query').fill('');await page.locator('[data-next]').click();
 await page.locator('[data-general="matsu"]').click();await page.locator('[data-next]').click();
-await page.locator('[data-counter="confusion"]').check();await page.locator('[data-next]').click();
+
 assert.equal(await page.locator('.candidate').first().locator('.matchup').count(),2);
 await page.screenshot({path:'/tmp/mobunaga-flow-meta.png',fullPage:true});
 // Earlier season resets all answers and changes both URL and catalog.

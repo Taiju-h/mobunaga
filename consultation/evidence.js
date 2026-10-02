@@ -83,6 +83,6 @@ function candidates(formations,state,index){
  }).filter(r=>selected.length===0||(state.match==="any"?r.matched.length>0:r.matched.length===selected.length))
  .sort((a,b)=>b.matched.length-a.matched.length||b.coverage.filter(c=>c.matched.length).length-a.coverage.filter(c=>c.matched.length).length||C.tier(a.formation)-C.tier(b.formation)||(a.formation.source_index||0)-(b.formation.source_index||0));
 }
-function steps(purpose){return purpose==="land"?["purpose","level","general","exclude","results"]:purpose==="meta"?["purpose","enemies","general","counter","results"]:["purpose","general","counter","results"];}
+function steps(purpose){return purpose==="land"?["purpose","level","general","exclude","results"]:purpose==="meta"?["purpose","enemies","general","results"]:["purpose","general","results"];}
 Object.assign(C,{COUNTERS,evidenceIndex,formationEvidence,eligible,candidates,steps});
 })(typeof window!=="undefined"?window:globalThis);

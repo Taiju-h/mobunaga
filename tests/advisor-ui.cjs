@@ -10,7 +10,7 @@ await page.locator('[data-purpose=pvp]').click();
 await page.locator('[data-general=kakizakikageie]').click();await page.locator('[data-general=matsu]').click();
 assert(!(await page.locator('[data-general=toyotomihideyoshi]').isDisabled()));
 assert.equal(await page.locator('[data-unpin]').count(),2);
-await page.locator('[data-next]').click();await page.locator('[data-next]').click();
+await page.locator('[data-next]').click();
 assert((await page.locator('#advisor-root .brief h3').innerText()).includes('柿崎景家・まつ'));
 for(const candidate of await page.locator('.candidate').all()){const t=await candidate.innerText();assert(t.includes('まつ')&&t.includes('柿崎景家'));}
 // Exclude a recommended member, shrink and restore. Both fixed members stay selected.
@@ -43,7 +43,7 @@ await page.locator('#advisor-root').screenshot({path:'/tmp/mobunaga-advisor-mobi
 // Removing the last fixed member must invalidate results and never crash.
 await page.locator('[data-unpin=matsu]').click();await page.locator('[data-unpin=kakizakikageie]').click();
 assert.equal(await page.locator('#step-title').innerText(),'使いたい武将');assert(await page.locator('#flow [data-go=results]').isDisabled());
-await page.locator('#season').selectOption('3');await page.locator('[data-purpose=pvp]').click();await page.locator('[data-general=matsu]').click();await page.locator('[data-next]').click();await page.locator('[data-next]').click();
+await page.locator('#season').selectOption('3');await page.locator('[data-purpose=pvp]').click();await page.locator('[data-general=matsu]').click();await page.locator('[data-next]').click();
 assert.equal(await page.locator('.rikuryoku-variants').count(),0);assert.equal(await page.locator('option[value=naganonarimasa-rikuryokudoushin]').count(),0);
 assert.deepEqual(errors,[]);console.log('Advisor UI: two fixed, unowned restore/storage, preview, Nagano replacement and inputs, mobile, backtracking, season isolation PASS');
 await browser.close();
