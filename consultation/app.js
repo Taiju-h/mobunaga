@@ -52,6 +52,7 @@ function resultsHTML(){const matches=C.eligible(templates,state.generals,allExcl
 }
 
 function render(focusId){
+ $("workspace").classList.toggle("is-comparing",state.step==="results");
  const focus=focusId?$(focusId):null,pos=focus?.selectionStart;
   $("context").textContent="S"+state.season+" / 攻撃・防御・回復・妨害";
  $("step-title").textContent=labels[state.step];

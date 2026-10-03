@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict'),{JSDOM,VirtualConsole}=require('jsdom');
+(async()=>{
+ const errors=[],frames=new Map();let serial=0;const vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));
+ const dom=await JSDOM.fromURL(process.env.CONSULTATION_TEST_URL||'http://127.0.0.1:8774/consultation/?season=4',{resources:'usable',runScripts:'dangerously',virtualConsole:vc,beforeParse(w){w.fetch=(u,o)=>fetch(new URL(u,w.location.href),o);w.HTMLElement.prototype.scrollIntoView=function(){};w.SVGElement.prototype.scrollIntoView=function(){};w.matchMedia=()=>({matches:false});w.requestAnimationFrame=cb=>{frames.set(++serial,cb);return serial;};w.cancelAnimationFrame=id=>frames.delete(id);}});
+ const w=dom.window,d=w.document;
+ for(let i=0;i<200&&d.querySelector('#workspace').hidden;i++)await new Promise(r=>setTimeout(r,50));
+ assert(!d.querySelector('#workspace').hidden);
+ const click=s=>{assert(d.querySelector(s),s);d.querySelector(s).click();};
+ const change=(s,v)=>{const e=d.querySelector(s);assert(e,s);e.value=v;e.dispatchEvent(new w.Event('change',{bubbles:true}));};
+ const tick=t=>{const callbacks=[...frames.values()];frames.clear();callbacks.forEach(cb=>cb(t));};
+ for(const id of ['hondatadakatsu','hondamasanobu','sakaitadatsugu'])click('[data-general='+id+']');
+ assert(d.querySelector('#workspace.is-comparing'));assert.equal(d.querySelector('.balance-content').firstElementChild.tagName.toLowerCase(),'svg');
+ assert(d.querySelector('.radar-current.is-growing'));assert.equal(d.querySelectorAll('.tier-line').length,3);assert([...d.querySelectorAll('.tier-line')].every(e=>!e.classList.contains('is-growing')));
+ const reference=[...d.querySelectorAll('.tier-line')].map(e=>e.getAttribute('points')),scores=()=>[...d.querySelectorAll('.balance-scores [data-animate-score]')];
+ assert(scores().every(e=>e.textContent==='0'));tick(0);tick(380);assert(scores().every(e=>Number(e.textContent)<=Number(e.dataset.animateScore)));assert(scores().some(e=>Number(e.textContent)>0&&Number(e.textContent)<Number(e.dataset.animateScore)));tick(900);assert(scores().every(e=>Number(e.textContent)===Number(e.dataset.animateScore)));
+ assert(d.querySelector('[data-caution-axis]'));assert(d.querySelector('[data-apply-swap]'));
+ const candidate=d.querySelector('.swap-candidate [data-unowned]').dataset.unowned;click('.swap-candidate [data-unowned]');assert(!d.querySelector('.swap-candidate [data-unowned="'+candidate+'"]'),'unowned candidates excluded');
+ const opponentSearch=d.querySelector('[data-opponent-query]');opponentSearch.value='黒田';opponentSearch.dispatchEvent(new w.Event('input',{bubbles:true}));assert(d.querySelectorAll('[data-opponent]').length>0);assert([...d.querySelectorAll('[data-opponent]')].every(e=>e.textContent.includes('黒田')));const enemy=d.querySelector('[data-opponent]').dataset.opponent;
+ click('[data-opponent="'+enemy+'"]');assert(d.querySelector('.opponent-line'));assert(d.querySelector('.opponent-selected'));assert.equal(d.querySelectorAll('.opponent-comparison>p').length,4);assert(d.querySelector('.opponent-planning').textContent.includes('未判定'));assert(d.querySelector('.balance-cautions').textContent.includes(d.querySelector('.opponent-selected b').textContent.split('：')[1].split(' / ')[0]));
+ click('[data-battle-goal=hold]');assert(d.querySelector('.battle-advice').textContent.includes('防御・回復'));assert(!d.querySelector('.radar-current.is-growing'),'goal changes do not restart animation');
+ change('.quick-loadout [data-stat=rank]','1');assert(d.querySelector('.radar-current.is-growing'));assert(scores().every(e=>e.textContent==='0'));assert.deepEqual([...d.querySelectorAll('.tier-line')].map(e=>e.getAttribute('points')),reference);
+ tick(1000);tick(1900);
+ const swap=d.querySelector('[data-apply-swap]');if(swap){const count=d.querySelectorAll('.quick-tactics [data-tactic]').length,before=[...d.querySelectorAll('[data-current-general]')].map(e=>e.dataset.currentGeneral),equipment=Object.fromEntries(before.map(id=>[id,[...d.querySelectorAll('.quick-tactics [data-owner="'+id+'"]')].map(e=>e.value)]));swap.click();const after=[...d.querySelectorAll('[data-current-general]')].map(e=>e.dataset.currentGeneral);assert.equal(before.filter((id,i)=>id!==after[i]).length,1);for(const id of after.filter(id=>before.includes(id)))assert.deepEqual([...d.querySelectorAll('.quick-tactics [data-owner="'+id+'"]')].map(e=>e.value),equipment[id]);assert.equal(d.querySelectorAll('.quick-tactics [data-tactic]').length,count);assert(d.querySelector('.radar-current.is-growing'));}
+ click('[data-clear-opponent]');assert(!d.querySelector('.opponent-line'));w.matchMedia=()=>({matches:true});change('.quick-loadout [data-stat=rank]','2');assert(!d.querySelector('.radar-current.is-growing'));assert(scores().every(e=>Number(e.textContent)===Number(e.dataset.animateScore)),'reduced motion displays final scores immediately');
+ change('#season','2');assert(!d.querySelector('.opponent-line'));click('[data-general=hondatadakatsu]');click('[data-next]');assert(!d.querySelector('[data-opponent-query]').value);assert(!d.querySelector('[data-opponent-results]').textContent.includes('誾千代'));
+ assert.deepEqual(errors,[]);dom.window.close();console.log('Planning UI: zero-to-value animation, fixed reference lines, top radar, cautions, ownership, opponent search/comparison, goals and season reset PASS');
+})().catch(e=>{console.error(e);process.exit(1)});

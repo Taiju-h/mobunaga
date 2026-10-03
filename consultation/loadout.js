@@ -55,7 +55,7 @@ function team(ids,overrides,index,formations,options={}){
  if(mode==='alliance'&&rule.eligible&&!used.has(key('tr113'))&&index.tactics.has('tr113')){
   const holders=[...ids.slice(1),ids[0]];for(const id of holders){const slot=details[id].findIndex(d=>!d);if(slot>=0){configs[id].tactics[slot]='tr113';details[id][slot]={reasons:['異なる家門で組むため会盟の陣を装備'],formation:true};used.add(key('tr113'));break;}}
  }
- for(const id of ids){const g=index.generals.get(id),ranked=rankedTactics(g,configs[id],index,formations,options);for(let slot=0;slot<2;slot++){if(details[id][slot])continue;const choice=ranked.find(t=>!used.has(key(t.id)));if(choice){configs[id].tactics[slot]=choice.id;details[id][slot]=choice;used.add(key(choice.id));}}}
+ for(const id of ids){if(details[id].every(Boolean))continue;const g=index.generals.get(id),ranked=rankedTactics(g,configs[id],index,formations,options);for(let slot=0;slot<2;slot++){if(details[id][slot])continue;const choice=ranked.find(t=>!used.has(key(t.id)));if(choice){configs[id].tactics[slot]=choice.id;details[id][slot]=choice;used.add(key(choice.id));}}}
  const profiles=ids.map(id=>A.profile(index.generals.get(id),configs[id],index));
  const equipped=profiles.some(p=>p.tactics.includes('tr113'));
  return {mode,configs,details,profiles,rule:mode==='alliance'&&rule.eligible&&!equipped?{eligible:false,reason:'会盟の陣を入れる装備枠がありません。1枠を自動に戻すか手動で装備してください'}:rule};
