@@ -23,7 +23,7 @@ function evaluate(a){
  }
  const power=a.actors.reduce((v,x)=>v+(x.physical*x.profile.martial+x.magic*x.profile.intellect)/1500,0);
  const defense=clamp(100*a.durability/(1+a.durability));
- const axes=[{key:'attack',label:'火力',value:100*power/(100+power)},{key:'defense',label:'防御',value:defense},{key:'recovery',label:'回復',value:recovery},{key:'status',label:'状態異常',value:(inflict+resist)/2}].map(x=>({...x,value:Math.round(x.value*10)/10}));
+ const axes=[{key:'attack',label:'攻撃',value:100*power/(100+power)},{key:'defense',label:'防御',value:defense},{key:'recovery',label:'回復',value:recovery},{key:'status',label:'妨害',value:(inflict+resist)/2}].map(x=>({...x,value:Math.round(x.value*10)/10}));
  if(a.profiles.some(p=>p.activeTraits?.some(t=>/通常攻撃を受ける確率中幅上昇/.test(t.effect))))notes.push('被通常攻撃率の中幅上昇は、比重'+a.cfg.aggroMedium+'倍と仮定した比較です。実倍率は未確認。比較条件から1倍にすると誘導増加を除いた結果になります。');
  const families=a.profiles.map(p=>p.general.family),threeFamilies=a.complete&&families.every(Boolean)&&new Set(families).size===3;
  const leaders=threeFamilies&&a.cfg? a.profiles.filter(p=>['能動','突撃'].includes(p.uniqueKind)).map(p=>p.general.id):[];
