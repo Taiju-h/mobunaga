@@ -10,6 +10,7 @@ next entry is opened. The script:
   5. writes numbered battle_*.jpg files and manifest.csv.
 
 No Python packages are required. ffmpeg/ffprobe must be installed on the server.
+Compatible with Ubuntu ffmpeg 4.2.x.
 """
 
 from __future__ import annotations
@@ -47,7 +48,8 @@ def run_scene_extract(video: Path, candidate_dir: Path, threshold: float, qualit
     cmd = [
         "ffmpeg", "-hide_banner", "-y", "-i", str(video),
         "-vf", vf,
-        "-fps_mode", "vfr",
+        # ffmpeg 4.2 does not have -fps_mode. -vsync vfr is its compatible equivalent.
+        "-vsync", "vfr",
         "-q:v", str(quality),
         str(pattern),
     ]
@@ -120,6 +122,11 @@ def ahash64(fp: bytes) -> int:
     return result
 
 
+def bit_count(value: int) -> int:
+    """Compatibility helper for Python versions without int.bit_count()."""
+    return bin(value).count("1")
+
+
 def find_recurring_ui(fps: list[bytes], threshold: float, minimum: int) -> set[int]:
     """Find a strictly repeated visual state anywhere in the candidate sequence.
 
@@ -135,7 +142,7 @@ def find_recurring_ui(fps: list[bytes], threshold: float, minimum: int) -> set[i
         for cluster in clusters:
             rep_hash = int(cluster["hash"])
             # More than 6 differing bits is never strict enough for our recurring UI.
-            if (current_hash ^ rep_hash).bit_count() > 6:
+            if bit_count(current_hash ^ rep_hash) > 6:
                 continue
             rep = cluster["rep"]
             assert isinstance(rep, bytes)
