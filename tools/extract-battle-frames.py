@@ -17,15 +17,15 @@ from __future__ import annotations
 import argparse
 import csv
 import math
-import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
-from typing import Iterable
 
 SHOWINFO_RE = re.compile(r"pts_time:([0-9]+(?:\.[0-9]+)?)")
+FP_WIDTH = 96
+FP_HEIGHT = 54
 
 
 def die(message: str, code: int = 1) -> None:
@@ -72,13 +72,13 @@ def run_scene_extract(video: Path, candidate_dir: Path, threshold: float, qualit
     return times
 
 
-def load_fingerprints(candidate_dir: Path, count: int, width: int = 96, height: int = 54) -> list[bytes]:
+def load_fingerprints(candidate_dir: Path, count: int) -> list[bytes]:
     pattern = candidate_dir / "candidate_%06d.jpg"
-    frame_bytes = width * height
+    frame_bytes = FP_WIDTH * FP_HEIGHT
     cmd = [
         "ffmpeg", "-hide_banner", "-loglevel", "error",
-        "-framerate", "1", "-i", str(pattern),
-        "-vf", f"scale={width}:{height},format=gray",
+        "-framerate", "1", "-start_number", "1", "-i", str(pattern),
+        "-vf", f"scale={FP_WIDTH}:{FP_HEIGHT},format=gray",
         "-f", "rawvideo", "-pix_fmt", "gray", "-",
     ]
     print("[2/4] 重複判定用の指紋を作っています…")
@@ -99,21 +99,44 @@ def load_fingerprints(candidate_dir: Path, count: int, width: int = 96, height: 
 
 
 def mae(a: bytes, b: bytes) -> float:
-    # Mean absolute grayscale difference, 0..255. Small values mean nearly identical.
+    """Mean absolute grayscale difference, 0..255."""
     return sum(abs(x - y) for x, y in zip(a, b)) / len(a)
 
 
-def find_recurring_ui(fps: list[bytes], threshold: float, minimum: int) -> set[int]:
-    """Find very-strict repeated visual states anywhere in the candidate sequence.
+def ahash64(fp: bytes) -> int:
+    """Cheap 64-bit visual hash used only as a pre-filter before MAE."""
+    # Sample an 8x8 grid from the 96x54 fingerprint.
+    values: list[int] = []
+    for gy in range(8):
+        y = round(gy * (FP_HEIGHT - 1) / 7)
+        row = y * FP_WIDTH
+        for gx in range(8):
+            x = round(gx * (FP_WIDTH - 1) / 7)
+            values.append(fp[row + x])
+    avg = sum(values) / 64.0
+    result = 0
+    for value in values:
+        result = (result << 1) | int(value >= avg)
+    return result
 
-    This catches the battle-list screen that reappears after every close. Threshold is
-    deliberately stricter than adjacent de-duplication so different battle reports are
-    not collapsed merely because their layouts are similar.
+
+def find_recurring_ui(fps: list[bytes], threshold: float, minimum: int) -> set[int]:
+    """Find a strictly repeated visual state anywhere in the candidate sequence.
+
+    Typical target: the battle-list screen that reappears after every close. A fast
+    64-bit hash rejects obviously different screens before the more expensive MAE.
     """
+    hashes = [ahash64(fp) for fp in fps]
     clusters: list[dict[str, object]] = []
+
     for idx, fp in enumerate(fps):
         matched = False
+        current_hash = hashes[idx]
         for cluster in clusters:
+            rep_hash = int(cluster["hash"])
+            # More than 6 differing bits is never strict enough for our recurring UI.
+            if (current_hash ^ rep_hash).bit_count() > 6:
+                continue
             rep = cluster["rep"]
             assert isinstance(rep, bytes)
             if mae(fp, rep) <= threshold:
@@ -123,7 +146,7 @@ def find_recurring_ui(fps: list[bytes], threshold: float, minimum: int) -> set[i
                 matched = True
                 break
         if not matched:
-            clusters.append({"rep": fp, "members": [idx]})
+            clusters.append({"hash": current_hash, "rep": fp, "members": [idx]})
 
     repeated: set[int] = set()
     for cluster in clusters:
@@ -179,20 +202,20 @@ def main() -> int:
 
     times = run_scene_extract(video, candidate_dir, args.scene_threshold, args.jpeg_quality)
     candidates = sorted(candidate_dir.glob("candidate_*.jpg"))
-    fps = load_fingerprints(candidate_dir, len(candidates))
+    fingerprints = load_fingerprints(candidate_dir, len(candidates))
 
     print("[3/4] 隣接重複と繰返し一覧画面を除外しています…")
     adjacent_dupes: set[int] = set()
     previous_kept: int | None = None
-    for i, fp in enumerate(fps):
-        if previous_kept is not None and mae(fp, fps[previous_kept]) <= args.adjacent_mae:
+    for i, fp in enumerate(fingerprints):
+        if previous_kept is not None and mae(fp, fingerprints[previous_kept]) <= args.adjacent_mae:
             adjacent_dupes.add(i)
         else:
             previous_kept = i
 
-    recurring = set()
+    recurring: set[int] = set()
     if not args.keep_recurring:
-        recurring = find_recurring_ui(fps, args.recurring_mae, args.recurring_min)
+        recurring = find_recurring_ui(fingerprints, args.recurring_mae, args.recurring_min)
 
     accepted = [i for i in range(len(candidates)) if i not in adjacent_dupes and i not in recurring]
 
@@ -212,11 +235,14 @@ def main() -> int:
 
     manifest = out / "manifest.csv"
     with manifest.open("w", newline="", encoding="utf-8-sig") as f:
-        writer = csv.DictWriter(f, fieldnames=["battle_no", "time_seconds", "timecode", "file", "source_candidate"])
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["battle_no", "time_seconds", "timecode", "file", "source_candidate"],
+        )
         writer.writeheader()
         writer.writerows(rows)
 
-    # Candidate files are temporary by design; remove them once final frames are materialized.
+    # Temporary candidates are no longer needed after final battle frames are copied.
     shutil.rmtree(candidate_dir)
 
     print("[4/4] 完了")
@@ -226,7 +252,7 @@ def main() -> int:
     print(f"      対戦候補         : {len(accepted)}")
     print(f"      画像              : {frame_dir}")
     print(f"      一覧              : {manifest}")
-    print("\n確認後、繰返しUIまで残したい場合は --keep-recurring を付けて再実行できます。")
+    print("\n一覧画面も残したい場合は --keep-recurring を付けて再実行できます。")
     return 0
 
 
