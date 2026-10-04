@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Extract unique battle-report screens from a long screen recording.
+"""Extract likely battle-report screens from a long screen recording.
 
-Designed for the Mobunaga workflow where a battle entry is opened, closed, then the
-next entry is opened. The script:
-  1. extracts scene-change candidates with ffmpeg;
-  2. builds tiny grayscale fingerprints in one ffmpeg pass;
-  3. removes adjacent near-duplicates;
-  4. removes a strictly-identical recurring UI screen (typically the list screen);
-  5. writes numbered battle_*.jpg files and manifest.csv.
+Workflow assumption:
+  - a battle entry is opened;
+  - it is left visible briefly;
+  - it is closed;
+  - the next battle entry is opened.
+
+The important part is not to keep every ffmpeg scene-change frame. One click/open or
+close action can create many scene-change frames because of animation, scrolling,
+hover effects and compression noise. We therefore group scene changes that happen
+close together in time into one "burst" and keep only the last frame of each burst.
+After that we remove adjacent near-duplicates and strictly recurring UI screens.
 
 No Python packages are required. ffmpeg/ffprobe must be installed on the server.
 Compatible with Ubuntu ffmpeg 4.2.x.
@@ -43,17 +47,15 @@ def run_scene_extract(video: Path, candidate_dir: Path, threshold: float, qualit
     candidate_dir.mkdir(parents=True, exist_ok=True)
     pattern = candidate_dir / "candidate_%06d.jpg"
 
-    # showinfo is intentionally after select so stderr contains one pts_time per output frame.
     vf = f"select='gt(scene,{threshold})',showinfo"
     cmd = [
         "ffmpeg", "-hide_banner", "-y", "-i", str(video),
         "-vf", vf,
-        # ffmpeg 4.2 does not have -fps_mode. -vsync vfr is its compatible equivalent.
-        "-vsync", "vfr",
+        "-vsync", "vfr",  # ffmpeg 4.2 compatible
         "-q:v", str(quality),
         str(pattern),
     ]
-    print("[1/4] シーン変化を抽出しています…")
+    print("[1/5] シーン変化を抽出しています…")
     proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
     if proc.returncode != 0:
         print(proc.stderr[-8000:], file=sys.stderr)
@@ -64,13 +66,12 @@ def run_scene_extract(video: Path, candidate_dir: Path, threshold: float, qualit
     if not files:
         die("候補画像を1枚も抽出できませんでした。--scene-threshold を下げてください。")
 
-    # Some ffmpeg builds may print extra showinfo records. Keep list lengths aligned safely.
     if len(times) < len(files):
         times.extend([math.nan] * (len(files) - len(times)))
     elif len(times) > len(files):
         times = times[: len(files)]
 
-    print(f"      候補: {len(files)} 枚")
+    print(f"      シーン候補: {len(files)} 枚")
     return times
 
 
@@ -83,7 +84,7 @@ def load_fingerprints(candidate_dir: Path, count: int) -> list[bytes]:
         "-vf", f"scale={FP_WIDTH}:{FP_HEIGHT},format=gray",
         "-f", "rawvideo", "-pix_fmt", "gray", "-",
     ]
-    print("[2/4] 重複判定用の指紋を作っています…")
+    print("[2/5] 重複判定用の指紋を作っています…")
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert proc.stdout is not None
     fingerprints: list[bytes] = []
@@ -100,14 +101,35 @@ def load_fingerprints(candidate_dir: Path, count: int) -> list[bytes]:
     return fingerprints
 
 
+def group_scene_bursts(times: list[float], gap_seconds: float) -> list[int]:
+    """Collapse rapid scene changes into one representative frame per click/animation burst.
+
+    The last scene-change frame in each burst is normally the closest one to the stable
+    state the user actually stopped on.
+    """
+    if not times:
+        return []
+
+    representatives: list[int] = []
+    burst_last = 0
+    prev_time = times[0]
+
+    for i in range(1, len(times)):
+        current = times[i]
+        if math.isnan(prev_time) or math.isnan(current) or (current - prev_time) > gap_seconds:
+            representatives.append(burst_last)
+        burst_last = i
+        prev_time = current
+
+    representatives.append(burst_last)
+    return representatives
+
+
 def mae(a: bytes, b: bytes) -> float:
-    """Mean absolute grayscale difference, 0..255."""
     return sum(abs(x - y) for x, y in zip(a, b)) / len(a)
 
 
 def ahash64(fp: bytes) -> int:
-    """Cheap 64-bit visual hash used only as a pre-filter before MAE."""
-    # Sample an 8x8 grid from the 96x54 fingerprint.
     values: list[int] = []
     for gy in range(8):
         y = round(gy * (FP_HEIGHT - 1) / 7)
@@ -123,37 +145,35 @@ def ahash64(fp: bytes) -> int:
 
 
 def bit_count(value: int) -> int:
-    """Compatibility helper for Python versions without int.bit_count()."""
     return bin(value).count("1")
 
 
-def find_recurring_ui(fps: list[bytes], threshold: float, minimum: int) -> set[int]:
-    """Find a strictly repeated visual state anywhere in the candidate sequence.
+def find_recurring_ui(indices: list[int], fps: list[bytes], threshold: float, minimum: int) -> set[int]:
+    """Find strictly repeated stable screens among burst representatives.
 
-    Typical target: the battle-list screen that reappears after every close. A fast
-    64-bit hash rejects obviously different screens before the more expensive MAE.
+    This is aimed at the list screen shown after closing each battle. Because we run
+    this only after temporal burst reduction, we no longer classify thousands of
+    animation frames as separate screens.
     """
-    hashes = [ahash64(fp) for fp in fps]
     clusters: list[dict[str, object]] = []
 
-    for idx, fp in enumerate(fps):
+    for idx in indices:
+        fp = fps[idx]
+        current_hash = ahash64(fp)
         matched = False
-        current_hash = hashes[idx]
         for cluster in clusters:
             rep_hash = int(cluster["hash"])
-            # More than 6 differing bits is never strict enough for our recurring UI.
             if bit_count(current_hash ^ rep_hash) > 6:
                 continue
-            rep = cluster["rep"]
-            assert isinstance(rep, bytes)
-            if mae(fp, rep) <= threshold:
+            rep_idx = int(cluster["rep_idx"])
+            if mae(fp, fps[rep_idx]) <= threshold:
                 members = cluster["members"]
                 assert isinstance(members, list)
                 members.append(idx)
                 matched = True
                 break
         if not matched:
-            clusters.append({"hash": current_hash, "rep": fp, "members": [idx]})
+            clusters.append({"hash": current_hash, "rep_idx": idx, "members": [idx]})
 
     repeated: set[int] = set()
     for cluster in clusters:
@@ -180,12 +200,14 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True, help="出力ディレクトリ")
     parser.add_argument("--scene-threshold", type=float, default=0.055,
                         help="ffmpeg scene 閾値。取りこぼす場合は下げる (default: 0.055)")
+    parser.add_argument("--burst-gap", type=float, default=0.75,
+                        help="この秒数以内の連続シーン変化を1操作にまとめる (default: 0.75)")
     parser.add_argument("--adjacent-mae", type=float, default=2.4,
-                        help="隣接候補を同一とみなす平均画素差 (default: 2.4)")
+                        help="隣接した安定画面を同一とみなす平均画素差 (default: 2.4)")
     parser.add_argument("--recurring-mae", type=float, default=0.85,
                         help="繰返しUIを同一とみなす厳格な平均画素差 (default: 0.85)")
     parser.add_argument("--recurring-min", type=int, default=4,
-                        help="同じ画面がこの回数以上なら閉じた一覧画面扱い (default: 4)")
+                        help="同じ安定画面がこの回数以上なら繰返しUI扱い (default: 4)")
     parser.add_argument("--keep-recurring", action="store_true",
                         help="繰返しUI画面を削除せず残す")
     parser.add_argument("--jpeg-quality", type=int, default=2,
@@ -211,33 +233,38 @@ def main() -> int:
     candidates = sorted(candidate_dir.glob("candidate_*.jpg"))
     fingerprints = load_fingerprints(candidate_dir, len(candidates))
 
-    print("[3/4] 隣接重複と繰返し一覧画面を除外しています…")
+    print("[3/5] 時間的に連続した画面変化を1操作にまとめています…")
+    burst_reps = group_scene_bursts(times, args.burst_gap)
+    print(f"      操作バースト代表: {len(burst_reps)} 枚")
+
+    print("[4/5] 隣接重複と繰返し一覧画面を除外しています…")
     adjacent_dupes: set[int] = set()
     previous_kept: int | None = None
-    for i, fp in enumerate(fingerprints):
-        if previous_kept is not None and mae(fp, fingerprints[previous_kept]) <= args.adjacent_mae:
-            adjacent_dupes.add(i)
+    for idx in burst_reps:
+        if previous_kept is not None and mae(fingerprints[idx], fingerprints[previous_kept]) <= args.adjacent_mae:
+            adjacent_dupes.add(idx)
         else:
-            previous_kept = i
+            previous_kept = idx
 
+    after_adjacent = [idx for idx in burst_reps if idx not in adjacent_dupes]
     recurring: set[int] = set()
     if not args.keep_recurring:
-        recurring = find_recurring_ui(fingerprints, args.recurring_mae, args.recurring_min)
+        recurring = find_recurring_ui(after_adjacent, fingerprints, args.recurring_mae, args.recurring_min)
 
-    accepted = [i for i in range(len(candidates)) if i not in adjacent_dupes and i not in recurring]
+    accepted = [idx for idx in after_adjacent if idx not in recurring]
 
     rows: list[dict[str, str]] = []
-    for battle_no, i in enumerate(accepted, 1):
-        t = times[i]
+    for battle_no, idx in enumerate(accepted, 1):
+        t = times[idx]
         stamp = hms(t)
         dst_name = f"battle_{battle_no:04d}_t{stamp}.jpg"
-        shutil.copy2(candidates[i], frame_dir / dst_name)
+        shutil.copy2(candidates[idx], frame_dir / dst_name)
         rows.append({
             "battle_no": str(battle_no),
             "time_seconds": "" if math.isnan(t) else f"{t:.3f}",
             "timecode": stamp,
             "file": dst_name,
-            "source_candidate": candidates[i].name,
+            "source_candidate": candidates[idx].name,
         })
 
     manifest = out / "manifest.csv"
@@ -249,17 +276,17 @@ def main() -> int:
         writer.writeheader()
         writer.writerows(rows)
 
-    # Temporary candidates are no longer needed after final battle frames are copied.
     shutil.rmtree(candidate_dir)
 
-    print("[4/4] 完了")
+    print("[5/5] 完了")
     print(f"      シーン候補       : {len(candidates)}")
+    print(f"      操作バースト代表 : {len(burst_reps)}")
     print(f"      隣接重複を除外   : {len(adjacent_dupes)}")
     print(f"      繰返しUIを除外   : {len(recurring)}")
     print(f"      対戦候補         : {len(accepted)}")
     print(f"      画像              : {frame_dir}")
     print(f"      一覧              : {manifest}")
-    print("\n一覧画面も残したい場合は --keep-recurring を付けて再実行できます。")
+    print("\n多すぎる場合は --burst-gap 1.0、少なすぎる場合は --burst-gap 0.5 で再実行できます。")
     return 0
 
 
