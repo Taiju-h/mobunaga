@@ -21,6 +21,8 @@ $batch=['schema_version'=>1,'batch_id'=>'test-only','season'=>'S4','source_count
 ]];
 $records=array_values(battleBatchRecords($batch));
 check(count($records)===5,'Timestamp dedup failed');
+check(count(battleSourceObservations($records,'test-only',1))===6,'Source evidence did not include variants');
+check(battleSourceObservations($records,'wrong-batch',1)===[],'Wrong source batch matched');
 $s=battleStatistics($records,'S4');
 check($s['eligible']===3 && $s['undated']===1 && $s['incomplete']===1,'Population mismatch');
 check(abs($s['players'][0]['win_rate']-100/3)<0.001,'Win rate must include draws');

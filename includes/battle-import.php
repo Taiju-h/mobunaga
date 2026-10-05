@@ -206,3 +206,13 @@ function parseBattleBatch(string $text): array
     battleBatchRecords($batch);
     return $batch;
 }
+
+function battleSourceObservations(array $records,string $batchId,int $frame): array
+{
+    $found=[];
+    foreach($records as $record) foreach(($record['battle_variants']??[]) as $key=>$v) {
+        if(($v['batch_id']??'')!==$batchId)continue;
+        foreach(($v['sources']??[]) as $source)if((int)$source['frame']===$frame){$found[$key]=$v;break;}
+    }
+    return array_values($found);
+}
