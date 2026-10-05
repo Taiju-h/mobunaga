@@ -37,7 +37,7 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
-    $st = $db->prepare("SELECT f.mime_type, f.file_data FROM form_submission_files f JOIN form_submissions s ON s.id=f.submission_id WHERE f.id=? AND s.form_key='enemy_intel' AND s.status<>'deleted' LIMIT 1");
+    $st = $db->prepare("SELECT f.mime_type, f.file_data FROM form_submission_files f JOIN form_submissions s ON s.id=f.submission_id WHERE f.id=? AND s.form_key IN ('enemy_intel','battle_frame_source') AND s.status IN ('new','reviewed','archived') LIMIT 1");
     $st->execute([$id]);
     $row = $st->fetch();
 } catch (Throwable $e) {
