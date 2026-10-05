@@ -52,5 +52,5 @@ check(str_contains($html,'75.0%') && str_contains($html,'pathLength="100"') && s
 $html=battleDonut('safe','<script>',['<script>'=>1],'枠','general','note');
 check(!str_contains($html,'<script>'),'Chart label not escaped');
 $dated=$r;$dated['battle_at']='2026-10-04 12:00:00';$unknown=$dated;$unknown['battle_at']='2026-10-04 13:00:00';unset($unknown['enemy_troop']);
-$counts=battleStatistics([$dated,$unknown],'S4');check($counts['troops']===['弓'=>1,'未確認'=>1],'Unknown troops disappeared from denominator');
+$counts=battleStatistics([$dated,$unknown],'S4');check($counts['troops']===['弓'=>1] && $counts['unknown_troop']===1 && battleTopShares($counts['troops'])['total']===1,'Unknown troops must be excluded from troop denominator');
 echo "battle-analytics: shares, top-six/other, both armies, zero/missing, dedup, eligibility, sample filters, ordering, season/troop and accessible escaped chart PASS\n";

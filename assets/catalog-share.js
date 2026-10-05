@@ -62,6 +62,17 @@
   }
   async function shareUrl(button, url, title = document.title) {
     try {
+      const response = await fetch('/api/short-links.php', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url}), signal: AbortSignal.timeout(5000)
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (/^https:\/\/nobunaga\.mobs\.tokyo\/[a-z][a-z0-9]{2,7}$/.test(result.url)) url = result.url;
+      }
+    } catch (_) { /* Keep sharing the original URL if shortening is unavailable. */ }
+
+    try {
       if (navigator.share) await navigator.share({ title, url });
       else {
         await navigator.clipboard.writeText(url);

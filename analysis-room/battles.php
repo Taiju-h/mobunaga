@@ -70,18 +70,18 @@ foreach($sources as $s) {
     if((int)$s['id']===(int)queryText('source') && ($p['season'] ?? '')===$season)$selected=$s+['payload'=>$p];
 }
 ?>
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>敵勢力の解析｜分析班資料館</title><link rel="stylesheet" href="/assets/analysis-room.css?v=20260923-archive2"><link rel="stylesheet" href="/assets/battle-stats.css?v=20261005-5"></head>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>敵勢力の解析｜分析班資料館</title><link rel="icon" href="/assets/crest.svg?v=20261005" type="image/svg+xml"><link rel="stylesheet" href="/assets/analysis-room.css?v=20260923-archive2"><link rel="stylesheet" href="/assets/battle-stats.css?v=20261005-5"></head>
 <body><header class="archive-header"><a href="/analysis-room/index.php">← 分析班資料館</a><a href="/">軍議の間へ</a></header><main><article class="archive-card archive-card-wide">
 <p class="eyebrow">分析班資料館 / <?=e($season)?> 実測</p><h1>敵勢力の解析</h1><p class="description">誰が、どの編成を使い、何に負けたか。記録された対戦から確認します。</p>
 <?php if($error): ?><p role="alert"><?=e($error)?></p><?php else: ?>
 <form method="get" class="battle-search" role="search"><label>敵プレイヤー名<input type="search" name="q" value="<?=e($q)?>" placeholder="部分一致・表記ゆれで検索"></label><label>敵武将<select name="general"><option value="">すべて</option><?php foreach($whole['generals'] as $name=>$n): ?><option<?=$general===$name?' selected':''?>><?=e($name)?></option><?php endforeach; ?></select></label><label>敵兵種<select name="troop"><option value="">すべて</option><?php foreach(['騎馬','槍','弓','鉄砲','兵器'] as $t): ?><option<?=$troop===$t?' selected':''?>><?=e($t)?></option><?php endforeach; ?></select></label><label>敵大将<select name="captain"><option value="">すべて</option><?php foreach($whole['captains'] as $name=>$n): ?><option<?=$captain===$name?' selected':''?>><?=e($name)?></option><?php endforeach; ?></select></label><label>シーズン<select name="season"><?php foreach(['S1','S2','S3','S4'] as $s): ?><option<?=$season===$s?' selected':''?>><?=$s?></option><?php endforeach; ?></select></label><button>絞り込む</button><a href="?season=<?=e($season)?>">解除</a></form>
 <?php if($exact && $q!==''): ?><p>「<?=e($q)?>」本人の記録を表示中。<a href="<?=e(battleLink(['exact'=>'0']))?>">似た名前も探す</a></p><?php endif; ?>
 <div class="metrics"><div><strong><?=$stats['eligible']?></strong><span>集計対象の対戦</span></div><div><strong><?=count($stats['players'])?></strong><span>敵プレイヤー</span></div><div><strong><?=$stats['incomplete']+$stats['non_gold']?></strong><span>紫武将・人数不足等を除外</span></div><div><strong><?=$stats['undated']?></strong><span>日時不明の補足</span></div></div>
-<p class="muted">同日時は1件、双方とも金武将3名の対戦のみ集計。紫武将入り・1〜2体編成は勝敗・割合・事例から除外します。兵種は戦報の表示を実測し、未確認分は兵種指定時に除外します。勝率＝敵の勝利数÷全対戦数（引分を含む）。この実測記録内の割合であり、全戦闘の成績ではありません。</p>
+<p class="muted">同日時は1件、双方とも金武将3名の対戦のみ集計。紫武将入り・1〜2体編成は勝敗・割合・事例から除外します。兵種は戦報の表示を実測し、未確認分は兵種の件数・割合の分母から除外します。勝率＝敵の勝利数÷全対戦数（引分を含む）。この実測記録内の割合であり、全戦闘の成績ではありません。</p>
 <?php if(!$records): ?><p class="empty">該当する登録記録がありません。<?php if(!$all): ?>解析データはまだ本番DBに投入されていません。<?php endif; ?></p><?php endif; ?>
 <nav class="section-links"><a href="#shares">割合の円グラフ</a><a href="#tactic-rankings">火力・回復の戦法順位</a><a href="#generals">武将の採用割合</a><a href="#players">敵の勝率</a><a href="#examples">負け事例</a><a href="#tactics">戦法付きの詳細</a><a href="#history">全記録</a></nav>
 <section id="shares"><h2>敵の兵種・武将・大将の割合</h2><p>上位6項目とその他。凡例の名前から絞り込めます。</p><div class="donut-grid">
-<?=battleDonut('troop-share','兵種',$stats['troops'],'対戦','troop','日時が確認できる金武将3名同士の対戦。兵種が読めない分は「未確認」です。')?>
+<?=battleDonut('troop-share','兵種',$stats['troops'],'対戦','troop','日時が確認できる金武将3名同士の対戦。兵種未確認は件数・割合の分母に含めません。')?>
 <?=battleDonut('general-share','武将の採用枠',$stats['generals'],'枠','general','敵武将の延べ採用枠を100％とした内訳。下の「対戦ごとの採用割合」とは分母が異なります。')?>
 <?=battleDonut('captain-share','大将',$stats['captains'],'対戦','captain','敵の大将1名を数えます。同じ武将でも副将としての採用は含めません。')?>
 </div></section>

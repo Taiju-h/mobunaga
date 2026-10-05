@@ -68,9 +68,11 @@ function battleStatistics(array $records, string $season): array
         if (!$full) { $incomplete++; continue; }
         if (!battleIsGoldTeam($r)) { $non_gold++; continue; }
         $eligible++;
-        if (empty($r['enemy_troop'])) $unknown_troop++;
-        $troop = ($r['enemy_troop'] ?? '') ?: '未確認';
-        $troops[$troop] = ($troops[$troop] ?? 0) + 1;
+        if (!in_array($r['enemy_troop'] ?? '', ['弓','槍','騎馬','鉄砲','兵器'], true)) $unknown_troop++;
+        else {
+            $troop = $r['enemy_troop'];
+            $troops[$troop] = ($troops[$troop] ?? 0) + 1;
+        }
         $captain = $r['enemy_generals'][2];
         $captains[$captain] = ($captains[$captain] ?? 0) + 1;
         foreach (array_unique($r['enemy_generals']) as $name) $generals[$name] = ($generals[$name] ?? 0) + 1;
