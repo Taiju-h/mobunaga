@@ -20,7 +20,8 @@ try {
             if(($file['error']??-1)!==UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name']))throw new RuntimeException('解析データを受信できませんでした。');
             $path=$file['tmp_name'];
         }
-        $batch=readBattleBatch($path); $reader=null; $zip=null;
+        $text=is_string($_POST['batch_json']??null)?trim($_POST['batch_json']):'';
+        $batch=$text!==''?parseBattleBatch($text):readBattleBatch($path); $reader=null; $zip=null;
         $images=$_FILES['frames']??null;
         if($images && ($images['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE) {
             if(!class_exists('ZipArchive'))throw new RuntimeException('ZIP拡張がありません。画像はCLIから登録してください。');
@@ -44,4 +45,4 @@ try {
 ?>
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>実測データ登録｜資料館</title><link rel="stylesheet" href="/assets/analysis-room.css?v=20260923-archive2"><link rel="stylesheet" href="/assets/battle-stats.css?v=20261005-2"></head><body><main><article class="archive-card archive-card-wide"><a href="/analysis-room/battles.php">敵勢力の解析へ戻る</a><h1>実測データの登録・補完</h1>
 <?php if($error): ?><p role="alert"><?=e($error)?></p><?php endif; ?><?php if($receipt): ?><p role="status">DB登録完了：新規記録 <?=$receipt['new_records']?>件、補足更新 <?=$receipt['updated_records']?>件、画像参照 <?=$receipt['new_sources']?>件、画像本体 <?=$receipt['attached_images']?>枚。</p><?php endif; ?>
-<p>同日時の重複をまとめて保存します。1〜2武将・日時不明も保管し、集計時に除外します。再実行時は不足分だけを補完します。</p><form method="post" enctype="multipart/form-data"><input type="hidden" name="csrf" value="<?=e($_SESSION['battle_csrf'])?>"><label>解析済みJSON（10MB以下。未選択ならサーバーの非公開配置を使用）<input type="file" name="batch" accept=".json,application/json"></label><label>元画像ZIP（任意・100MB以下）<input type="file" name="frames" accept=".zip,application/zip"></label><p>ZIP未選択ならテキストと参照情報のみを登録します。画像は後から補完できます。</p><button>DBへ登録・不足分を補完</button></form><h2>実際のDB登録数</h2><?php foreach($counts as $c): ?><p><?=e($c['form_key'])?>：<?=$c['records']?>記録 / <?=$c['images']?>画像</p><?php endforeach; ?></article></main></body></html>
+<p>同日時の重複をまとめて保存します。1〜2武将・日時不明も保管し、集計時に除外します。再実行時は不足分だけを補完します。</p><form method="post" enctype="multipart/form-data"><input type="hidden" name="csrf" value="<?=e($_SESSION['battle_csrf'])?>"><label>解析結果を直接登録（JSON）<textarea name="batch_json" rows="6" maxlength="10485760" spellcheck="false"></textarea></label><p>解析結果のテキストだけで登録できます。画像の送信は不要です。</p><label>解析済みJSON（10MB以下。未選択ならサーバーの非公開配置を使用）<input type="file" name="batch" accept=".json,application/json"></label><label>元画像ZIP（任意・100MB以下）<input type="file" name="frames" accept=".zip,application/zip"></label><p>ZIP未選択ならテキストと参照情報のみを登録します。画像は後から補完できます。</p><button>DBへ登録・不足分を補完</button></form><h2>実際のDB登録数</h2><?php foreach($counts as $c): ?><p><?=e($c['form_key'])?>：<?=$c['records']?>記録 / <?=$c['images']?>画像</p><?php endforeach; ?></article></main></body></html>

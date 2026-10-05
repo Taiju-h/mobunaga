@@ -195,7 +195,13 @@ function battleLossExamples(array $records, bool $enemyLost = true): array
 function readBattleBatch(string $path): array
 {
     if (!is_readable($path) || filesize($path)>10*1024*1024) throw new RuntimeException('解析済みデータが未配置、または10MBを超えています。');
-    $batch=json_decode((string)file_get_contents($path),true,512,JSON_THROW_ON_ERROR);
+    return parseBattleBatch((string)file_get_contents($path));
+}
+
+function parseBattleBatch(string $text): array
+{
+    if(strlen($text)>10*1024*1024)throw new RuntimeException('解析結果は10MB以下にしてください。');
+    $batch=json_decode($text,true,512,JSON_THROW_ON_ERROR);
     if (!is_array($batch)) throw new RuntimeException('解析済みデータの形式が不正です。');
     battleBatchRecords($batch);
     return $batch;
