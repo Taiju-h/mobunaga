@@ -9,11 +9,13 @@ mobunagaRequireLogin();
 define('MOBUNAGA_ANALYSIS_ROOM',true);
 require __DIR__.'/../includes/enemy-directory.php';
 require __DIR__.'/../includes/battle-import.php';
+require __DIR__.'/../includes/battle-analytics.php';
+require __DIR__.'/../includes/battle-charts.php';
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 function queryText(string $key): string { return is_string($_GET[$key] ?? null) ? trim($_GET[$key]) : ''; }
 function battleLink(array $replace=[]): string {
-    global $season,$q,$general,$sort,$min,$side,$exact,$troop,$captain;
-    return '?'.http_build_query(array_replace(['season'=>$season,'q'=>$q,'general'=>$general,'troop'=>$troop,'captain'=>$captain,'sort'=>$sort,'min'=>$min,'side'=>$side,'exact'=>$exact?'1':'0'],$replace));
+    global $season,$q,$general,$sort,$min,$side,$exact,$troop,$captain,$tacticOrder,$tacticMin;
+    return '?'.http_build_query(array_replace(['season'=>$season,'q'=>$q,'general'=>$general,'troop'=>$troop,'captain'=>$captain,'tactic_order'=>$tacticOrder,'tactic_min'=>$tacticMin,'sort'=>$sort,'min'=>$min,'side'=>$side,'exact'=>$exact?'1':'0'],$replace));
 }
 function lineup(array $names): string { return implode('・',array_map(fn($n)=>$n ?? '空き',$names)); }
 function lineupCards(array $names, int $captainIndex, array $tactics=[]): string {
@@ -42,6 +44,7 @@ $season=queryText('season'); if(!in_array($season,['S1','S2','S3','S4'],true))$s
 $q=queryText('q'); $general=queryText('general'); $exact=queryText('exact')==='1';
 $sort=queryText('sort')==='rate'?'rate':'wins'; $min=max(1,min(100,(int)queryText('min')));
 $troop=queryText('troop'); if(!in_array($troop,['騎馬','槍','弓','鉄砲','兵器'],true))$troop=''; $captain=queryText('captain');
+$tacticOrder=queryText('tactic_order')==='average'?'average':'total'; $tacticMin=max(1,min(100,(int)queryText('tactic_min')));
 $side=queryText('side')==='ours'?'ours':'enemy';
 $error=''; $all=[]; $sources=[];
 try {
@@ -52,6 +55,9 @@ $records=battleFilter($all,$season,$q,$general,$exact,$troop,$captain);
 $stats=battleStatistics($records,$season); $whole=battleStatistics($all,$season);
 $players=array_values(array_filter($stats['players'],fn($p)=>$p['battles'] >= $min));
 if($sort==='rate')usort($players,fn($a,$b)=>($b['win_rate']<=>$a['win_rate']) ?: ($b['battles']<=>$a['battles']) ?: strcmp($a['name'],$b['name']));
+$tacticStats=battleTacticStatistics(battleFilter(battleMetricObservations($all),$season,$q,$general,$exact,$troop,$captain));
+$damageRanking=battleTacticRanking($tacticStats,'damage',$tacticOrder,$tacticMin);
+$healingRanking=battleTacticRanking($tacticStats,'healing',$tacticOrder,$tacticMin);
 $visibleRecords=array_values(array_filter($records,'battleIsGoldTeam'));
 $examples=battleLossExamples($records,$side==='enemy');
 $details=array_values(array_filter($visibleRecords,fn($r)=>!empty($r['enemy_tactics'])));
@@ -64,7 +70,7 @@ foreach($sources as $s) {
     if((int)$s['id']===(int)queryText('source') && ($p['season'] ?? '')===$season)$selected=$s+['payload'=>$p];
 }
 ?>
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>敵勢力の解析｜分析班資料館</title><link rel="stylesheet" href="/assets/analysis-room.css?v=20260923-archive2"><link rel="stylesheet" href="/assets/battle-stats.css?v=20261005-4"></head>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>敵勢力の解析｜分析班資料館</title><link rel="stylesheet" href="/assets/analysis-room.css?v=20260923-archive2"><link rel="stylesheet" href="/assets/battle-stats.css?v=20261005-5"></head>
 <body><header class="archive-header"><a href="/analysis-room/index.php">← 分析班資料館</a><a href="/">軍議の間へ</a></header><main><article class="archive-card archive-card-wide">
 <p class="eyebrow">分析班資料館 / <?=e($season)?> 実測</p><h1>敵勢力の解析</h1><p class="description">誰が、どの編成を使い、何に負けたか。記録された対戦から確認します。</p>
 <?php if($error): ?><p role="alert"><?=e($error)?></p><?php else: ?>
@@ -73,7 +79,17 @@ foreach($sources as $s) {
 <div class="metrics"><div><strong><?=$stats['eligible']?></strong><span>集計対象の対戦</span></div><div><strong><?=count($stats['players'])?></strong><span>敵プレイヤー</span></div><div><strong><?=$stats['incomplete']+$stats['non_gold']?></strong><span>紫武将・人数不足等を除外</span></div><div><strong><?=$stats['undated']?></strong><span>日時不明の補足</span></div></div>
 <p class="muted">同日時は1件、双方とも金武将3名の対戦のみ集計。紫武将入り・1〜2体編成は勝敗・割合・事例から除外します。兵種は戦報の表示を実測し、未確認分は兵種指定時に除外します。勝率＝敵の勝利数÷全対戦数（引分を含む）。この実測記録内の割合であり、全戦闘の成績ではありません。</p>
 <?php if(!$records): ?><p class="empty">該当する登録記録がありません。<?php if(!$all): ?>解析データはまだ本番DBに投入されていません。<?php endif; ?></p><?php endif; ?>
-<nav class="section-links"><a href="#generals">武将の採用割合</a><a href="#players">敵の勝率</a><a href="#examples">負け事例</a><a href="#tactics">戦法付きの詳細</a><a href="#history">全記録</a></nav>
+<nav class="section-links"><a href="#shares">割合の円グラフ</a><a href="#tactic-rankings">火力・回復の戦法順位</a><a href="#generals">武将の採用割合</a><a href="#players">敵の勝率</a><a href="#examples">負け事例</a><a href="#tactics">戦法付きの詳細</a><a href="#history">全記録</a></nav>
+<section id="shares"><h2>敵の兵種・武将・大将の割合</h2><p>上位6項目とその他。凡例の名前から絞り込めます。</p><div class="donut-grid">
+<?=battleDonut('troop-share','兵種',$stats['troops'],'対戦','troop','日時が確認できる金武将3名同士の対戦。兵種が読めない分は「未確認」です。')?>
+<?=battleDonut('general-share','武将の採用枠',$stats['generals'],'枠','general','敵武将の延べ採用枠を100％とした内訳。下の「対戦ごとの採用割合」とは分母が異なります。')?>
+<?=battleDonut('captain-share','大将',$stats['captains'],'対戦','captain','敵の大将1名を数えます。同じ武将でも副将としての採用は含めません。')?>
+</div></section>
+<section id="tactic-rankings"><h2>火力・回復の戦法順位 — 敵味方合算</h2><p>検索条件に一致する詳細 <strong><?=$tacticStats['reports']?>件</strong>の両軍を合算。戦報の「撃破」を与ダメージ、「救援」を回復量として集計しています。</p><form method="get" action="#tactic-rankings" class="ranking-controls">
+<?php foreach(['season'=>$season,'q'=>$q,'general'=>$general,'troop'=>$troop,'captain'=>$captain,'exact'=>$exact?'1':'0','sort'=>$sort,'min'=>(string)$min,'side'=>$side] as $key=>$value): ?><input type="hidden" name="<?=e($key)?>" value="<?=e($value)?>"><?php endforeach; ?>
+<label>戦法の並び順<select name="tactic_order"><option value="total"<?=$tacticOrder==='total'?' selected':''?>>合計が多い順</option><option value="average"<?=$tacticOrder==='average'?' selected':''?>>1採用あたりの平均順</option></select></label><label>最低確認枠数<input type="number" name="tactic_min" min="1" max="100" value="<?=$tacticMin?>"></label><button>戦法順位を更新</button></form>
+<p class="muted">1武将の装備1枠を1採用とし、発動しなかった0も平均に含めます。未読の数値は0にしません。通常攻撃は対象外。日時不明の詳細 <?=$tacticStats['undated']?>件はこの戦法集計に含め、勝率や編成の割合には加算しません。同じ名前・編成・戦法・数値・結果の詳細は重複をまとめます。戦闘時間・兵力・レベルが異なる実測であり、戦法自体の強さを直接比較した順位ではありません。</p>
+<div class="tactic-rank-grid"><article><h3>与ダメージ順位</h3><?=battleTacticTable(array_slice($damageRanking,0,10),'damage',$tacticOrder)?><?php if(count($damageRanking)>10): ?><details><summary>11位以下も見る（<?=count($damageRanking)?>戦法）</summary><?=battleTacticTable(array_slice($damageRanking,10),'damage',$tacticOrder,10)?></details><?php endif; ?></article><article><h3>回復量順位</h3><?=battleTacticTable(array_slice($healingRanking,0,10),'healing',$tacticOrder)?><?php if(count($healingRanking)>10): ?><details><summary>11位以下も見る（<?=count($healingRanking)?>戦法）</summary><?=battleTacticTable(array_slice($healingRanking,10),'healing',$tacticOrder,10)?></details><?php endif; ?></article></div></section>
 <section id="generals"><h2><?=e($troop!==''?$troop.'部隊の':'敵')?>武将の採用割合</h2><p>対象対戦の何％にその武将がいたかを表示します。1編成3名のため合計は100％になりません。</p><div class="general-bars"><?php foreach($stats['generals'] as $name=>$count): $rate=$stats['eligible']?100*$count/$stats['eligible']:0; ?><a class="general-bar" href="<?=e(battleLink(['general'=>$name,'page'=>1]))?>"><strong><?=e($name)?></strong><meter min="0" max="100" value="<?=round($rate,2)?>" aria-label="<?=e($name)?>の採用割合"></meter><span><?=number_format($rate,1)?>% <small><?=$count?>件</small></span></a><?php endforeach; ?></div><h3>大将の採用割合</h3><div class="general-bars"><?php foreach($stats['captains'] as $name=>$count): $rate=$stats['eligible']?100*$count/$stats['eligible']:0; ?><a class="general-bar" href="<?=e(battleLink(['captain'=>$name,'page'=>1]))?>"><strong><?=e($name)?></strong><meter min="0" max="100" value="<?=round($rate,2)?>" aria-label="<?=e($name)?>の大将採用割合"></meter><span><?=number_format($rate,1)?>% <small><?=$count?>件</small></span></a><?php endforeach; ?></div><p class="muted">集計対象のうち兵種未確認 <?=$stats['unknown_troop']?>件。</p></section>
 <section id="players"><h2>敵プレイヤーの勝率・勝利数</h2><form method="get" class="ranking-controls"><input type="hidden" name="q" value="<?=e($q)?>"><input type="hidden" name="exact" value="<?=$exact?'1':'0'?>"><input type="hidden" name="general" value="<?=e($general)?>"><input type="hidden" name="troop" value="<?=e($troop)?>"><input type="hidden" name="captain" value="<?=e($captain)?>"><input type="hidden" name="season" value="<?=e($season)?>"><label>並び順<select name="sort"><option value="wins"<?=$sort==='wins'?' selected':''?>>勝利数</option><option value="rate"<?=$sort==='rate'?' selected':''?>>勝率</option></select></label><label>最低対戦数<input type="number" name="min" min="1" max="100" value="<?=$min?>"></label><button>並べ替え</button></form><p class="muted">最低対戦数はランキングだけに適用。少数の対戦による高勝率には注意してください。名前を押すと本人の編成と負け事例へ絞り込みます。</p><div class="table-scroll"><table><thead><tr><th>敵プレイヤー</th><th>勝率</th><th>勝</th><th>敗</th><th>分</th><th>対戦数</th></tr></thead><tbody><?php foreach($players as $p): ?><tr><td><a href="<?=e(battleLink(['q'=>$p['name'],'exact'=>'1','min'=>1,'page'=>1]))?>"><?=e($p['name'])?></a></td><td><strong><?=number_format($p['win_rate'],1)?>%</strong></td><td><?=$p['wins']?></td><td><?=$p['losses']?></td><td><?=$p['draws']?></td><td><?=$p['battles']?></td></tr><?php endforeach; ?></tbody></table></div></section>
 <section id="examples"><h2>負けた対戦の具体例</h2><nav class="section-links"><a href="<?=e(battleLink(['side'=>'enemy','page'=>1]))?>#examples"<?=$side==='enemy'?' aria-current="page"':''?>>敵が負けた事例</a><a href="<?=e(battleLink(['side'=>'ours','page'=>1]))?>#examples"<?=$side==='ours'?' aria-current="page"':''?>>八雲側が負けた事例</a></nav><p><?=($side==='enemy'?'敵が負けた':'八雲側が負けた')?>対戦 <?=count($examples)?>件。編成と実測結果を紹介します。この一覧画面だけでは装備戦法・兵力差を確認できないため、敗因や有利相性は断定しません。装備が読めた詳細は下の「戦法付きの詳細記録」に掲載しています。</p><div class="case-grid"><?php foreach(array_slice($examples,($page-1)*12,12) as $r): ?><article class="battle-case"><p class="case-date"><?=e($r['battle_at'])?></p><h3><?=e($r['enemy_name'])?> <span class="badge"><?=$side==='enemy'?'敗北':'勝利'?></span></h3><dl><dt>敵の編成 · <?=e($r['enemy_troop']?:'兵種未確認')?></dt><dd><?=lineupCards($r['enemy_generals'],2,$r['enemy_tactics']??[])?></dd><dt>八雲側：<?=e($r['own_name'])?> · <?=e($r['own_troop']??'兵種未確認')?></dt><dd><?=lineupCards($r['own_generals'],0,$r['own_tactics']??[])?></dd></dl><p><?=e($side==='enemy'?$r['own_name'].'の編成が勝利した記録です。':$r['enemy_name'].'の編成に敗れた記録です。')?></p><div class="case-sources"><?php foreach($r['sources'] as $ref): $source=$sourceMap[$r['batch_id'].'|'.$ref['frame']]??null; if($source): ?><a href="<?=e(battleLink(['source'=>$source['id']]))?>#evidence">読取済みの編成・勝敗（<?=$ref['frame']?>）</a><?php endif; endforeach; ?></div></article><?php endforeach; ?></div><?php if(!$examples): ?><p>この条件で確認済みの負け事例はありません。</p><?php endif; ?><nav class="pagination"><?php if($page>1): ?><a href="<?=e(battleLink(['page'=>$page-1]))?>#examples">前へ</a><?php endif; ?><span><?=$page?> / <?=max(1,(int)ceil(count($examples)/12))?></span><?php if($page*12<count($examples)): ?><a href="<?=e(battleLink(['page'=>$page+1]))?>#examples">次へ</a><?php endif; ?></nav></section>

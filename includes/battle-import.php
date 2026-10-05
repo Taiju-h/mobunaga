@@ -53,7 +53,7 @@ function battleBatchRecords(array $batch): array
 
 function battleStatistics(array $records, string $season): array
 {
-    $seen = []; $generals = []; $players = []; $eligible = 0; $undated = 0; $incomplete = 0; $non_gold = 0; $unknown_troop = 0; $captains = [];
+    $seen = []; $generals = []; $players = []; $eligible = 0; $undated = 0; $incomplete = 0; $non_gold = 0; $unknown_troop = 0; $captains = []; $troops = [];
     foreach ($records as $r) {
         if (($r['season'] ?? '') !== $season) continue;
         $key = battleDateKey($r);
@@ -69,6 +69,8 @@ function battleStatistics(array $records, string $season): array
         if (!battleIsGoldTeam($r)) { $non_gold++; continue; }
         $eligible++;
         if (empty($r['enemy_troop'])) $unknown_troop++;
+        $troop = ($r['enemy_troop'] ?? '') ?: '未確認';
+        $troops[$troop] = ($troops[$troop] ?? 0) + 1;
         $captain = $r['enemy_generals'][2];
         $captains[$captain] = ($captains[$captain] ?? 0) + 1;
         foreach (array_unique($r['enemy_generals']) as $name) $generals[$name] = ($generals[$name] ?? 0) + 1;
@@ -84,7 +86,7 @@ function battleStatistics(array $records, string $season): array
     unset($player);
     arsort($generals); arsort($captains);
     usort($players, fn($a,$b)=>($b['wins'] <=> $a['wins']) ?: ($b['battles'] <=> $a['battles']) ?: strcmp($a['name'],$b['name']));
-    return compact('eligible','undated','incomplete','non_gold','unknown_troop','generals','captains','players');
+    return compact('eligible','undated','incomplete','non_gold','unknown_troop','generals','captains','troops','players');
 }
 
 /** Import uses one transaction; all invocations share a MySQL advisory lock. Raw frames stay private. */
@@ -244,7 +246,7 @@ function battleIsGoldTeam(array $r): bool
 function battleEnrich(array $old, array $incoming): array
 {
     $merged = $old + $incoming;
-    foreach (['own_troop','enemy_troop','own_captain','enemy_captain','own_tactics','enemy_tactics','troop_review','tactics_review'] as $field) {
+    foreach (['own_troop','enemy_troop','own_captain','enemy_captain','own_tactics','enemy_tactics','troop_review','tactics_review','own_tactic_metrics','enemy_tactic_metrics','tactic_metrics_review'] as $field) {
         if (empty($merged[$field]) && !empty($incoming[$field])) $merged[$field] = $incoming[$field];
     }
     return $merged;
