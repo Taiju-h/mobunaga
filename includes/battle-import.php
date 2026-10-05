@@ -53,7 +53,7 @@ function battleBatchRecords(array $batch): array
 
 function battleStatistics(array $records, string $season): array
 {
-    $seen = []; $generals = []; $players = []; $eligible = 0; $undated = 0; $incomplete = 0;
+    $seen = []; $generals = []; $players = []; $eligible = 0; $undated = 0; $incomplete = 0; $non_gold = 0; $unknown_troop = 0; $captains = [];
     foreach ($records as $r) {
         if (($r['season'] ?? '') !== $season) continue;
         $key = battleDateKey($r);
@@ -66,7 +66,11 @@ function battleStatistics(array $records, string $season): array
             if (count($g) !== 3 || count(array_filter($g, fn($v)=>is_string($v) && $v !== '' && $v !== '?')) !== 3) $full = false;
         }
         if (!$full) { $incomplete++; continue; }
+        if (!battleIsGoldTeam($r)) { $non_gold++; continue; }
         $eligible++;
+        if (empty($r['enemy_troop'])) $unknown_troop++;
+        $captain = $r['enemy_generals'][2];
+        $captains[$captain] = ($captains[$captain] ?? 0) + 1;
         foreach (array_unique($r['enemy_generals']) as $name) $generals[$name] = ($generals[$name] ?? 0) + 1;
         $name = $r['enemy_name'];
         if (!isset($players[$name])) $players[$name] = ['name'=>$name,'battles'=>0,'wins'=>0,'losses'=>0,'draws'=>0];
@@ -78,9 +82,9 @@ function battleStatistics(array $records, string $season): array
     }
     foreach ($players as &$player) $player['win_rate'] = 100 * $player['wins'] / $player['battles'];
     unset($player);
-    arsort($generals);
+    arsort($generals); arsort($captains);
     usort($players, fn($a,$b)=>($b['wins'] <=> $a['wins']) ?: ($b['battles'] <=> $a['battles']) ?: strcmp($a['name'],$b['name']));
-    return compact('eligible','undated','incomplete','generals','players');
+    return compact('eligible','undated','incomplete','non_gold','unknown_troop','generals','captains','players');
 }
 
 /** Import uses one transaction; all invocations share a MySQL advisory lock. Raw frames stay private. */
@@ -133,8 +137,11 @@ function importBattleBatch(PDO $db, array $batch, ?callable $imageReader = null)
                 // Never restore a deliberately deleted/spam record or replace edited metadata.
                 if (in_array($row['status'],['deleted','spam'],true)) continue;
                 $old = json_decode($row['payload_json'],true,512,JSON_THROW_ON_ERROR);
-                $merged = $old + $p;
-                $merged['battle_variants'] = ($old['battle_variants'] ?? []) + $p['battle_variants'];
+                $merged = battleEnrich($old, $p);
+                $merged['battle_variants'] = ($old['battle_variants'] ?? []);
+                foreach ($p['battle_variants'] as $variantKey=>$variant) {
+                    $merged['battle_variants'][$variantKey] = battleEnrich($merged['battle_variants'][$variantKey] ?? [], $variant);
+                }
                 if (battleJson($merged) !== battleJson($old)) {
                     $update->execute([battleJson($merged),$row['id']]); $result['updated_records']++;
                 }
@@ -170,11 +177,13 @@ function battleIsFullTeam(array $r): bool
     return true;
 }
 
-function battleFilter(array $records, string $season, string $query, string $general, bool $exact = false): array
+function battleFilter(array $records, string $season, string $query, string $general, bool $exact = false, string $troop = '', string $captain = ''): array
 {
-    return array_values(array_filter($records, static function($r) use ($season,$query,$general,$exact) {
+    return array_values(array_filter($records, static function($r) use ($season,$query,$general,$exact,$troop,$captain) {
         if (($r['season'] ?? '') !== $season) return false;
         if ($query !== '' && ($exact ? $r['enemy_name'] !== $query : enemyNameMatch($query,$r['enemy_name']) === null)) return false;
+        if ($troop !== '' && ($r['enemy_troop'] ?? '') !== $troop) return false;
+        if ($captain !== '' && ($r['enemy_generals'][2] ?? '') !== $captain) return false;
         return $general === '' || in_array($general,$r['enemy_generals'] ?? [],true);
     }));
 }
@@ -186,7 +195,7 @@ function battleLossExamples(array $records, bool $enemyLost = true): array
         $key=battleDateKey($r);
         if ($key===null || isset($seen[$key])) continue;
         $seen[$key]=true;
-        if (battleIsFullTeam($r) && $r['result']===($enemyLost ? '勝利' : '敗北')) $examples[]=$r;
+        if (battleIsGoldTeam($r) && $r['result']===($enemyLost ? '勝利' : '敗北')) $examples[]=$r;
     }
     usort($examples,fn($a,$b)=>strcmp($b['battle_at'],$a['battle_at']));
     return $examples;
@@ -215,4 +224,55 @@ function battleSourceObservations(array $records,string $batchId,int $frame): ar
         foreach(($v['sources']??[]) as $source)if((int)$source['frame']===$frame){$found[$key]=$v;break;}
     }
     return array_values($found);
+}
+
+/** Rarity comes from the catalog, never cost or troop affinity. Unknown names are excluded. */
+function battleIsGoldTeam(array $r): bool
+{
+    if (!battleIsFullTeam($r)) return false;
+    static $rarities = null;
+    if ($rarities === null) {
+        $catalog = json_decode((string)file_get_contents(__DIR__.'/../assets/database.json'), true, 512, JSON_THROW_ON_ERROR);
+        $rarities = [];
+        foreach ($catalog['generals'] as $g) $rarities[$g['name']] = (int)$g['rarity'];
+    }
+    foreach (array_merge($r['own_generals'], $r['enemy_generals']) as $name) if (($rarities[$name] ?? 0) !== 5) return false;
+    return true;
+}
+
+/** Only reviewed enrichment fields may fill a previously empty value. */
+function battleEnrich(array $old, array $incoming): array
+{
+    $merged = $old + $incoming;
+    foreach (['own_troop','enemy_troop','own_captain','enemy_captain','own_tactics','enemy_tactics','troop_review','tactics_review'] as $field) {
+        if (empty($merged[$field]) && !empty($incoming[$field])) $merged[$field] = $incoming[$field];
+    }
+    return $merged;
+}
+
+/** Attach original images against existing SHA-256 receipts, without requiring a JSON upload. */
+function attachBattleImages(PDO $db, array $files): array
+{
+    $mysql = $db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql';
+    if ($mysql && (int)$db->query("SELECT GET_LOCK('mobunaga-battle-import', 10)")->fetchColumn() !== 1) throw new RuntimeException('取り込み処理中です。後で再実行してください。');
+    $result = ['new_records'=>0,'updated_records'=>0,'new_sources'=>0,'attached_images'=>0];
+    try {
+        $db->beginTransaction(); $known=[];
+        $rows=$db->query("SELECT id,payload_json FROM form_submissions WHERE form_key='battle_frame_source' AND status IN ('new','reviewed','archived')".($mysql?' FOR UPDATE':''))->fetchAll(PDO::FETCH_ASSOC);
+        foreach($rows as $row){$p=json_decode($row['payload_json'],true,512,JSON_THROW_ON_ERROR);$known[$p['source_sha256']]=['id'=>$row['id'],'source'=>$p['source']];}
+        $exists=$db->prepare('SELECT id FROM form_submission_files WHERE submission_id=? AND sha256=?');
+        $insert=$db->prepare('INSERT INTO form_submission_files (submission_id,original_name,mime_type,file_size,file_data,sha256) VALUES (?,?,?,?,?,?)');
+        $matched=0;
+        foreach($files as $file){
+            $bytes=($file['read'])(); $hash=hash('sha256',$bytes); $r=$known[$hash]??null;
+            if(!$r) continue;
+            $matched++;
+            if(strlen($bytes)!==(int)$r['source']['bytes'])throw new RuntimeException('画像サイズが一致しません。');
+            $exists->execute([$r['id'],$hash]);if($exists->fetchColumn())continue;
+            $insert->execute([$r['id'],$r['source']['filename'],'image/jpeg',strlen($bytes),$bytes,$hash]);$result['attached_images']++;
+        }
+        if(!$matched)throw new RuntimeException('登録済みの解析元画像に一致するファイルがありません。元の画像を加工せず選んでください。');
+        $db->commit();return $result;
+    } catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
+    finally{if($mysql)$db->query("SELECT RELEASE_LOCK('mobunaga-battle-import')");}
 }

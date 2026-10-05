@@ -3,3 +3,5 @@
 textarea[name="batch_json"]{width:100%;min-height:150px;max-height:280px;padding:12px;background:#041820;color:#fff;border:1px solid #7bb0aa;resize:vertical;font:13px monospace}
 
 .lineup-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}.lineup-card{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}.lineup-card img{width:72px;height:90px;object-fit:cover;object-position:top;border-radius:6px;border:1px solid #d6b75d77}.lineup-card strong{font-size:.85rem;line-height:1.4}.portrait-placeholder{display:grid;place-items:center;width:72px;height:90px;background:#173b44;border:1px solid #7cc5ba55;border-radius:6px;color:#a9bcb9;font-size:1.5rem}
+
+.role-badge{display:block;font-size:.75rem;color:#b89b61}.tactic-list{list-style:none;padding:0;margin:.35rem 0;font-size:.7rem;line-height:1.6}.lineup-card{min-width:0}.tactic-list li{overflow-wrap:anywhere}.upload-note{padding:1rem;border:1px solid #695938;border-radius:8px}
