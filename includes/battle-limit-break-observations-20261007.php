@@ -1,0 +1,91 @@
+<?php
+declare(strict_types=1);
+if (!defined('MOBUNAGA_ANALYSIS_ROOM')) { http_response_code(404); exit; }
+
+/**
+ * 2026-10-07に戦報画像から目視確認した凸数の補足。
+ * 赤い菱形だけを凸として数え、黄色は0凸として扱う。
+ * 0凸も「確認済み0」として保持する。推測値は入れない。
+ */
+function battleReviewedLimitBreakObservations20261007(): array
+{
+    return [
+        [
+            'limit_break_observation_id'=>'20261007-044738',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'ノエル','enemy_name'=>'穂和斎麻呂',
+            'own_generals'=>['立花誾千代','立花道雪','北条氏康'],
+            'enemy_generals'=>['まつ','柴田勝家','前田利家'],
+            'own_limit_breaks'=>[4,5,4],
+            'enemy_limit_breaks'=>[2,1,3],
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'Screenshot_20261007_044738',
+        ],
+        [
+            'limit_break_observation_id'=>'20261007-044721',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'Y','enemy_name'=>'未登録',
+            'own_generals'=>['立花誾千代','立花道雪','北条氏康'],
+            'enemy_generals'=>['北条氏康','成田甲斐','福島正則'],
+            'own_limit_breaks'=>[1,1,3],
+            'enemy_limit_breaks'=>[0,0,2],
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'Screenshot_20261007_044721',
+        ],
+        [
+            'limit_break_observation_id'=>'20261007-044709',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'武藤元康','enemy_name'=>'松平信康',
+            'own_generals'=>['伊達晴宗','浅井長政','毛利隆元'],
+            'enemy_generals'=>['豊臣秀吉','ねね','黒田官兵衛'],
+            'own_limit_breaks'=>[4,4,1],
+            'enemy_limit_breaks'=>[0,4,5],
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'Screenshot_20261007_044709',
+        ],
+        [
+            'limit_break_observation_id'=>'20261007-044653',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'ニコ','enemy_name'=>'功',
+            'own_generals'=>['柿崎景家','真田昌幸','宇佐美定満'],
+            'enemy_generals'=>['三好実休','真田昌幸','伊達政宗'],
+            'own_limit_breaks'=>[5,4,1],
+            'enemy_limit_breaks'=>[5,5,5],
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'Screenshot_20261007_044653',
+        ],
+        [
+            'limit_break_observation_id'=>'20261007-044625',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'二東三文','enemy_name'=>'とみけん',
+            'own_generals'=>['柿崎景家','上杉謙信','宇佐美定満'],
+            'enemy_generals'=>['北条氏康','立花道雪','立花誾千代'],
+            'own_limit_breaks'=>[1,0,0],
+            'enemy_limit_breaks'=>[1,1,4],
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'Screenshot_20261007_044625',
+        ],
+        [
+            'limit_break_observation_id'=>'20261007-044618',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'丑能','enemy_name'=>'よ',
+            'own_generals'=>['黒田官兵衛','豊臣秀吉','ねね'],
+            'enemy_generals'=>['本多正信','本多忠勝','徳川家康'],
+            'own_limit_breaks'=>[1,0,1],
+            'enemy_limit_breaks'=>[0,0,0],
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'Screenshot_20261007_044618',
+        ],
+        [
+            'limit_break_observation_id'=>'20261007-044604',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'ヤーコポ','enemy_name'=>'功',
+            'own_generals'=>['武田信玄','山県昌景','馬場信春'],
+            'enemy_generals'=>['三好実休','真田昌幸','伊達政宗'],
+            'own_limit_breaks'=>[3,4,4],
+            'enemy_limit_breaks'=>[5,5,5],
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'Screenshot_20261007_044604',
+        ],
+    ];
+}
