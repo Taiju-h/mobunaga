@@ -54,8 +54,12 @@ try {
 $records=battleFilter($all,$season,$q,$general,$exact,$troop,$captain);
 $stats=battleStatistics($records,$season); $whole=battleStatistics($all,$season);
 $limitBreakStats=battleLimitBreakStatistics($records,$season);
-$hasMe=false; foreach($limitBreakStats['rows'] as $row)if($row['side']==='own' && $row['name']==='闇の土鬼'){$hasMe=true;break;}
-if(!$hasMe)array_unshift($limitBreakStats['rows'],['side'=>'own','name'=>'闇の土鬼','samples'=>0,'sum'=>0,'average'=>null,'per_general'=>null,'min'=>null,'max'=>null]);
+$limitBreakSides=['own'=>[],'enemy'=>[]];
+foreach($limitBreakStats['rows'] as $row)if($row['average']!==null)$limitBreakSides[$row['side']][]=$row;
+foreach($limitBreakSides as &$rows)usort($rows,fn($a,$b)=>($b['average']<=>$a['average']) ?: ($b['samples']<=>$a['samples']) ?: strcmp($a['name'],$b['name'])); unset($rows);
+$limitBreakScore=[];
+foreach(['own','enemy'] as $lbSide)$limitBreakScore[$lbSide]=array_sum(array_map(fn($row)=>(float)$row['average'],$limitBreakSides[$lbSide]));
+$limitBreakLabel=['own'=>'八雲','enemy'=>'傾奇集団'];
 $players=array_values(array_filter($stats['players'],fn($p)=>$p['battles'] >= $min));
 if($sort==='rate')usort($players,fn($a,$b)=>($b['win_rate']<=>$a['win_rate']) ?: ($b['battles']<=>$a['battles']) ?: strcmp($a['name'],$b['name']));
 $tacticStats=battleTacticStatistics(battleFilter(battleMetricObservations($all),$season,$q,$general,$exact,$troop,$captain));
@@ -73,7 +77,7 @@ foreach($sources as $s) {
     if((int)$s['id']===(int)queryText('source') && ($p['season'] ?? '')===$season)$selected=$s+['payload'=>$p];
 }
 ?>
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>敵勢力の解析｜分析班資料館</title><link rel="icon" href="/assets/crest.svg?v=20261005" type="image/svg+xml"><link rel="stylesheet" href="/assets/analysis-room.css?v=20260923-archive2"><link rel="stylesheet" href="/assets/battle-stats.css?v=20261007-limitbreak1"></head>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>敵勢力の解析｜分析班資料館</title><link rel="icon" href="/assets/crest.svg?v=20261005" type="image/svg+xml"><link rel="stylesheet" href="/assets/analysis-room.css?v=20260923-archive2"><link rel="stylesheet" href="/assets/battle-stats.css?v=20261007-limitbreak2"></head>
 <body><header class="archive-header"><a href="/analysis-room/index.php">← 分析班資料館</a><a href="/">軍議の間へ</a></header><main><article class="archive-card archive-card-wide">
 <p class="eyebrow">分析班資料館 / <?=e($season)?> 実測</p><h1>敵勢力の解析</h1><p class="description">誰が、どの編成を使い、何に負けたか。記録された対戦から確認します。</p>
 <?php if($error): ?><p role="alert"><?=e($error)?></p><?php else: ?>
@@ -83,7 +87,30 @@ foreach($sources as $s) {
 <p class="muted">同日時は1件、双方とも金武将3名の対戦のみ集計。紫武将入り・1〜2体編成は勝敗・割合・事例から除外します。兵種は戦報の表示を実測し、未確認分は兵種の件数・割合の分母から除外します。勝率＝敵の勝利数÷全対戦数（引分を含む）。この実測記録内の割合であり、全戦闘の成績ではありません。</p>
 <?php if(!$records): ?><p class="empty">該当する登録記録がありません。<?php if(!$all): ?>解析データはまだ本番DBに投入されていません。<?php endif; ?></p><?php endif; ?>
 <nav class="section-links"><a href="#limit-breaks">敵味方の凸比較</a><a href="#shares">割合の円グラフ</a><a href="#tactic-rankings">火力・回復の戦法順位</a><a href="#generals">武将の採用割合</a><a href="#players">敵の勝率</a><a href="#examples">負け事例</a><a href="#tactics">戦法付きの詳細</a><a href="#history">全記録</a></nav>
-<section id="limit-breaks"><h2>敵と味方の凸数比較</h2><p>戦報画像で3武将の凸数を確認済みの記録だけで比較します。1部隊の合計は最大15凸です。</p><div class="limit-break-summary"><div><span>味方平均</span><strong><?= $limitBreakStats['side_averages']['own']===null?'—':number_format($limitBreakStats['side_averages']['own'],1) ?></strong><small>/ 15凸</small></div><div><span>敵平均</span><strong><?= $limitBreakStats['side_averages']['enemy']===null?'—':number_format($limitBreakStats['side_averages']['enemy'],1) ?></strong><small>/ 15凸</small></div><div><span>確認済み</span><strong><?=$limitBreakStats['reviewed']?></strong><small>部隊</small></div></div><div class="table-scroll"><table class="limit-break-table"><thead><tr><th>陣営</th><th>プレイヤー</th><th>平均合計凸</th><th>1武将平均</th><th>最大</th><th>最小</th><th>確認戦数</th></tr></thead><tbody><?php foreach($limitBreakStats['rows'] as $lb): $me=$lb['side']==='own'&&$lb['name']==='闇の土鬼'; $heat=$lb['average']===null?'':($lb['average']>=12?' heat-4':($lb['average']>=9?' heat-3':($lb['average']>=6?' heat-2':' heat-1'))); ?><tr class="<?=$me?'is-me':''?>"><td><span class="side-chip <?=$lb['side']==='own'?'ours':'enemy'?>"><?=$lb['side']==='own'?'味方':'敵'?></span></td><th scope="row"><?=e($lb['name'])?><?=$me?' <span class="me-mark">本人</span>':''?></th><td class="limit-value<?=$heat?>"><?=$lb['average']===null?'未確認':number_format($lb['average'],1).' / 15'?></td><td><?=$lb['per_general']===null?'—':number_format($lb['per_general'],2)?></td><td><?=$lb['max']===null?'—':$lb['max']?></td><td><?=$lb['min']===null?'—':$lb['min']?></td><td><?=$lb['samples']?></td></tr><?php endforeach; ?></tbody></table></div><p class="muted">闇の土鬼は本人行として赤で固定表示。未確認の凸数を推測で埋めません。凸数は <code>visual_limit_break_review</code> で確認済みのデータだけを集計します。</p></section>
+<section id="limit-breaks"><h2>敵と味方の凸数比較</h2><p class="muted">確認済みの3武将凸だけで集計。各プレイヤーは複数戦ある場合、その人の平均凸を使います。</p>
+<div class="limit-break-scoreboard">
+  <div class="limit-team limit-team-own">
+    <span class="limit-team-name"><?=e($limitBreakLabel['own'])?></span>
+    <strong class="limit-team-score"><?=$limitBreakSides['own']?number_format($limitBreakScore['own'],1):'—'?></strong>
+    <small>凸</small>
+    <div class="limit-player-list">
+      <?php foreach($limitBreakSides['own'] as $lb): ?><span class="limit-player<?=$lb['name']==='闇の土鬼'?' is-yami':''?>"><b><?=e($lb['name'])?></b><i><?=number_format($lb['average'],1)?>凸</i></span><?php endforeach; ?>
+      <?php if(!$limitBreakSides['own']): ?><span class="limit-player is-empty">確認済みなし</span><?php endif; ?>
+    </div>
+  </div>
+  <div class="limit-vs" aria-label="対">対</div>
+  <div class="limit-team limit-team-enemy">
+    <span class="limit-team-name"><?=e($limitBreakLabel['enemy'])?></span>
+    <strong class="limit-team-score"><?=$limitBreakSides['enemy']?number_format($limitBreakScore['enemy'],1):'—'?></strong>
+    <small>凸</small>
+    <div class="limit-player-list">
+      <?php foreach($limitBreakSides['enemy'] as $lb): ?><span class="limit-player"><b><?=e($lb['name'])?></b><i><?=number_format($lb['average'],1)?>凸</i></span><?php endforeach; ?>
+      <?php if(!$limitBreakSides['enemy']): ?><span class="limit-player is-empty">確認済みなし</span><?php endif; ?>
+    </div>
+  </div>
+</div>
+<details class="limit-break-details"><summary>凸数の詳細を見る</summary><div class="table-scroll"><table class="limit-break-table"><thead><tr><th>陣営</th><th>プレイヤー</th><th>平均合計凸</th><th>1武将平均</th><th>最大</th><th>最小</th><th>確認戦数</th></tr></thead><tbody><?php foreach($limitBreakStats['rows'] as $lb): if($lb['average']===null)continue; ?><tr class="<?=$lb['name']==='闇の土鬼'?'is-yami':''?>"><td><?=$lb['side']==='own'?'八雲':'傾奇集団'?></td><th scope="row"><?=e($lb['name'])?></th><td><?=number_format($lb['average'],1)?></td><td><?=number_format($lb['per_general'],2)?></td><td><?=$lb['max']?></td><td><?=$lb['min']?></td><td><?=$lb['samples']?></td></tr><?php endforeach; ?></tbody></table></div></details>
+</section>
 <section id="shares"><h2>敵の兵種・武将・大将の割合</h2><p>上位6項目とその他。凡例の名前から絞り込めます。</p><div class="donut-grid">
 <?=battleDonut('troop-share','兵種',$stats['troops'],'対戦','troop','日時が確認できる金武将3名同士の対戦。兵種未確認は件数・割合の分母に含めません。')?>
 <?=battleDonut('general-share','武将の採用枠',$stats['generals'],'枠','general','敵武将の延べ採用枠を100％とした内訳。下の「対戦ごとの採用割合」とは分母が異なります。')?>
