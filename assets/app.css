@@ -1978,3 +1978,18 @@ dialog::backdrop {
   .general-profile .general-ability-workbench .general-sim-presets button{padding:4px 7px;font-size:9px}
   .general-left-skill{min-height:42px;margin-top:8px}
 }
+
+/* 2026-10-07: general detail needs desktop width; keep other detail dialogs unchanged. */
+@media (min-width: 900px) {
+  #detail:has(.general-overview) {
+    width: min(1420px, calc(100vw - 28px));
+    max-height: 96vh;
+  }
+  #detail:has(.general-overview) #detail-content {
+    padding: 18px 22px 26px;
+  }
+  #detail:has(.general-overview) .general-overview {
+    grid-template-columns: minmax(230px, 270px) minmax(0, 1fr);
+    gap: 20px;
+  }
+}
