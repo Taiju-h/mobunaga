@@ -61,4 +61,10 @@ $me=array_values(array_filter($lbStats['rows'],fn($x)=>$x['side']==='own'&&$x['n
 check($me['samples']===2 && abs($me['average']-13.5)<0.0001 && $me['max']===15 && $me['min']===12,'Own limit-break aggregation failed');
 check(abs($lbStats['side_averages']['enemy']-10.5)<0.0001 && $lbStats['reviewed']===4,'Enemy/side limit-break average failed');
 check(battleReviewedLimitBreakTotal($lbBad,'own')===null,'Unreviewed limit-break data was counted');
+$lbZero=['limit_break_observation_id'=>'zero','season'=>'S4','limit_breaks_only'=>true,'own_name'=>'闇の土鬼','own_limit_break_total'=>0,'limit_breaks_review'=>'visual_limit_break_review'];
+$lbManual=['limit_break_observation_id'=>'manual','season'=>'S4','limit_breaks_only'=>true,'own_name'=>'味方B','enemy_name'=>'敵B','own_limit_breaks'=>[1,2,3],'enemy_limit_breaks'=>[0,0,0],'limit_breaks_review'=>'visual_limit_break_review'];
+$lbCombined=battleLimitBreakStatistics([$lbZero,$lbManual],'S4');
+$zeroRows=array_values(array_filter($lbCombined['rows'],fn($x)=>$x['name']==='闇の土鬼'));
+check(count($zeroRows)===1 && $zeroRows[0]['average']===0.0,'Reviewed zero-convex player disappeared');
+check($lbCombined['side_sums']['own']===6 && $lbCombined['side_sums']['enemy']===0,'Side convex totals are wrong');
 echo "battle-analytics: shares, tactics, limit-breaks, dedup, eligibility, filters and accessible escaped chart PASS\n";
