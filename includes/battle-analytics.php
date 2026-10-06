@@ -85,9 +85,14 @@ function battleLimitBreakStatistics(array $records, string $season): array
     foreach($records as $record){
         if(($record['season']??'')!==$season)continue;
         $key=battleDateKey($record);
-        if($key===null || isset($seen[$key]))continue;
+        if($key===null){
+            $manual=$record['limit_break_observation_id']??null;
+            if(!is_string($manual) || $manual==='')continue;
+            $key='limit-break|'.$manual;
+        }
+        if(isset($seen[$key]))continue;
         $seen[$key]=true;
-        if(!battleIsGoldTeam($record))continue;
+        if(empty($record['limit_breaks_only']) && !battleIsGoldTeam($record))continue;
         foreach(['own','enemy'] as $side){
             $name=$record[$side.'_name']??'';
             if(!is_string($name) || $name==='')continue;
@@ -121,9 +126,12 @@ function battleLimitBreakStatistics(array $records, string $season): array
         if($a['side']!==$b['side'])return $a['side']==='own'?-1:1;
         return strcmp($a['name'],$b['name']);
     });
-    $averages=[];
-    foreach($sideTotals as $side=>$values)$averages[$side]=$values?array_sum($values)/count($values):null;
-    return ['rows'=>$rows,'side_averages'=>$averages,'unknown'=>$unknown,'reviewed'=>count($sideTotals['own'])+count($sideTotals['enemy'])];
+    $averages=[]; $sums=[];
+    foreach($sideTotals as $side=>$values){
+        $averages[$side]=$values?array_sum($values)/count($values):null;
+        $sums[$side]=array_sum($values);
+    }
+    return ['rows'=>$rows,'side_averages'=>$averages,'side_sums'=>$sums,'side_samples'=>['own'=>count($sideTotals['own']),'enemy'=>count($sideTotals['enemy'])],'unknown'=>$unknown,'reviewed'=>count($sideTotals['own'])+count($sideTotals['enemy'])];
 }
 
 function battleTacticRanking(array $stats, string $metric, string $order = 'total', int $minimum = 1): array
