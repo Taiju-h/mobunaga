@@ -1960,3 +1960,21 @@ dialog::backdrop {
     opacity: 0.35;
   }
 }
+
+/* General detail: keep portrait, radar, level slider and allocations in the first viewport. */
+@media (min-width:821px){
+  .general-overview{grid-template-columns:minmax(220px,280px) minmax(0,1fr);gap:18px}
+  .general-profile .general-ability-workbench{grid-template-columns:minmax(235px,285px) minmax(0,1fr);gap:12px;margin-top:4px}
+  .general-profile .general-ability-workbench .ability-radar{max-width:285px;margin:0}
+  .general-profile .general-ability-workbench .general-simulator{padding:9px}
+  .general-profile .general-ability-workbench .general-sim-toolbar{grid-template-columns:minmax(130px,1fr) 72px 145px;gap:7px}
+  .general-profile .general-ability-workbench .general-sim-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:7px}
+  .general-profile .general-ability-workbench .general-sim-stat{padding:6px;grid-template-columns:auto 1fr auto 46px}
+  .general-profile .general-ability-workbench .general-sim-stat>input{width:46px;min-height:32px}
+  .general-profile .general-ability-workbench .general-sim-stat>b{font-size:15px}
+  .general-profile .general-ability-workbench .general-sim-rule,
+  .general-profile .general-ability-workbench .general-sim-note{font-size:9px;line-height:1.5}
+  .general-profile .general-ability-workbench .general-sim-presets{gap:4px;margin-top:7px}
+  .general-profile .general-ability-workbench .general-sim-presets button{padding:4px 7px;font-size:9px}
+  .general-left-skill{min-height:42px;margin-top:8px}
+}
