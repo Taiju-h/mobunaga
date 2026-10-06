@@ -938,6 +938,35 @@ dialog::backdrop {
   gap: 28px;
   align-items: start;
 }
+.general-visual-column {
+  min-width: 0;
+}
+.general-left-skill {
+  margin-top: 12px;
+  width: 100%;
+  min-height: 48px;
+  justify-content: flex-start;
+  text-align: left;
+}
+.general-profile > .detail-section {
+  margin: 14px 0 0;
+}
+.general-profile > .detail-section > h3 {
+  margin-bottom: 10px;
+}
+.general-profile .general-simulator {
+  padding: 13px;
+}
+.general-profile .general-sim-toolbar {
+  grid-template-columns: minmax(180px, 1fr) 88px minmax(190px, auto);
+  gap: 10px;
+}
+.general-profile .general-sim-stat-grid {
+  gap: 7px;
+}
+.general-profile .general-sim-stat {
+  padding: 8px;
+}
 .general-card-image {
   margin: 0;
   padding: 12px;
@@ -1168,7 +1197,15 @@ dialog::backdrop {
 @media (max-width: 650px) {
   .general-overview {
     grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
+    gap: 16px;
+  }
+  .general-visual-column {
+    width: 190px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .general-left-skill {
+    margin-top: 8px;
   }
   .general-card-image {
     width: 190px;
