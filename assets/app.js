@@ -69,6 +69,137 @@ const damageNumber = new Intl.NumberFormat("ja-JP", {
   maximumFractionDigits: 1,
 });
 
+const simNumber = (value) =>
+  value == null || !Number.isFinite(Number(value))
+    ? "—"
+    : Number(value).toFixed(2);
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+function statAtLevel(g, name, level) {
+  const row = g?.stats?.find((s) => statAttribute(s) === name);
+  if (!row) return null;
+  const lv = clamp(Math.floor(Number(level) || 1), 1, 50);
+  const level1 = Number(row.level1);
+  const growth = Number(row.growth);
+  if (Number.isFinite(level1) && Number.isFinite(growth))
+    return level1 + growth * (lv - 1);
+  const level50 = Number(row.level50);
+  if (Number.isFinite(level1) && Number.isFinite(level50))
+    return level1 + ((level50 - level1) * (lv - 1)) / 49;
+  return Number.isFinite(level50) ? level50 : null;
+}
+function generalAttributePoints(level, limitBreak) {
+  const lv = clamp(Math.floor(Number(level) || 1), 1, 50);
+  const lb = clamp(Math.floor(Number(limitBreak) || 0), 0, 5);
+  return Math.floor(lv / 10) * 10 + lb * 10;
+}
+function generalSimTotalsHTML(values, level) {
+  const numeric = (names) => {
+    const rows = names.map((name) => Number(values[name]));
+    return rows.every(Number.isFinite)
+      ? rows.reduce((sum, value) => sum + value, 0)
+      : null;
+  };
+  const combat = numeric(["武勇", "知略", "統率", "速度"]);
+  const total = numeric(GAME_STAT_ORDER);
+  return `<span class="stat-total" title="Lv${level}・属性ポイント配分後。戦闘属性は武勇・知略・統率・速度、総合値は政務・魅力を含む6能力の合計"><span>戦闘属性</span><strong>${number(combat)}</strong><span class="stat-total-slash">/</span><small class="stat-total-overall"><span>総合</span> ${number(total)}</small></span>`;
+}
+function generalSimulator(g) {
+  const level = 50;
+  const limitBreak = 0;
+  const total = generalAttributePoints(level, limitBreak);
+  const quick = ["武勇", "知略", "統率", "速度"]
+    .map(
+      (name) =>
+        `<button type="button" data-general-preset="${esc(name)}">${esc(name)}全振り</button>`,
+    )
+    .join("");
+  return `<section class="detail-section"><h3>能力シミュレーター</h3><div class="general-simulator" data-general-simulator="${esc(g.id)}"><div class="general-sim-toolbar"><label class="general-level-control"><span>レベル <b data-general-level-label>${level}</b></span><input type="range" min="1" max="50" step="1" value="${level}" data-general-level aria-label="${esc(g.name)}のレベル"></label><label class="general-limit-control"><span>凸</span><select data-general-limit-break aria-label="${esc(g.name)}の凸数">${[0,1,2,3,4,5].map((value) => `<option value="${value}">${value}凸</option>`).join("")}</select></label><div class="general-sim-points"><span>配分可能</span><b data-general-points-total>${total}</b><small>pt</small><span>残り</span><b data-general-points-remaining>${total}</b><small>pt</small></div></div><p class="general-sim-rule">Lv10ごとに属性ポイント+10、1凸ごとに+10。下の配分値を含めた能力を即時計算します。</p><div class="general-sim-stat-grid">${GAME_STAT_ORDER.map((name) => {
+    const base = statAtLevel(g, name, level);
+    return `<label class="general-sim-stat"><span>${esc(name)}</span><b data-general-value="${esc(name)}">${simNumber(base)}</b><small>基礎 <i data-general-base="${esc(name)}">${simNumber(base)}</i></small><em>+</em><input type="number" inputmode="numeric" min="0" max="${total}" step="1" value="0" data-general-alloc="${esc(name)}" aria-label="${esc(name)}への属性ポイント配分"></label>`;
+  }).join("")}</div><div class="general-sim-presets"><span>一括配分</span>${quick}<button type="button" data-general-preset="reset">リセット</button></div><p class="general-sim-note">装備・兵種レベル・戦闘中バフ・武将特性の％補正は含めず、基礎成長＋属性ポイントだけを表示します。</p></div></section>`;
+}
+function renderGeneralSimulation(generalId, changedAttribute = null) {
+  const g = generalMap.get(generalId);
+  const root = document.querySelector(
+    `[data-general-simulator="${generalId}"]`,
+  );
+  if (!g || !root) return;
+  const levelInput = root.querySelector("[data-general-level]");
+  const limitInput = root.querySelector("[data-general-limit-break]");
+  const level = clamp(Math.floor(Number(levelInput?.value) || 1), 1, 50);
+  const limitBreak = clamp(
+    Math.floor(Number(limitInput?.value) || 0),
+    0,
+    5,
+  );
+  const total = generalAttributePoints(level, limitBreak);
+  const inputs = [...root.querySelectorAll("[data-general-alloc]")];
+  const allocations = Object.fromEntries(
+    inputs.map((input) => [
+      input.dataset.generalAlloc,
+      Math.max(0, Math.floor(Number(input.value) || 0)),
+    ]),
+  );
+  let spent = Object.values(allocations).reduce((sum, value) => sum + value, 0);
+  if (spent > total && changedAttribute && allocations[changedAttribute] != null) {
+    const other = spent - allocations[changedAttribute];
+    allocations[changedAttribute] = Math.max(0, total - other);
+    const changed = inputs.find(
+      (input) => input.dataset.generalAlloc === changedAttribute,
+    );
+    if (changed) changed.value = allocations[changedAttribute];
+  } else if (spent > total) {
+    let overflow = spent - total;
+    for (const name of [...GAME_STAT_ORDER].reverse()) {
+      if (overflow <= 0) break;
+      const cut = Math.min(allocations[name] || 0, overflow);
+      allocations[name] = (allocations[name] || 0) - cut;
+      overflow -= cut;
+      const input = inputs.find((node) => node.dataset.generalAlloc === name);
+      if (input) input.value = allocations[name];
+    }
+  }
+  spent = Object.values(allocations).reduce((sum, value) => sum + value, 0);
+  const remaining = total - spent;
+  const values = {};
+  for (const name of GAME_STAT_ORDER) {
+    const base = statAtLevel(g, name, level);
+    values[name] = base == null ? null : base + (allocations[name] || 0);
+    const valueNode = root.querySelector(
+      `[data-general-value="${name}"]`,
+    );
+    const baseNode = root.querySelector(
+      `[data-general-base="${name}"]`,
+    );
+    if (valueNode) valueNode.textContent = simNumber(values[name]);
+    if (baseNode) baseNode.textContent = simNumber(base);
+  }
+  for (const input of inputs) input.max = total;
+  const levelLabel = root.querySelector("[data-general-level-label]");
+  const totalNode = root.querySelector("[data-general-points-total]");
+  const remainingNode = root.querySelector("[data-general-points-remaining]");
+  if (levelLabel) levelLabel.textContent = level;
+  if (totalNode) totalNode.textContent = total;
+  if (remainingNode) remainingNode.textContent = remaining;
+  if (remainingNode)
+    remainingNode.closest(".general-sim-points")?.classList.toggle(
+      "is-spent",
+      remaining === 0,
+    );
+  const profileLevel = document.querySelector(
+    `[data-general-profile-level="${generalId}"]`,
+  );
+  if (profileLevel) profileLevel.textContent = `Lv.${level}`;
+  const totals = document.querySelector(
+    `[data-general-sim-totals="${generalId}"]`,
+  );
+  if (totals) totals.innerHTML = generalSimTotalsHTML(values, level);
+  const radar = document.querySelector(
+    `[data-general-radar="${generalId}"]`,
+  );
+  if (radar) radar.outerHTML = abilityRadar(g, values, level);
+}
+
 function compareTactics() {
   comparison = new Map();
   const values = { valor: 337, troops: 10000, defense: 500, turns: 8 };
@@ -496,9 +627,10 @@ function generalDetail(g) {
         .map((t) => t.troop + (t.bonus == null ? "" : " +" + t.bonus))
         .join("・")
     : "未収録";
-  let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span>${costHTML(g)}</div><div class="stats-heading detail-stats-heading">${totalStatsHTML(g)}</div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
+  let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level" data-general-profile-level="${esc(g.id)}">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span>${costHTML(g)}</div><div class="stats-heading detail-stats-heading" data-general-sim-totals="${esc(g.id)}">${totalStatsHTML(g)}</div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
+  html += generalSimulator(g);
   html += section(
-    "能力値",
+    "基礎能力値",
     `<table class="ability-table"><thead><tr><th>属性</th><th>Lv1</th><th>成長</th><th>Lv50</th></tr></thead><tbody>${rows.map((s) => `<tr><th>${esc(statAttribute(s))}</th><td>${number(s.level1)}</td><td>${s.growth == null ? "—" : Number(s.growth).toFixed(2)}</td><td>${number(s.level50)}</td></tr>`).join("")}</tbody></table>`,
   );
   html += section(
@@ -559,7 +691,7 @@ function generalDetail(g) {
   const commentary = g.commentary && Number(g.commentary_season || 1) <= (window.MobunagaSeason?.current?.() || 1) ? g.commentary : "";
   return html + generalCouncilFeature(g) + relatedFormations(g.id, "generals") + sourceHTML(g.source) + mobunagaTips(commentary ? generalTipsVisual(g) + tipsParagraphs(commentary) : "");
 }
-function abilityRadar(g) {
+function abilityRadar(g, customValues = null, level = 50) {
   const limit = Math.max(
     300,
     Math.ceil(
@@ -570,7 +702,11 @@ function abilityRadar(g) {
       ) / 50,
     ) * 50,
   );
-  const values = GAME_STAT_ORDER.map((name) => stat(g, name));
+  const values = GAME_STAT_ORDER.map((name) =>
+    customValues && Object.prototype.hasOwnProperty.call(customValues, name)
+      ? customValues[name]
+      : stat(g, name),
+  );
   const complete = values.every(
     (value) => value != null && Number.isFinite(Number(value)),
   );
@@ -587,12 +723,12 @@ function abilityRadar(g) {
     GAME_STAT_ORDER.map((_, i) => point(i, ratio)).join(" ");
   const labels = GAME_STAT_ORDER.map((name, i) => {
     const [x, y] = point(i, 1.42).split(",");
-    return `<text class="radar-label" x="${x}" y="${Number(y) - 5}" text-anchor="middle">${esc(name)}</text><text class="radar-number" x="${x}" y="${Number(y) + 15}" text-anchor="middle">${number(values[i])}</text>`;
+    return `<text class="radar-label" x="${x}" y="${Number(y) - 5}" text-anchor="middle">${esc(name)}</text><text class="radar-number" x="${x}" y="${Number(y) + 15}" text-anchor="middle">${simNumber(values[i])}</text>`;
   }).join("");
   const polygon = complete
     ? GAME_STAT_ORDER.map((_, i) => point(i, Math.min(1, Number(values[i]) / limit))).join(" ")
     : hexagon(0);
-  return `<div class="ability-radar${complete ? "" : " is-empty"}" aria-label="Lv50能力レーダー"><svg viewBox="0 0 320 236" role="img"><polygon class="radar-background" points="${hexagon(1)}"></polygon><polygon class="radar-grid" points="${hexagon(1)}"></polygon><polygon class="radar-grid radar-grid-inner" points="${hexagon(.5)}"></polygon>${GAME_STAT_ORDER.map((_,i)=>`<line class="radar-axis" x1="160" y1="118" x2="${point(i,1).split(",")[0]}" y2="${point(i,1).split(",")[1]}"></line>`).join("")}<polygon class="radar-values" points="${polygon}"></polygon>${labels}</svg>${complete ? `<p>Lv50基礎値 ／ 最大目安 ${limit}</p>` : "<p>能力値は未収録です</p>"}</div>`;
+  return `<div class="ability-radar${complete ? "" : " is-empty"}" data-general-radar="${esc(g.id)}" aria-label="Lv${level}能力レーダー"><svg viewBox="0 0 320 236" role="img"><polygon class="radar-background" points="${hexagon(1)}"></polygon><polygon class="radar-grid" points="${hexagon(1)}"></polygon><polygon class="radar-grid radar-grid-inner" points="${hexagon(.5)}"></polygon>${GAME_STAT_ORDER.map((_,i)=>`<line class="radar-axis" x1="160" y1="118" x2="${point(i,1).split(",")[0]}" y2="${point(i,1).split(",")[1]}"></line>`).join("")}<polygon class="radar-values" points="${polygon}"></polygon>${labels}</svg>${complete ? `<p>Lv${level} 基礎＋配分 ／ 最大目安 ${limit}</p>` : "<p>能力値は未収録です</p>"}</div>`;
 }
 function tacticDetail(t) {
   const editorial = splitEditorialEffect(t.effect);
@@ -749,6 +885,26 @@ $("#next-page").addEventListener("click", () => {
   $("#catalog").scrollIntoView({ block: "start" });
 });
 document.addEventListener("click", (e) => {
+  const generalPreset = e.target.closest("[data-general-preset]");
+  if (generalPreset) {
+    const root = generalPreset.closest("[data-general-simulator]");
+    if (!root) return;
+    const inputs = [...root.querySelectorAll("[data-general-alloc]")];
+    inputs.forEach((input) => (input.value = 0));
+    const preset = generalPreset.dataset.generalPreset;
+    if (preset !== "reset") {
+      const level = Number(root.querySelector("[data-general-level]")?.value || 1);
+      const limitBreak = Number(
+        root.querySelector("[data-general-limit-break]")?.value || 0,
+      );
+      const target = inputs.find(
+        (input) => input.dataset.generalAlloc === preset,
+      );
+      if (target) target.value = generalAttributePoints(level, limitBreak);
+    }
+    renderGeneralSimulation(root.dataset.generalSimulator);
+    return;
+  }
   const limitBreak = e.target.closest("[data-limit-break]");
   if (limitBreak) {
     formationLimitBreaks.set(limitBreak.dataset.formationId, Number(limitBreak.dataset.limitBreak));
@@ -759,6 +915,22 @@ document.addEventListener("click", (e) => {
   const button = e.target.closest("[data-open]");
   if (button) openDetail(button.dataset.open, button.dataset.id);
   if (e.target.closest("[data-reload]")) location.reload();
+});
+document.addEventListener("input", (e) => {
+  const root = e.target.closest?.("[data-general-simulator]");
+  if (!root) return;
+  if (e.target.matches("[data-general-level]"))
+    renderGeneralSimulation(root.dataset.generalSimulator);
+  if (e.target.matches("[data-general-alloc]"))
+    renderGeneralSimulation(
+      root.dataset.generalSimulator,
+      e.target.dataset.generalAlloc,
+    );
+});
+document.addEventListener("change", (e) => {
+  const root = e.target.closest?.("[data-general-simulator]");
+  if (!root || !e.target.matches("[data-general-limit-break]")) return;
+  renderGeneralSimulation(root.dataset.generalSimulator);
 });
 $("#close-detail").addEventListener("click", () => $("#detail").close());
 $("#detail-back").addEventListener("click", () => {
