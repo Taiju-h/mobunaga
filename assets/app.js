@@ -627,8 +627,10 @@ function generalDetail(g) {
         .map((t) => t.troop + (t.bonus == null ? "" : " +" + t.bonus))
         .join("・")
     : "未収録";
-  let html = `<div class="general-overview"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level" data-general-profile-level="${esc(g.id)}">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span>${costHTML(g)}</div><div class="stats-heading detail-stats-heading" data-general-sim-totals="${esc(g.id)}">${totalStatsHTML(g)}</div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${g.unique_tactic ? `<div class="game-skill-line"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>` : ""}</section></div>`;
-  html += generalSimulator(g);
+  const uniqueSkill = g.unique_tactic
+    ? `<div class="game-skill-line general-left-skill"><span aria-hidden="true">固</span>${esc(g.unique_tactic.name)}</div>`
+    : "";
+  let html = `<div class="general-overview"><div class="general-visual-column"><figure class="general-card-image">${image}<figcaption>${hasDetail ? "武将カード・画像を押すと開きます" : "顔画像（詳細カード未収録）"}</figcaption></figure>${uniqueSkill}</div><section class="general-profile" aria-label="武将能力"><header class="game-profile-header"><p>${esc(g.kana)}</p><h2 id="detail-title">${esc(g.name)}</h2><div class="rank-fans" role="img" aria-label="レアリティ 星${esc(g.rarity)}">${fans}</div></header><div class="profile-level" data-general-profile-level="${esc(g.id)}">Lv.50</div><div class="profile-facts"><span>勢力　${esc(g.faction)}</span>${costHTML(g)}</div><div class="stats-heading detail-stats-heading" data-general-sim-totals="${esc(g.id)}">${totalStatsHTML(g)}</div>${abilityRadar(g)}<div class="game-troop-line">兵種適性<b>${esc(troopSummary)}</b></div>${generalSimulator(g)}</section></div>`;
   html += section(
     "基礎能力値",
     `<table class="ability-table"><thead><tr><th>属性</th><th>Lv1</th><th>成長</th><th>Lv50</th></tr></thead><tbody>${rows.map((s) => `<tr><th>${esc(statAttribute(s))}</th><td>${number(s.level1)}</td><td>${s.growth == null ? "—" : Number(s.growth).toFixed(2)}</td><td>${number(s.level50)}</td></tr>`).join("")}</tbody></table>`,
