@@ -14,9 +14,9 @@ function battleReviewedLimitBreakObservations20261007(): array
             'limit_break_observation_id'=>'20261007-yami-no-doki',
             'season'=>'S4','limit_breaks_only'=>true,
             'own_name'=>'闇の土鬼',
-            'own_limit_break_total'=>0,
+            'own_limit_break_total'=>13,
             'limit_breaks_review'=>'visual_limit_break_review',
-            'source_note'=>'ユーザー確認：闇の土鬼は0凸',
+            'source_note'=>'ユーザー確認：闇の土鬼は13凸（立花誾千代4・立花道雪5・北条氏康4）',
         ],
         [
             'limit_break_observation_id'=>'20261007-044738',
