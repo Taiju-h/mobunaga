@@ -11,6 +11,14 @@ function battleReviewedLimitBreakObservations20261007(): array
 {
     return [
         [
+            'limit_break_observation_id'=>'20261007-yami-no-doki',
+            'season'=>'S4','limit_breaks_only'=>true,
+            'own_name'=>'闇の土鬼',
+            'own_limit_break_total'=>0,
+            'limit_breaks_review'=>'visual_limit_break_review',
+            'source_note'=>'ユーザー確認：闇の土鬼は0凸',
+        ],
+        [
             'limit_break_observation_id'=>'20261007-044738',
             'season'=>'S4','limit_breaks_only'=>true,
             'own_name'=>'ノエル','enemy_name'=>'穂和斎麻呂',
