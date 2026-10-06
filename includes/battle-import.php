@@ -36,6 +36,12 @@ function battleBatchRecords(array $batch): array
     $records = [];
     foreach ($batch['observations'] as $o) {
         foreach (['own_generals', 'enemy_generals'] as $field) if (count($o[$field]) !== 3) throw new RuntimeException('編成の枠数が不正です。');
+        foreach (['own_limit_breaks','enemy_limit_breaks'] as $field) if(isset($o[$field])){
+            if(!is_array($o[$field]) || count($o[$field])!==3)throw new RuntimeException('凸数の枠数が不正です。');
+            foreach($o[$field] as $value)if(!is_int($value) || $value<0 || $value>5)throw new RuntimeException('凸数が不正です。');
+        }
+        foreach (['own_limit_break_total','enemy_limit_break_total'] as $field) if(isset($o[$field]) && (!is_int($o[$field]) || $o[$field]<0 || $o[$field]>15))throw new RuntimeException('凸合計が不正です。');
+        if(isset($o['limit_breaks_review']) && $o['limit_breaks_review']!=='visual_limit_break_review')throw new RuntimeException('凸数の確認区分が不正です。');
         if (!in_array($o['result'], ['勝利','敗北','引分'], true)) throw new RuntimeException('勝敗が不正です。');
         foreach ($o['sources'] as $source) if (!isset($frames[$source['frame']])) throw new RuntimeException('参照画像がありません。');
         $o['season'] = $batch['season'];
@@ -248,7 +254,7 @@ function battleIsGoldTeam(array $r): bool
 function battleEnrich(array $old, array $incoming): array
 {
     $merged = $old + $incoming;
-    foreach (['own_troop','enemy_troop','own_captain','enemy_captain','own_tactics','enemy_tactics','troop_review','tactics_review','own_tactic_metrics','enemy_tactic_metrics','tactic_metrics_review'] as $field) {
+    foreach (['own_troop','enemy_troop','own_captain','enemy_captain','own_tactics','enemy_tactics','troop_review','tactics_review','own_tactic_metrics','enemy_tactic_metrics','tactic_metrics_review','own_limit_breaks','enemy_limit_breaks','own_limit_break_total','enemy_limit_break_total','limit_breaks_review'] as $field) {
         if (empty($merged[$field]) && !empty($incoming[$field])) $merged[$field] = $incoming[$field];
     }
     return $merged;
