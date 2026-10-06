@@ -7,3 +7,25 @@ textarea[name="batch_json"]{width:100%;min-height:150px;max-height:280px;padding
 .role-badge{display:block;font-size:.75rem;color:#b89b61}.tactic-list{list-style:none;padding:0;margin:.35rem 0;font-size:.7rem;line-height:1.6}.lineup-card{min-width:0}.tactic-list li{overflow-wrap:anywhere}.upload-note{padding:1rem;border:1px solid #695938;border-radius:8px}
 
 .donut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.battle-donut{margin:0;padding:20px;background:#061c2780;border:1px solid #7cc5ba55;border-radius:12px;min-width:0}.battle-donut figcaption{font-size:1.1rem;font-weight:700;color:#f1d98e}.donut-svg{display:block;width:min(240px,100%);margin:12px auto}.donut-track{stroke:#173b44}.donut-number{fill:#f4f2dd;font-size:30px;font-weight:700}.donut-unit{fill:#b9cecb;font-size:12px}.donut-segment{stroke:var(--slice)}.slice-0{--slice:#dfbd68}.slice-1{--slice:#53c5b5}.slice-2{--slice:#78aee8}.slice-3{--slice:#d99a9c}.slice-4{--slice:#a998e0}.slice-5{--slice:#a9c775}.slice-6{--slice:#879496}.donut-legend{padding:0;margin:0;list-style:none;display:grid;gap:10px}.donut-legend li{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;align-items:center;gap:8px;font-size:.86rem}.donut-legend a{overflow-wrap:anywhere}.donut-legend small{min-width:42px;text-align:right;color:#a9bcb9}.legend-dot{width:10px;height:10px;border-radius:50%;background:var(--slice)}.battle-donut .muted{margin-bottom:0;font-size:.75rem}.tactic-rank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.tactic-rank-grid article{min-width:0}.tactic-ranking{font-size:.82rem}.tactic-ranking th,.tactic-ranking td{padding:12px 6px}.tactic-ranking th[scope=row]{min-width:150px;font-weight:500}.tactic-ranking td{text-align:right;font-variant-numeric:tabular-nums}.tactic-meter{display:block;height:10px;margin-top:6px}.rank-index{display:inline-block;width:22px;color:#f1d98e}.tactic-rank-grid article:nth-child(2) meter::-webkit-meter-optimum-value{background:#53c5b5}.tactic-rank-grid article:nth-child(2) meter::-moz-meter-bar{background:#53c5b5}@media(max-width:1000px){.donut-grid{grid-template-columns:1fr}.battle-donut{display:grid;grid-template-columns:200px 1fr;gap:10px 24px;align-items:center}.battle-donut figcaption,.battle-donut .muted{grid-column:1/-1}.tactic-rank-grid{grid-template-columns:1fr}}@media(max-width:480px){.battle-donut{display:block;padding:16px}.donut-svg{width:200px}.tactic-ranking{font-size:.75rem}.tactic-ranking th[scope=row]{min-width:125px}.donut-legend{font-size:.85rem}}
+
+.limit-break-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.limit-break-summary>div{padding:16px;border:1px solid #7cc5ba55;background:#071c2680;border-radius:8px;text-align:center}
+.limit-break-summary span,.limit-break-summary small{display:block;color:#b9cecb;font-size:.78rem}
+.limit-break-summary strong{display:inline-block;margin:2px 4px;color:#f1d98e;font-size:1.75rem}
+.limit-break-table th,.limit-break-table td{text-align:center;font-variant-numeric:tabular-nums}
+.limit-break-table th[scope=row]{text-align:left}
+.side-chip{display:inline-block;min-width:44px;padding:4px 8px;border-radius:999px;font-size:.75rem;font-weight:700}
+.side-chip.ours{background:#164e63;color:#dff8ff;border:1px solid #43b8dc88}
+.side-chip.enemy{background:#5b2b31;color:#ffe9e9;border:1px solid #df777788}
+.limit-value{font-weight:800}
+.limit-value.heat-1{background:#163e43;color:#d7f3ee}
+.limit-value.heat-2{background:#6a5a22;color:#fff0ad}
+.limit-value.heat-3{background:#8a421f;color:#ffe0b8}
+.limit-value.heat-4{background:#a11218;color:#fff}
+.limit-break-table tr.is-me{background:#8f0710;color:#fff}
+.limit-break-table tr.is-me th,.limit-break-table tr.is-me td{border-bottom-color:#ff8b8b88}
+.limit-break-table tr.is-me .limit-value{background:#d00000;color:#fff;box-shadow:inset 0 0 0 2px #ffb0b0}
+.limit-break-table tr.is-me .side-chip.ours{background:#ffefef;color:#8f0710;border-color:#fff}
+.me-mark{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:999px;background:#fff;color:#b00000;font-size:.68rem;vertical-align:middle}
+#limit-breaks code{color:#f2c8c8}
+@media(max-width:700px){.limit-break-summary{grid-template-columns:1fr}.limit-break-table{font-size:.78rem}}
