@@ -39,6 +39,7 @@ if ($target !== '') {
             $root = $roots[$target];
             $baseImporter = $root . '/tools/import-json-to-mysql-safe.php';
             $s4Importer = $root . '/tools/import-s4-cli.php';
+            $limitBreakImporter = $root . '/bin/import-limit-break-roster.php';
 
             if (!is_file($baseImporter)) {
                 $status = ['ok' => false, 'message' => '全武将JSON→MySQL互換インポーターがありません。'];
@@ -46,6 +47,9 @@ if ($target !== '') {
             } elseif (!is_file($s4Importer)) {
                 $status = ['ok' => false, 'message' => 'S4自動登録ツールがありません。'];
                 $exitCode = 92;
+            } elseif (!is_file($limitBreakImporter)) {
+                $status = ['ok' => false, 'message' => '凸数名簿DB登録ツールがありません。'];
+                $exitCode = 93;
             } else {
                 $baseOutput = [];
                 $baseExit = null;
@@ -67,15 +71,26 @@ if ($target !== '') {
                         $exitCode = $s4Exit;
                         $status = ['ok' => false, 'message' => 'S4 MySQL登録・検証で失敗しました（exit ' . $s4Exit . '）'];
                     } else {
-                        $output[] = '--- JSON rebuild after full + S4 sync ---';
-                        $rebuildOutput = [];
-                        $rebuildExit = null;
-                        exec($command, $rebuildOutput, $rebuildExit);
-                        array_push($output, ...$rebuildOutput);
-                        $exitCode = $rebuildExit;
-                        $status = $rebuildExit === 0
-                            ? ['ok' => true, 'message' => ($target === 'test' ? 'テスト' : '本番') . 'デプロイ＋全武将同期＋S4上書き＋公開JSON再生成 完了']
-                            : ['ok' => false, 'message' => '同期後の公開JSON再生成で失敗しました（exit ' . $rebuildExit . '）'];
+                        $limitOutput = [];
+                        $limitExit = null;
+                        exec('php ' . escapeshellarg($limitBreakImporter) . ' 2>&1', $limitOutput, $limitExit);
+                        $output[] = '--- Reviewed convex roster DB sync ---';
+                        array_push($output, ...$limitOutput);
+
+                        if ($limitExit !== 0) {
+                            $exitCode = $limitExit;
+                            $status = ['ok' => false, 'message' => '凸数名簿のDB同期で失敗しました（exit ' . $limitExit . '）'];
+                        } else {
+                            $output[] = '--- JSON rebuild after full + S4 sync ---';
+                            $rebuildOutput = [];
+                            $rebuildExit = null;
+                            exec($command, $rebuildOutput, $rebuildExit);
+                            array_push($output, ...$rebuildOutput);
+                            $exitCode = $rebuildExit;
+                            $status = $rebuildExit === 0
+                                ? ['ok' => true, 'message' => ($target === 'test' ? 'テスト' : '本番') . 'デプロイ＋全武将同期＋S4上書き＋凸数名簿DB同期＋公開JSON再生成 完了']
+                                : ['ok' => false, 'message' => '同期後の公開JSON再生成で失敗しました（exit ' . $rebuildExit . '）'];
+                        }
                     }
                 }
             }
