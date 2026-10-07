@@ -5,6 +5,7 @@ require __DIR__.'/../includes/battle-import.php';
 require __DIR__.'/../includes/battle-analytics.php';
 require __DIR__.'/../includes/enemy-directory.php';
 require __DIR__.'/../includes/battle-charts.php';
+require __DIR__.'/../includes/battle-limit-break-observations-20261007.php';
 function check(bool $ok,string $why):void{if(!$ok)throw new RuntimeException($why);}
 function e(string $s):string{return htmlspecialchars($s,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}
 function battleLink(array $v=[]):string{return '?'.http_build_query($v);}
@@ -67,4 +68,9 @@ $lbCombined=battleLimitBreakStatistics([$lbZero,$lbManual],'S4');
 $zeroRows=array_values(array_filter($lbCombined['rows'],fn($x)=>$x['name']==='闇の土鬼'));
 check(count($zeroRows)===1 && $zeroRows[0]['average']===0.0,'Reviewed zero-convex player disappeared');
 check($lbCombined['side_sums']['own']===6 && $lbCombined['side_sums']['enemy']===0,'Side convex totals are wrong');
+$fullRoster=battleLimitBreakStatistics(battleReviewedLimitBreakObservations20261007(),'S4');
+check($fullRoster['side_sums']['own']===145,'Reviewed video roster own total must be 145');
+check($fullRoster['side_sums']['enemy']===140,'Reviewed video roster enemy total must be 140');
+check(count(array_filter($fullRoster['rows'],fn($x)=>$x['side']==='own'&&$x['average']>0))===27,'Reviewed own roster count must be 27');
+check(count(array_filter($fullRoster['rows'],fn($x)=>$x['side']==='enemy'&&$x['average']>0))===26,'Reviewed enemy positive roster count must be 26');
 echo "battle-analytics: shares, tactics, limit-breaks, dedup, eligibility, filters and accessible escaped chart PASS\n";
