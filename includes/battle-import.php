@@ -286,3 +286,68 @@ function attachBattleImages(PDO $db, array $files): array
     } catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
     finally{if($mysql)$db->query("SELECT RELEASE_LOCK('mobunaga-battle-import')");}
 }
+
+/**
+ * Persist reviewed per-player limit-break roster rows.
+ * This is separate from dated battle records because the roster comparison is
+ * one verified value per player, not a battle-count statistic.
+ */
+function syncBattleLimitBreakRoster(PDO $db, array $observations): array
+{
+    $mysql=$db->getAttribute(PDO::ATTR_DRIVER_NAME)==='mysql';
+    if($mysql && (int)$db->query("SELECT GET_LOCK('mobunaga-limit-break-roster', 10)")->fetchColumn()!==1)
+        throw new RuntimeException('凸数名簿の登録処理中です。後で再実行してください。');
+    $result=['inserted'=>0,'updated'=>0,'unchanged'=>0];
+    try{
+        $db->beginTransaction();
+        $rows=$db->query("SELECT id,payload_json,status FROM form_submissions WHERE form_key='limit_break_roster' ORDER BY id".($mysql?' FOR UPDATE':''))->fetchAll(PDO::FETCH_ASSOC);
+        $existing=[];
+        foreach($rows as $row){
+            $payload=json_decode($row['payload_json'],true,512,JSON_THROW_ON_ERROR);
+            $key=$payload['limit_break_observation_id']??null;
+            if(is_string($key)&&$key!=='')$existing[$key]=$row;
+        }
+        $insert=$db->prepare("INSERT INTO form_submissions (form_key,payload_json,source_path,status) VALUES ('limit_break_roster',?,'/analysis-room/battles.php','reviewed')");
+        $update=$db->prepare("UPDATE form_submissions SET payload_json=?,status='reviewed' WHERE id=?");
+        foreach($observations as $o){
+            $key=$o['limit_break_observation_id']??null;
+            if(!is_string($key)||$key==='')throw new RuntimeException('凸数名簿のIDがありません。');
+            if(($o['season']??'')!=='S4' || ($o['limit_breaks_review']??'')!=='visual_limit_break_review')
+                throw new RuntimeException('凸数名簿の確認区分が不正です。');
+            $own=isset($o['own_name']); $enemy=isset($o['enemy_name']);
+            if($own===$enemy)throw new RuntimeException('凸数名簿の陣営が不正です。');
+            $field=$own?'own_limit_break_total':'enemy_limit_break_total';
+            $total=$o[$field]??null;
+            if(!is_int($total)||$total<0||$total>15)throw new RuntimeException('凸合計が不正です。');
+            $json=battleJson($o);
+            if(!isset($existing[$key])){
+                $insert->execute([$json]); $result['inserted']++; continue;
+            }
+            $old=$existing[$key];
+            if(in_array($old['status'],['deleted','spam'],true))continue;
+            $oldJson=battleJson(json_decode($old['payload_json'],true,512,JSON_THROW_ON_ERROR));
+            if($oldJson===$json){$result['unchanged']++;continue;}
+            $update->execute([$json,(int)$old['id']]); $result['updated']++;
+        }
+        $db->commit();
+        return $result;
+    }catch(Throwable $e){
+        if($db->inTransaction())$db->rollBack();
+        throw $e;
+    }finally{
+        if($mysql)$db->query("SELECT RELEASE_LOCK('mobunaga-limit-break-roster')");
+    }
+}
+
+function loadBattleLimitBreakRoster(PDO $db, string $season): array
+{
+    $stmt=$db->prepare("SELECT payload_json FROM form_submissions WHERE form_key='limit_break_roster' AND status IN ('new','reviewed','archived') ORDER BY id");
+    $stmt->execute();
+    $rows=[];
+    foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $row){
+        $payload=json_decode($row['payload_json'],true,512,JSON_THROW_ON_ERROR);
+        if(($payload['season']??'')===$season)$rows[]=$payload;
+    }
+    return $rows;
+}
+
