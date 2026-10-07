@@ -823,35 +823,56 @@ body {
   .limit-break-panel { grid-template-columns: 1fr; }
 }
 
-/* 2026-10-07: the simulator makes the general profile a wide work area on desktop. */
-@media (min-width: 900px) {
-  #detail .general-profile {
-    width: 100%;
-    max-width: none;
-    justify-self: stretch;
-  }
+/* General detail: size controls to the available panel, not the viewport. */
+#detail .general-profile {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  justify-self: stretch;
+  container-type: inline-size;
+}
+#detail .general-ability-workbench {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+#detail .general-ability-workbench .ability-radar {
+  width: 100%;
+  max-width: 285px;
+  margin: 0 auto;
+}
+#detail .general-simulator-shell {
+  width: 100%;
+  min-width: 0;
+}
+#detail .general-simulator-shell > h3 {
+  font-size: 16px;
+  line-height: 1.5;
+}
+#detail .general-sim-toolbar {
+  grid-template-columns: minmax(0, 1fr) 80px;
+  gap: 10px;
+}
+#detail .general-level-control { min-width: 0; }
+#detail .general-sim-points {
+  grid-column: 1 / -1;
+  justify-content: start;
+}
+#detail .general-sim-stat-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+  gap: 8px;
+}
+#detail .general-sim-stat {
+  grid-template-columns: auto minmax(0, 1fr) auto 54px;
+  padding: 10px;
+  gap: 4px 8px;
+}
+#detail .general-sim-stat > input { width: 54px; min-height: 40px; }
+#detail .general-sim-stat > b { font-size: 18px; }
+#detail .general-sim-rule,
+#detail .general-sim-note { font-size: 12px; line-height: 1.7; }
+#detail .general-sim-presets button { min-height: 36px; font-size: 12px; }
+@container (min-width: 780px) {
   #detail .general-ability-workbench {
-    grid-template-columns: minmax(270px, 320px) minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
-  }
-  #detail .general-ability-workbench .ability-chart {
-    width: 100%;
-    max-width: 320px;
-    margin: 4px auto 0;
-  }
-  #detail .general-ability-workbench .general-simulator-shell {
-    width: 100%;
-    min-width: 0;
-  }
-  #detail .general-ability-workbench .general-sim-toolbar {
-    grid-template-columns: minmax(180px, 1fr) 86px 180px;
-  }
-  #detail .general-ability-workbench .general-sim-stat-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  #detail .game-troop-line {
-    max-width: 320px;
-    margin: 8px 0 0;
+    grid-template-columns: 250px minmax(0, 1fr);
   }
 }
