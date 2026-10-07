@@ -21,13 +21,10 @@ textarea[name="batch_json"]{width:100%;min-height:150px;max-height:280px;padding
 .limit-player{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid #7cc5ba44;border-radius:999px;background:#04182088;font-size:.76rem;line-height:1}
 .limit-player b{font-weight:700}
 .limit-player i{font-style:normal;color:#f1d98e;font-variant-numeric:tabular-nums}
-.limit-player.is-yami{background:#a4000d;border-color:#ff8b8b;color:#fff}
-.limit-player.is-yami i{color:#fff}
 .limit-player.is-empty{color:#9db1ae;background:transparent}
 .limit-break-details{margin-top:10px}
 .limit-break-table th,.limit-break-table td{text-align:center;font-variant-numeric:tabular-nums}
 .limit-break-table th[scope=row]{text-align:left}
-.limit-break-table tr.is-yami{background:#5f0a12}
 @media(max-width:760px){
   .limit-break-scoreboard{grid-template-columns:1fr 42px 1fr;gap:8px}
   .limit-team{padding:14px 10px}
